@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+
+<ui:composition template="/WEB-INF/layout/base.xhtml">
+    <ui:define name="title">Analysis :: Term Predictors</ui:define>
+    <ui:define name="content">
+ 
+        <h1>
+            Term Predictors
+        </h1>
+
+        <script type="text/javascript" src="#{request.contextPath}/js/term-predictors.js"></script>
+
+        <h:form style="float:left">
+
+            <p class="instructions">Select a series and then a point of interest to begin analysis.</p>
+
+            <div id="selectSeriesInputs">
+                <div class="labelAndInput">
+                    <h:outputLabel for="selectSeries">Series</h:outputLabel>
+                    <t:selectOneListbox id="selectSeries" forceId="true" label="Series" size="1" 
+                                        value="#{selectSeriesBackingBean.selectedSingleSeries}" 
+                                        onchange="javascript:switchSeries('#{currentUser.apiBasicAuthorizationHeaderValue}');">
+                        <f:selectItems value="#{selectSeriesBackingBean.selectItems}" />
+                    </t:selectOneListbox>
+                    <h:message for="selectSeries" styleClass="validationError" />
+                </div>
+                <div class="labelAndInput">
+                    <h:outputLabel for="startDate">Start Date</h:outputLabel>
+                    <t:inputText id="startDate" forceId="true" size="28" value="#{selectSeriesBackingBean.startDate}"
+                                 onchange="javascript:switchSeries('#{currentUser.apiBasicAuthorizationHeaderValue}');">
+                        <f:convertDateTime pattern="MM/dd/yyyy h:mm a" timeZone="#{currentUser.timeZone}" />
+                    </t:inputText>
+                </div>
+                <div class="labelAndInput">
+                    <h:outputLabel for="endDate">End Date</h:outputLabel>
+                    <t:inputText id="endDate" forceId="true" size="28"
+                        value="#{selectSeriesBackingBean.endDate}"
+                        onchange="javascript:switchSeries('#{currentUser.apiBasicAuthorizationHeaderValue}');">
+                        <f:convertDateTime pattern="MM/dd/yyyy h:mm a" timeZone="#{currentUser.timeZone}" />
+                </t:inputText>
+                </div>
+            </div>
+            <div id="chartInteraction">
+                <div style="float:left">
+                    <div id="flotChart" style="width:600px;height:300px"></div>
+                    <div id="flotLegend"></div>
+                </div>
+            </div>
+            <div id="chartPointInteraction">
+                <h2>Point</h2>
+                <t:inputHidden id="pointX" forceId="true" value="#{termPredictorsBackingBean.pointX}" />
+                <t:inputHidden id="pointY" forceId="true" value="#{termPredictorsBackingBean.pointY}" />
+                <div>
+                    <strong>Date</strong>: <span id="x"></span><br />
+                    <strong>Value</strong>: <span id="y"></span>
+                </div>
+                <fieldset class="termPredictors">
+                    <legend>Analysis Options</legend>
+                    
+                    <div class="labelAndInput">
+                        <h:outputLabel for="explain">Explain</h:outputLabel>
+                        <h:selectOneListbox id="explain" size="1"
+                            value="#{termPredictorsBackingBean.explain}">
+                            <f:selectItem itemLabel="Point" itemValue="point" />
+                            <f:selectItem itemLabel="Leading Indicators" itemValue="leading" />
+                            <f:selectItem itemLabel="Lagging Indicators" itemValue="lagging" />
+                            <f:ajax event="change" execute="@this" render="windowSizeContainer windowSize" listener="#{termPredictorsBackingBean.changeExplain}" />
+                        </h:selectOneListbox>
+                        <h:message for="explain" styleClass="validationError" />
+                    </div>
+                    
+                    <h:panelGroup id="windowSizeContainer" class="labelAndInput" layout="block"
+                                  style="#{termPredictorsBackingBean.showWindowSize ? 'display:inline;' : 'display:none;' }">
+                        <h:outputLabel for="windowSize">Window Size</h:outputLabel>
+                        <h:selectOneListbox id="windowSize" size="1" value="#{termPredictorsBackingBean.windowSize}">
+                            <f:selectItem itemLabel="1 Hour" itemValue="3600000" />
+                            <f:selectItem itemLabel="1 Day" itemValue="86400000" />
+                            <f:selectItem itemLabel="1 Week" itemValue="25200000" />
+                            <f:selectItem itemLabel="1 Month" itemValue="2592000000" />
+                        </h:selectOneListbox>
+                    </h:panelGroup>
+                    
+                    <div class="buttonContainer">
+                        <h:commandButton id="analyzeButton" type="submit" value="Find Terms" onclick="javascript:$('.resultsContainer').hide();$('div.waiting').show();">
+                            <f:ajax listener="#{termPredictorsBackingBean.analyze}" execute="@form" render="resultsContainer" />
+                        </h:commandButton>
+                        <h:messages for="analyzeButton" />
+                    </div>
+                </fieldset>
+                <div class="waiting"></div>
+                <h:panelGroup id="resultsContainer" class="resultsContainer" style="#{termPredictorsBackingBean.topTerms != null or termPredictorsBackingBean.topNames != null ? 'display:block;' : 'display:none;'}" layout="block">
+                    <script type="text/javascript">$('div.waiting').hide();</script>
+                    <fieldset class="termPredictors results">
+                        <legend>Results</legend>
+                        <div>
+                            <h2>Top Terms</h2>
+                            <ui:fragment rendered="#{empty termPredictorsBackingBean.topTerms}">
+                                <em>No top terms were found for this period.</em>
+                            </ui:fragment>
+                            <ul class="topNames">
+                                <ui:repeat value="#{termPredictorsBackingBean.topTerms}" var="topTerm">
+                                    <li>
+                                        <h:outputLink value="#{request.contextPath}/documents/search">
+                                            <f:param name="q" value="&quot;#{topTerm.termValue}&quot;" />
+                                            <f:param name="order" value="date" />
+                                            <h:outputText value="#{topTerm.termValue}" 
+                                                          style="font-size: #{50 + (3 * (((topTerm.count * 1000) / (termPredictorsBackingBean.topTermsMaxCount * 1000)) * 30))}%" />
+                                        </h:outputLink>
+                                    </li>
+                                </ui:repeat>
+                            </ul>
+                        </div>
+                        <div>
+                            <h2>Top Names</h2>
+                            <ui:fragment rendered="#{empty termPredictorsBackingBean.topNames}">
+                                <em>No top names were found for this period.</em>
+                            </ui:fragment>
+                            <ul class="topNames">
+                                <ui:repeat value="#{termPredictorsBackingBean.topNames}" var="namedEntity">
+                                    <li>
+                                        <h:outputLink value="#{request.contextPath}/documents/search">
+                                            <f:param name="q" value="&quot;#{namedEntity.name}&quot;" />
+                                            <f:param name="order" value="date" />
+                                            <h:outputText value="#{namedEntity.name}" 
+                                                          style="font-size: #{50 + (3 * (((namedEntity.count * 1000) / (termPredictorsBackingBean.topNamesMaxCount * 1000)) * 30))}%" />
+                                        </h:outputLink>
+                                    </li>
+                                </ui:repeat>
+                            </ul>
+                        </div>
+                    </fieldset>
+                </h:panelGroup>
+            </div>            
+            <script type="text/javascript">switchSeries('#{currentUser.apiBasicAuthorizationHeaderValue}');</script>
+        </h:form>
+
+    </ui:define>
+    
+</ui:composition>
+
+</html>

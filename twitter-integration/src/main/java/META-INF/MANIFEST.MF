@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-Path: activation-1.1.jar log4j-1.2.15.jar mail-1.4.jar slf4j-api
+ -1.6.4.jar slf4j-log4j12-1.6.4.jar twitter4j-core-2.2.5.jar
+

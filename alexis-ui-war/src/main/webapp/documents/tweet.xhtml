@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+>
+    <ui:composition>
+		<div class="tweet #{isTweetDetail ? 'tweetDetail' : ''}">
+		    <div class="icon">
+		        <img src="#{tweet.profileImageUrl}" />
+		    </div>
+		    <a class="screenName" href="http://twitter.com/#{tweet.screenName}" target="_blank">#{tweet.screenName}</a>
+		    <span class="fullName">#{tweet.fullName}</span>
+		    <ui:fragment rendered="#{tweet.retweet}">
+		        <span class="retweetedBy">
+		            <img src="#{request.contextPath}/images/retweet_16.png" />
+		            #{tweet.retweetUserName}
+		        </span>
+		    </ui:fragment>
+		    <p>
+		        <h:outputText value="#{tweet}" escape="false">
+		            <f:converter converterId="tweetConverter" />
+		        </h:outputText>
+		    </p>
+		    <span class="actions">
+		    
+		        <img class="icon" src="#{request.contextPath}/images/twitter_16_blue.png" />
+		        
+		        <a class="permalink" href="#{tweet.url}" target="_blank">
+		        <h:outputText value="#{tweet.creationDate}">
+                    <f:convertDateTime dateStyle="medium" type="both" timeZone="#{currentUser.timeZone}" />
+		        </h:outputText></a>
+		        
+		        <a class="reply" target="_blank" href="https://twitter.com/intent/tweet?in_reply_to=#{tweet.remoteTweetId}"><span />Reply</a>
+		        <a class="retweet" target="_blank" href="https://twitter.com/intent/retweet?tweet_id=#{tweet.remoteTweetId}"><span />Retweet</a>
+		        <a class="favorite" target="_blank" href="https://twitter.com/intent/favorite?tweet_id=#{tweet.remoteTweetId}"><span />Favorite</a>
+		    </span>
+		</div>
+    </ui:composition>
+</html>

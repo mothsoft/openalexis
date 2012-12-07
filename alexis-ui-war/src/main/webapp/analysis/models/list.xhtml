@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core">
+
+<ui:composition template="/WEB-INF/layout/base.xhtml">
+    <ui:define name="title">Analysis :: Models</ui:define>
+    <ui:define name="content">
+
+        <h1>
+            Models
+        </h1>
+        
+        <form action="#{request.contextPath}/analysis/models/add" method="get" class="addModelForm">
+            <button type="submit" class="addModelButton">add model</button>
+        </form>
+
+        <ui:fragment rendered="#{empty listModelsBackingBean.models}">
+            <p class="noData">No models added yet--try the 'add model' button above.</p>
+        </ui:fragment>
+
+        <h:form>
+        <ui:repeat value="#{listModelsBackingBean.models}" var="m">
+            <div class="analysisListItem modelListItem">
+                <span class="header">
+                    #{m.name}
+                </span>
+                <ul>
+                    <li>Data Set: #{m.trainingDataSet.name}</li>
+                    <li>Topic: #{m.topic.name}</li>
+                    <li>Start Date: <h:outputText value="#{m.startDate}">
+                                        <f:convertDateTime type="both" dateStyle="short" timeZone="#{currentUser.timeZone}" />
+                                    </h:outputText>
+                    </li>
+                    <li>End Date: <h:outputText value="#{m.endDate}">
+                                        <f:convertDateTime type="both" dateStyle="short" timeZone="#{currentUser.timeZone}" />
+                                    </h:outputText>
+                    </li>
+                    <li>State: #{m.state}</li>
+                </ul>
+                <span class="analysisListItemActions">
+                    <ui:remove>TODO
+                        <a href="#{request.contextPath}/analysis/models/#{m.id}/edit" class="action">edit</a>
+                    </ui:remove>
+
+                    <h:commandLink actionListener="#{addEditModelBackingBean.remove}" 
+                                   action="/analysis/models/list?faces-redirect=true" value="remove" title="remove" styleClass="action"
+                                   onclick="return confirm('Are you sure?');">
+                        <f:attribute name="modelId" value="#{m.id}" />
+                    </h:commandLink>
+                </span>
+            </div>
+        </ui:repeat>
+        </h:form>
+
+    </ui:define>
+    
+</ui:composition>
+
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="/WEB-INF/layout/base.xhtml">
+        <ui:define name="title">mothsoft alexis :: powerful textual data mining</ui:define>
+        <ui:define name="content">
+
+	       <div id="login">
+	       
+	           <form method="post" action="#{request.contextPath}/login/auth">
+	               <label>Username</label>
+	               <input id="login-username" name="j_username" type="text" class="text" />
+	
+	               <label>Password</label>
+	
+	               <input id="login-password" name="j_password" type="password" class="password" />
+	               
+	               <input type="submit" value="Login" class="button" />
+	           </form>
+	           
+	           <script type="text/javascript">
+	               $("#login-username").focus();
+	           </script>
+	       </div>
+            
+        </ui:define>
+    </ui:composition>
+
+</html>

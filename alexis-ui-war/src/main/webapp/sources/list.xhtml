@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+>
+
+<ui:composition template="/WEB-INF/layout/base.xhtml">
+    <ui:define name="title">Sources</ui:define>
+    <ui:define name="content">
+        
+        <h1>Sources</h1>
+        
+        <form action="#{request.contextPath}/sources/add" method="get" class="addSourceForm">
+            <button type="submit" class="addSourceButton">add source</button>
+        </form>
+        
+        <h:form>
+
+        <ui:repeat value="#{listSourcesBackingBean.sources}" var="source">
+            <div class="sourceListItem">
+                
+                <span class="header">
+	               <ui:fragment rendered="#{source.sourceType == 'R'}">
+	                   #{source.urlDomain}
+	               </ui:fragment>
+	               <ui:fragment rendered="#{source.sourceType == 'T'}">
+	                   Twitter
+	               </ui:fragment>
+                </span>
+                
+                <span class="sourceListItemUrl">
+                    #{source.description}
+                </span>
+                
+                <span class="sourceListItemActions">
+                
+                    <ui:remove>
+                        <a href="#{request.contextPath}/sources/#{source.id}/details" class="action">details</a>
+                    </ui:remove>
+                    
+                    <h:commandLink actionListener="#{addEditSourceBackingBean.remove}" 
+                                   action="/sources/list?faces-redirect=true" value="remove" title="remove" styleClass="action"
+                                   onclick="return confirm('Are you sure you wish to remove &quot;#{source.description}&quot; as a source?');">
+                        <f:attribute name="sourceId" value="#{source.id}" />
+                    </h:commandLink>
+                </span>
+                
+            </div>
+        </ui:repeat>
+        
+        <ui:fragment rendered="#{empty listSourcesBackingBean.sources}">
+            <p class="noData">No sources added yet--try the 'add source' button above.</p>
+        </ui:fragment>
+
+        </h:form>
+        
+        
+    </ui:define>
+</ui:composition>
+
+</html>

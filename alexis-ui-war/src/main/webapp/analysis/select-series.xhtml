@@ -1,0 +1,20 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+	
+    <div class="labelAndInput">
+        <h:outputLabel for="selectSeries">Series</h:outputLabel>
+        <t:selectManyListbox id="selectSeries" forceId="true"
+            value="#{backingBean.selectedSeries}" label="Series" size="20"
+            onchange="javascript:switchSeries('#{currentUser.apiBasicAuthorizationHeaderValue}');"
+            styleClass="multiple">
+            <f:selectItems value="#{backingBean.selectItems}" />
+        </t:selectManyListbox>
+        <h:message for="selectSeries" styleClass="validationError" />
+        <div class="waiting"></div>
+    </div>
+
+</ui:composition>
+

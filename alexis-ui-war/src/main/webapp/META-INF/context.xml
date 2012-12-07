@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="alexis">
+
+  <Resource name="jdbc/alexis" auth="Container" type="javax.sql.DataSource"
+    maxActive="100" maxIdle="30" maxWait="10000" username="alexis"
+    password="alexis" driverClassName="com.mysql.jdbc.Driver"
+    url="jdbc:mysql://localhost:3306/alexis" validationQuery="select 1" />
+
+</Context>

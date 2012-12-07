@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+    <!-- Bootstrap Quartz for asynchronous startup tasks -->
+    <bean id="bootstrapScheduler"
+        class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
+        destroy-method="destroy">
+        <property name="autoStartup" value="${alexis.quartz.start}" />
+        <property name="triggers">
+            <list>
+                <ref bean="bootstrapTrigger" />
+            </list>
+        </property>
+        <property name="startupDelay" value="5" />
+        <property name="quartzProperties">
+            <props>
+                <prop key="org.quartz.threadPool.threadCount">1</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="bootstrapTrigger"
+        class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+        <property name="jobDetail" ref="bootstrapJobDetail" />
+        <property name="repeatCount" value="0" />
+    </bean>
+
+    <bean id="bootstrapJobDetail"
+        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="bootstrapTask" />
+        <property name="targetMethod" value="execute" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="bootstrapTask"
+        class="com.mothsoft.alexis.engine.textual.TransactionalCompositeTaskImpl">
+        <constructor-arg>
+            <list>
+                <!-- Run the Lucene indexing to completion -->
+                <bean
+                    class="com.mothsoft.alexis.engine.textual.LuceneIndexerTask" />
+                <!-- Then, start the runtime Quartz -->
+                <bean
+                    class="com.mothsoft.alexis.service.scheduler.StartQuartzTask">
+                    <constructor-arg index="0">
+                        <list>
+                            <ref bean="runtimeScheduler" />
+                        </list>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <!-- Runtime Quartz -->
+
+    <bean id="runtimeScheduler"
+        class="org.springframework.scheduling.quartz.SchedulerFactoryBean"
+        destroy-method="destroy">
+        <property name="triggers">
+            <list>
+                <ref bean="rssRetrievalTrigger" />
+                <ref bean="twitterRetrievalTrigger" />
+                <ref bean="documentRetrievalTrigger" />
+                <ref bean="batchDocumentAnalysisTrigger" />
+                <ref bean="topicActivityDataSetImporterTrigger" />
+                <ref bean="stockQuoteDataSetImporterTrigger" />
+                <ref bean="modelTrainerTrigger" />
+            </list>
+        </property>
+        <property name="autoStartup" value="false" />
+        <property name="startupDelay" value="5" />
+        <property name="quartzProperties">
+            <props>
+                <prop key="org.quartz.threadPool.threadCount">${alexis.quartz.threadCount}</prop>
+                <prop key="org.quartz.threadPool.threadPriority">4</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="rssRetrievalTrigger"
+        class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+        <property name="jobDetail" ref="rssRetrievalJobDetail" />
+        <property name="repeatInterval" value="30000" />
+        <property name="repeatCount" value="-1" />
+        <property name="misfireInstructionName"
+            value="MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT" />
+    </bean>
+
+    <bean id="rssRetrievalJobDetail"
+        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="rssRetrievalTask" />
+        <property name="targetMethod" value="retrieve" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="rssRetrievalTask"
+        class="com.mothsoft.alexis.engine.retrieval.RssRetrievalTaskImpl">
+        <property name="documentDao" ref="documentDao" />
+        <property name="rssFeedDao" ref="rssFeedDao" />
+        <property name="sourceDao" ref="sourceDao" />
+        <property name="userDao" ref="userDao" />
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="webContentParser" ref="webContentParser" />
+    </bean>
+
+    <bean id="twitterRetrievalTrigger"
+        class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+        <property name="jobDetail" ref="twitterRetrievalJobDetail" />
+        <property name="repeatInterval" value="45000" />
+        <property name="repeatCount" value="-1" />
+        <property name="misfireInstructionName"
+            value="MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT" />
+    </bean>
+
+    <bean id="twitterRetrievalJobDetail"
+        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="twitterRetrievalTask" />
+        <property name="targetMethod" value="retrieve" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="twitterRetrievalTask"
+        class="com.mothsoft.alexis.engine.retrieval.TwitterRetrievalTaskImpl">
+        <property name="documentDao" ref="documentDao" />
+        <property name="sourceDao" ref="sourceDao" />
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="tweetDao" ref="tweetDao" />
+        <property name="twitterService" ref="twitterService" />
+        <property name="userDao" ref="userDao" />
+    </bean>
+
+    <bean id="documentRetrievalTrigger"
+        class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+        <property name="jobDetail" ref="documentRetrievalJobDetail" />
+        <property name="startDelay" value="30000" />
+        <property name="repeatInterval" value="7500" />
+        <property name="repeatCount" value="-1" />
+        <property name="misfireInstructionName"
+            value="MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT" />
+    </bean>
+
+    <bean id="documentRetrievalJobDetail"
+        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="documentRetrievalTask" />
+        <property name="targetMethod" value="retrieve" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="documentRetrievalTask"
+        class="com.mothsoft.alexis.engine.retrieval.DocumentRetrievalTaskImpl">
+        <property name="connectionFactory" ref="jmsConnectionFactory" />
+        <property name="requestQueue" ref="stanfordRequestQueue" />
+        <property name="responseQueue" ref="stanfordResponseQueue" />
+        <property name="documentDao" ref="documentDao" />
+        <property name="webContentParser" ref="webContentParser" />
+        <property name="transactionManager" ref="transactionManager" />
+    </bean>
+
+    <bean id="batchDocumentAnalysisTrigger"
+        class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="batchDocumentAnalysisJobDetail" />
+        <property name="cronExpression" value="0 */5 * * * ? *" />
+        <property name="misfireInstructionName"
+            value="MISFIRE_INSTRUCTION_FIRE_ONCE_NOW" />
+    </bean>
+
+    <bean id="batchDocumentAnalysisJobDetail"
+        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="batchDocumentAnalysisTask" />
+        <property name="targetMethod" value="execute" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="batchDocumentAnalysisTask" class="com.mothsoft.alexis.engine.textual.CompositeTaskImpl">
+        <constructor-arg>
+            <list>
+                <bean
+                    class="com.mothsoft.alexis.engine.textual.TFIDFCalculatorImpl" />
+                <bean
+                    class="com.mothsoft.alexis.engine.textual.TopicDocumentMatcherImpl">
+                    <property name="topicDao" ref="topicDao" />
+                    <property name="documentDao" ref="documentDao" />
+                    <property name="transactionManager" ref="transactionManager" />
+                </bean>
+                <bean
+                    class="com.mothsoft.alexis.engine.predictive.OpenNLPMaxentModelExecutorTask">
+                    <property name="baseDirectory" value="${alexis.models.directory}" />
+                    <property name="dataSetPointDao" ref="dataSetPointDao" />
+                    <property name="documentDao" ref="documentDao" />
+                    <property name="modelDao" ref="modelDao" />
+                    <property name="transactionManager" ref="transactionManager" />
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <!-- topic activity -->
+    <bean id="topicActivityDataSetImporterTrigger"
+        class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="topicActivityDataSetImporterJobDetail" />
+        <property name="cronExpression" value="0 0,15,30,45 * * * ? *" />
+    </bean>
+
+    <bean id="topicActivityDataSetImporterJobDetail"
+        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="topicActivityDataSetImporterTask" />
+        <property name="targetMethod" value="importData" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="topicActivityDataSetImporterTask"
+        class="com.mothsoft.alexis.engine.numeric.TopicActivityDataSetImporter">
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="dataSetDao" ref="dataSetDao" />
+        <property name="dataSetPointDao" ref="dataSetPointDao" />
+        <property name="dataSetTypeDao" ref="dataSetTypeDao" />
+        <property name="topicDao" ref="topicDao" />
+    </bean>
+
+    <!-- stock quotes -->
+    <bean id="stockQuoteDataSetImporterTrigger"
+        class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="stockQuoteDataSetImporterJobDetail" />
+        <property name="cronExpression" value="0 */15 * * * ? *" />
+    </bean>
+
+    <bean id="stockQuoteDataSetImporterJobDetail"
+        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="stockQuoteDataSetImporterTask" />
+        <property name="targetMethod" value="importData" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="stockQuoteDataSetImporterTask"
+        class="com.mothsoft.alexis.engine.numeric.StockQuoteDataSetImporter">
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="dataSetDao" ref="dataSetDao" />
+        <property name="dataSetPointDao" ref="dataSetPointDao" />
+        <property name="dataSetTypeDao" ref="dataSetTypeDao" />
+        <property name="stockSymbols">
+            <list>
+                <value>DIA</value>
+                <value>^IXIC</value>
+                <value>^GSPC</value>
+                <value>^FTSE</value>
+                <value>YHOO</value>
+                <value>GOOG</value>
+                <value>AAPL</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- model trainer -->
+    <bean id="modelTrainerTrigger"
+        class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+        <property name="jobDetail" ref="modelTrainerJobDetail" />
+        <property name="startDelay" value="15000" />
+        <property name="repeatInterval" value="10000" />
+        <property name="repeatCount" value="-1" />
+        <property name="misfireInstructionName"
+            value="MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT" />
+    </bean>
+
+    <bean id="modelTrainerJobDetail"
+        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="modelTrainerTask" />
+        <property name="targetMethod" value="execute" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="modelTrainerTask"
+        class="com.mothsoft.alexis.engine.predictive.OpenNLPMaxentModelTrainerTask">
+        <property name="baseDirectory" value="${alexis.models.directory}" />
+        <property name="dataSetPointDao" ref="dataSetPointDao" />
+        <property name="documentDao" ref="documentDao" />
+        <property name="modelDao" ref="modelDao" />
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="iterations" value="${alexis.models.maxent.iterations}" />
+        <property name="cutoff" value="${alexis.models.maxent.cutoff}" />
+    </bean>
+
+    <import resource="classpath:spring/scheduler-task-*.xml" />
+
+</beans>

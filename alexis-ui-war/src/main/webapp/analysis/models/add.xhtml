@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+
+<ui:composition template="/WEB-INF/layout/base.xhtml">
+    <ui:define name="title">Analysis :: Models :: Add Model</ui:define>
+    <ui:define name="content">
+
+        <ui:fragment rendered="#{!addEditModelBackingBean.edit}">
+            <h1>Add Model</h1>
+        </ui:fragment>
+        <ui:fragment rendered="#{addEditModelBackingBean.edit}">
+            <h1>Edit Model</h1>
+        </ui:fragment>
+ 
+        <div class="tip">
+            <p class="instructions">
+                A model uses textual data to create predictions.  Select a 
+                quantitative data set, a topic that you believe contains insights about the quantitative data set,
+                and a training date range. After the model has been trained, its predictions can be compared with
+                observed values in the other analysis tools. 
+            </p>
+        </div>
+        
+        <h:form styleClass="add">
+
+            <h:outputLabel for="addEditModelName">
+                Name *
+            </h:outputLabel>
+            <h:inputText id="addEditModelName" label="Name" styleClass="name"
+                value="#{addEditModelBackingBean.name}" size="35" maxlength="32" required="true" 
+                validator="#{addEditModelBackingBean.validateModelName}">
+                <f:validateLength maximum="32" />
+            </h:inputText>
+            <h:message for="addEditModelName" styleClass="validationError" />
+
+            <div class="labelAndInput">        
+                <h:outputLabel for="addEditModelDataSet">
+                    Data Set *
+                </h:outputLabel>
+                <h:selectOneListbox id="addEditModelDataSet" size="1" class="single"
+                    value="#{addEditModelBackingBean.trainingDataSetId}" label="Data Set" required="true">
+                    <f:selectItems value="#{addEditModelBackingBean.trainingDataSetOptions}" />
+                </h:selectOneListbox>
+                <h:message for="addEditModelDataSet" styleClass="validationError" />
+            </div>
+
+            <div class="labelAndInput">        
+                <h:outputLabel for="addEditModelTopic">
+                    Topic *
+                </h:outputLabel>
+                <h:selectOneListbox id="addEditModelTopic" size="1" class="single"
+                    value="#{addEditModelBackingBean.topicId}" label="Topic" required="true">
+                    <f:selectItems value="#{addEditModelBackingBean.topicOptions}" />
+                </h:selectOneListbox>
+                <h:message for="addEditModelTopic" styleClass="validationError" />
+            </div>
+            
+            <div class="labelAndInput">
+                <h:outputLabel for="startDate">Start Date</h:outputLabel>
+                <t:inputText id="startDate" forceId="true" size="28" value="#{addEditModelBackingBean.startDate}"
+                             required="true" label="Start Date">
+                    <f:convertDateTime pattern="MM/dd/yyyy h:mm a" timeZone="#{currentUser.timeZone}" />
+                </t:inputText>
+                <h:message for="startDate" styleClass="validationError" />
+            </div>
+
+            <div class="labelAndInput">
+                <h:outputLabel for="endDate">End Date</h:outputLabel>
+                <t:inputText id="endDate" forceId="true" size="28"
+                    value="#{addEditModelBackingBean.endDate}" required="true" label="End Date">
+                    <f:convertDateTime pattern="MM/dd/yyyy h:mm a" timeZone="#{currentUser.timeZone}" />
+                </t:inputText>
+                <h:message for="endDate" styleClass="validationError" />
+            </div>
+            
+            
+            <h:commandButton value="Save" styleClass="save"
+                actionListener="#{addEditModelBackingBean.save}" action="/analysis/models/list?faces-redirect=true" />
+                
+        </h:form>
+        
+        <h:form styleClass="add">
+            <h:commandLink action="/analysis/models/list?faces-redirect=true" value="cancel" styleClass="cancel" />
+        </h:form>
+
+        <script type="text/javascript">
+            $(document).ready(function() {
+                $("#startDate").datetimepicker({
+                    ampm : true,
+                    dateFormat : "mm/dd/yy",
+                    timeFormat : "h:mm TT"
+                });
+                $("#endDate").datetimepicker({
+                    ampm : true,
+                    dateFormat : "mm/dd/yy",
+                    timeFormat : "h:mm TT"
+                });
+                $(".name").focus();
+            });
+        </script>
+
+    </ui:define>
+    
+</ui:composition>
+
+</html>

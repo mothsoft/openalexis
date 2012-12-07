@@ -1,0 +1,32 @@
+--SET @c = (SELECT document_count FROM trainer_corpus);
+--
+--INSERT INTO trainer_corpus_term_document_count
+--    (trainer_corpus_id, term_id, document_count)
+--SELECT 1, t.id, 0
+--  FROM term t 
+--  WHERE t.id NOT IN (SELECT DISTINCT(term_id) FROM trainer_corpus_term_document_count);
+--
+--UPDATE 
+--  document_term dt
+--    INNER JOIN term ON dt.term_id = term.id
+--    INNER JOIN document d ON dt.document_id = d.id
+--    INNER JOIN trainer_corpus_term_document_count tctdc ON tctdc.term_id = term.id
+--SET dt.tf_idf = (dt.term_count / d.term_count) * log( @c / (1 + tctdc.document_count) )
+--WHERE dt.tf_idf IS NULL;
+--
+--INSERT INTO document_association_summary
+--SELECT 
+--  NULL, dta.document_id, assoc.term_a_id, assoc.term_b_id, assoc.association_type, SUM(dta.tf_idf + dtb.tf_idf)
+--FROM document_term dta
+--INNER JOIN document_term dtb ON dta.document_id = dtb.document_id
+--INNER JOIN sentence s ON s.document_id = dta.document_id AND s.document_id = dtb.document_id
+--INNER JOIN association assoc ON s.id = assoc.sentence_id
+--INNER JOIN term a ON assoc.term_a_id = a.id AND dta.term_id = a.id AND a.term_value NOT LIKE 'http:%'
+--INNER JOIN term b ON assoc.term_b_id = b.id AND dtb.term_id = b.id AND b.term_value NOT LIKE 'http:%'
+--WHERE
+--  dta.document_id > (SELECT IFNULL(MAX(document_id), 0) FROM document_association_summary)
+--  AND dta.tf_idf IS NOT NULL
+--  AND dtb.tf_idf IS NOT NULL
+--GROUP BY dta.document_id, assoc.term_a_id, assoc.term_b_id, assoc.association_type
+--ORDER BY dta.document_id ASC;
+--

@@ -1,0 +1,1095 @@
+body {
+	margin: 0px;
+	padding: 0px;
+	padding-bottom: 20px;
+	border-top: 0px;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12pt;
+	color: #111;
+}
+
+h1,h2,h3,h4,h5,h6 {
+	margin-bottom: 0.5em;
+	font-weight: 700;
+}
+
+h1 {
+	font-size: 110%;
+	margin-bottom: 0.75em;
+}
+
+h2 {
+	font-size: 105%;
+}
+
+h3 {
+	font-size: 100%;
+}
+
+h4 {
+	font-size: 95%;
+}
+
+li {
+	margin-left: 2em;
+}
+
+p {
+	margin-top: 1em;
+	margin-bottom: 1em;
+}
+
+form#chartForm {
+	display: block;
+	float: none;
+	clear: both;
+	width: 100%;
+}
+
+a {
+	color: #151b8d;
+}
+
+a:visited {
+	color: #333;
+	font-weight: lighter;
+}
+
+div#main {
+	
+}
+
+a:HOVER {
+	text-decoration: underline;
+}
+
+a,a.navigation:HOVER {
+	text-decoration: none;
+}
+
+div#branding {
+	height: 36px;
+	background-image: none;
+	background-color: #356aa0;
+	border-bottom: 4px solid #254a70;
+	padding-top: 5px;
+}
+
+div#branding span#mothsoft {
+	background-image: url('/alexis/images/mothsoft.png');
+	background-repeat: no-repeat;
+	display: block;
+	width: 155px;
+	height: 32px;
+}
+
+div#breadcrumb {
+	margin-left: -3px;
+	color: #808080;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+div#navigation {
+	position: absolute;
+	top: 15px;
+	left: 160px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+div#navigation a {
+	color: #c3d9f0;
+	padding-bottom: 12px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 7px;
+	margin-left: 5px;
+	margin-right: 5px;
+	vertical-align: middle;
+}
+
+div#navigation a:hover,div#navigation a.selected {
+	color: #177FB3;
+	background-color: #fff;
+	border-bottom: 1px solid #fff;
+	border-left: 1px solid #36393d;
+	border-top: 1px solid #36393d;
+	border-right: 1px solid #36393d;
+	margin-left: 4px;
+	margin-right: 4px;
+}
+
+div#navigation a:hover {
+	color: red;
+}
+
+span.logout {
+	font-size: 82%;
+}
+
+span.logout a,span.logout a:HOVER {
+	text-decoration: none;
+	color: #177FB3;
+	margin-right: 0px;
+	padding-left: 15px;
+	padding-right: 0px;
+	min-width: 72px;
+	float: none;
+}
+
+span.logout {
+	background-color: #ffffff;
+	color: #333333;
+	padding-top: 6px;
+	padding-bottom: 6px;
+	padding-right: 20px;
+	position: absolute;
+	top: 0px;
+	right: 0px;
+}
+
+ul {
+	list-style-type: square;
+}
+
+div#content {
+	margin-top: 12px;
+	background-image: none;
+	padding-left: 15px;
+	width: 95%;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+div#content h1 {
+	clear: both;
+}
+
+div#content h2 {
+	clear: both;
+}
+
+div.dashboardWidget {
+	float: left;
+	width: 455px;
+	overflow: visible;
+	margin-bottom: 10px;
+}
+
+a.tooltip {
+	border: 1px solid #f3f3f3;
+	color: #177FB3;
+	font-size: 8pt;
+}
+
+div.tip {
+	background-color: #c3d9f0;
+	color: #333;
+	border: 1px solid #f3f3f3;
+	font-size: 11pt;
+	padding: 3px 8px 3px 8px;
+	margin-top: 2px;
+	margin-bottom: 10px;
+	border-color: #aaa;
+	line-height: 120%;
+}
+
+div p {
+	margin-left: auto;
+	margin-right: auto;
+}
+
+div#login {
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 2em;
+	width: 14em;
+}
+
+div#login form {
+	margin-left: auto;
+	margin-right: auto;
+	min-width: 240px;
+	width: 240px;
+}
+
+div#login input.text,div#login input.password {
+	display: block;
+	text-align: left;
+	margin-bottom: 14pt;
+	width: 100%;
+}
+
+div#login input.button {
+	float: right;
+	clear: right;
+	position: relative;
+	right: -5px;
+}
+
+.errorBox {
+	background-color: #f8f8f8;
+	border: 1px solid #cd0a0a;
+	border-radius: 5px;
+	color: #cd0a0a;
+	margin: 0px auto 0px;
+	padding: 10px;
+	text-align: center;
+	width: 400px;
+}
+
+.errorBox li {
+	list-style-type: none;
+	text-align: center;
+	margin: 0px;
+}
+
+label {
+	display: block;
+	margin-bottom: 0.25em;
+	margin-top: 0.25em;
+}
+
+input {
+	display: block;
+	margin-bottom: 0.5em;
+}
+
+span.validationError,ul.validationError {
+	display: block;
+	color: #ff0000;
+	margin-bottom: 1em;
+	float: none;
+	clear: both;
+}
+
+label {
+	font-weight: bolder;
+}
+
+input.submit {
+	margin-top: 8px;
+}
+
+p.noData {
+	margin-left: 20px;
+	display: block;
+}
+
+div.graph,div.dashboardTopDocuments,div.dashboardWidget div.topNames {
+	border: 1px dotted #dddddd;
+	min-width: 425px;
+	max-width: 45%;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-top: 3px;
+	padding-bottom: 10px;
+	margin-top: 8px;
+	overflow: visible;
+}
+
+div.graphItem {
+	width: 100%;
+	float: none;
+	clear: both;
+}
+
+li.importantNamedEntities,li.importantTerms {
+	float: left;
+	overflow: visible;
+}
+
+li.importantNamedEntities {
+	margin-right: 15px;
+}
+
+span.graphBar {
+	background-color: #356aa0;
+	height: 15px;
+	display: block;
+	margin-bottom: 10px;
+	float: left;
+}
+
+span.graphNameLabel {
+	font-size: 10pt;
+	display: block;
+}
+
+span.graphNumericLabel {
+	position: relative;
+	top: -3px;
+	margin-left: 5px;
+}
+
+span.graphCaption,span.caption {
+	display: block;
+	float: none;
+	clear: both;
+	width: 100%;
+	margin-top: 10px;
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+	font-size: 9pt;
+}
+
+img.graph {
+	width: 405px;
+	height: 265px;
+}
+
+div.dashboardTopDocuments ul,div.dashboardTopDocuments ul li {
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 0px;
+}
+
+div.dashboardTopDocuments ul {
+	padding-left: 12px;
+}
+
+li a.action {
+	margin-left: 5px;
+	margin-right: 3px;
+}
+
+div.dashboardTopDocuments ul li {
+	font-size: 11pt;
+	padding-top: 6px;
+	padding-bottom: 6px;
+}
+
+div.documentListItem {
+	float: left;
+	clear: right;
+	width: 97%;
+	margin-bottom: 3px;
+	padding-bottom: 8px;
+	padding-top: 3px;
+	border-bottom: dotted #dddddd;
+	border-bottom-width: 2px;
+	font-size: 11pt;
+}
+
+div.tweet div.icon,div.documentListItem div.icon {
+	height: 50px;
+	float: left;
+	margin-right: 8px;
+	margin-top: 15px;
+}
+
+div.tweetDetail div.icon {
+	padding-left: 15px;
+}
+
+div.tweet div.icon img,div.tweetDetail div.icon img,div.documentListItem div.icon img
+	{
+	width: 48px;
+	height: 48px;
+}
+
+div.documentListItemActions {
+	margin-top: 4px;
+}
+
+div.documentListItemActionsTweet {
+	margin-top: -8px;
+}
+
+div.documentListItemAttributeTweet {
+	position: relative;
+	top: -10px;
+}
+
+.documentListItemAttribute,div.documentListItemActions {
+	display: block;
+	font-size: 10pt;
+	margin-left: 55px;
+	margin-bottom: 0px;
+}
+
+span.documentListItemAttributeValue {
+	margin-left: 5px;
+	font-size: 9.5pt;
+}
+
+div.documentListItemActions a.action {
+	margin-left: 5px;
+}
+
+h2.documentDetailsTitle {
+	margin-left: 20px;
+	height: 36px;
+	padding-left: 56px;
+	padding-top: 12px;
+	background-image: url('/alexis/images/rss48.png');
+	background-repeat: no-repeat;
+}
+
+ul.documentDetails li {
+	margin-bottom: 3px;
+}
+
+div.paginationControls,div.filterOptions,div.startOver {
+	font-size: 10pt;
+}
+
+div.paginationControls a,div.paginationControls a:visited,div.filterOptions a,div.filterOptions a:visited,div.startOver a,div.startOver a:visited
+	{
+	margin: 0px 5px 0px 5px;
+	color: #0d4967;
+}
+
+a.action {
+	font-size: 9pt;
+	margin-left: 0px;
+	margin-right: 10px;
+}
+
+a.action:active {
+	color: #c0c0c0;
+}
+
+ul.topicRecentDocuments li {
+	font-size: 10pt;
+	margin-bottom: 7px;
+	float: none;
+	clear: both;
+}
+
+ul.topicRecentDocuments li a.action {
+	font-size: 8pt;
+	margin-left: 10px;
+}
+
+p.documentListItemAttribute {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+	width: 75%;
+	max-width: 900px;
+	margin-left: 18px;
+}
+
+h1.floatingHeader,h2.floatingHeader {
+	float: left;
+}
+
+.floatingHeader small {
+	font-weight: 400;
+	font-size: 80%;
+}
+
+h2.floatingHeader {
+	margin-top: 4px;
+}
+
+div.filterOptions,div.paginationControls,div.startOver {
+	float: left;
+	margin-left: 20px;
+	position: relative;
+	top: 6px;
+}
+
+div.startOver {
+	clear: right;
+}
+
+ul#addSourceType {
+	background-color: #356aa0;
+	height: 2em;
+	width: 18em;
+	overflow: visible;
+}
+
+ul#addSourceType li {
+	list-style: none;
+	float: left;
+	text-align: center;
+	margin-left: 2.2em;
+	padding-top: 0.7em;
+}
+
+ul#addSourceType li a {
+	text-decoration: none;
+	color: #c3d9f0;
+	padding: 5px 12px 5px 12px;
+}
+
+ul#addSourceType li.selected a:ACTIVE,ul#addSourceType li a:HOVER,ul#addSourceType li.selected a
+	{
+	color: #ff0000;
+	background-color: #fff;
+}
+
+form#addSourceForm, form#addModelForm {
+	margin-top: 30px;
+	margin-left: 125px;
+}
+
+button.addTopicButton,button.addSourceButton, button.addModelButton {
+	width: 125px;
+}
+
+form.addTopicForm,form.addSourceForm,form.addModelForm {
+	display: inline;
+	float: left;
+	height: 0px;
+	position: relative;
+	top: -28px;
+	left: 100px;
+}
+
+div.topicListItem,div.sourceListItem,div.analysisListItem {
+	border: 1px solid #dddddd;
+	text-align: center;
+	float: left;
+	width: 264px;
+	height: 95px;
+	margin: 5px 5px 5px 5px;
+}
+
+div.topicListItem span.header,div.sourceListItem span.header,div.analysisListItem span.header {
+	background-color: #356aa0;
+	color: #ffe;
+	word-wrap: break-word;
+	display: block;
+	width: 100%;
+	padding-top: 4px;
+	padding-bottom: 4px;
+}
+
+div.sourceListItem h2 {
+	word-wrap: break-word;
+}
+
+div.analysisListItem {
+	height: 190px;
+	overflow: auto;
+}
+
+div.modelListItem {
+    width: 275px;
+    height: 150px;
+    overflow: auto;
+    font-size: 95%;
+}
+
+div.modelListItem ul {
+	height: 90px;
+    text-align: left;
+    margin-top: 10px;
+}
+
+div.analysisListItem span.header a {
+	text-decoration: none;
+	color: #fff;
+}
+
+div.analysisListItem a img {
+	border: 0px;
+	margin-top: 20px;
+	border: 1px solid #bbb;
+}
+
+div.topicListItem span.topicListItemDescription {
+	display: block;
+	width: 90%;
+	height: 36px;
+	min-height: 36px;
+	max-height: 36px;
+	font-size: 10pt;
+	padding-top: 8px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-left: 10px;
+}
+
+span.topicListItemKeywords,span.sourceListItemUrl {
+	font-size: 8.5pt;
+    word-wrap: break-word;
+    display: block;
+    margin-top: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+    min-height: 36px;
+    max-height: 36px;
+}
+
+span.topicListItemActions,span.sourceListItemActions,span.analysisListItemActions {
+	width: 100%;
+	display: block;
+	float: none;
+	clear: both;
+	margin-top: 5px;
+}
+
+div.tweet {
+	overflow: auto;
+}
+
+div.tweetDetail {
+	margin: 0.75em 0em;
+	padding: 6px 2px;
+	border-top: dotted #dddddd;
+	border-bottom: dotted #dddddd;
+	border-top-width: 2px;
+	border-bottom-width: 2px;
+}
+
+div.tweet p {
+	margin-top: 8px;
+	margin-bottom: 8px;
+	padding: 0px;
+}
+
+div.tweet a.screenName {
+	font-size: 110%;
+	font-weight: 500;
+}
+
+div.tweet span.fullName {
+	margin-left: 8px;
+	font-size: 80%;
+}
+
+div.tweet span.retweetedBy {
+	font-size: 80%;
+}
+
+div.tweet span.retweetedBy img {
+	position: relative;
+	top: 3px;
+}
+
+div.tweet a.screenName,div.tweet span.fullName {
+	margin-top: 420px;
+}
+
+div.tweet span.actions {
+	display: block;
+	float: left;
+	font-size: 75%;
+	margin-bottom: 3px;
+	margin-left: 20%;
+}
+
+div.tweet span.actions a,div.tweet span.actions img {
+	float: left;
+}
+
+div.tweet span.actions a {
+	margin-left: 6px;
+	margin-right: 10px;
+}
+
+div.tweet span.actions a.reply span,div.tweet span.actions a.favorite span,div.tweet span.actions a.retweet span
+	{
+	height: 16px;
+	width: 16px;
+	margin-right: 2px;
+	background-image: url("/alexis/images/twitter_16_sprite.png");
+	display: block;
+	float: left;
+}
+
+div.tweet span.actions a.reply span {
+	background-position: 0px 0px;
+}
+
+div.tweet span.actions a.reply:HOVER span {
+	background-position: 112px 0px;
+}
+
+div.tweet span.actions a.retweet span {
+	background-position: 32px 0px;
+}
+
+div.tweet span.actions a.retweet:HOVER span {
+	background-position: 16px 0px;
+}
+
+div.tweet span.actions a.favorite span {
+	background-position: 80px 0px;
+}
+
+div.tweet span.actions a.favorite:HOVER span {
+	background-position: 64px 0px;
+}
+
+input.save,a.cancel {
+	float: left;
+	margin-right: 8px;
+}
+
+input.save {
+	clear: left;
+}
+
+form#addSourceForm ul li, form#addModelForm ul li {
+	list-style: none;
+	background-image: url("/alexis/images/check16.png");
+	background-repeat: no-repeat;
+	padding-left: 18px;
+	line-height: 18px;
+	margin-bottom: 4px;
+}
+
+form#addSourceForm ul li.last, form#addModelForm ul li.last {
+	list-style: none;
+	background-image: none;
+	padding-left: 0px;
+}
+
+p.tip {
+	font-size: 75%;
+	margin-left: 8px;
+}
+
+span.addEditTopicSearchExpression {
+	display: block;
+	width: 95%;
+	clear: right;
+	overflow: auto;
+}
+
+textarea.addEditTopicDescription,textarea.addEditTopicSearchExpression {
+	float: left;
+	clear: both;
+}
+
+textarea {
+	margin-bottom: 12px;
+}
+
+label {
+	clear: both;
+}
+
+div#search {
+	position: absolute;
+	top: -4px;
+	left: 520px;
+}
+
+div#search form {
+	
+}
+
+div#search form input.text {
+	width: 175px;
+}
+
+div#search form button {
+	font-size: 12px;
+	position: absolute;
+	top: 0px;
+	left: 185px;
+}
+
+select.single {
+	min-width: 200px;
+	margin-bottom: 1em;
+}
+
+select.multiple {
+	min-width: 130px;
+}
+
+div#queryModal,div#waitingModal {
+	background-color: #fff;
+	width: 600px;
+}
+
+div#queryModal input.text {
+	width: 80%;
+}
+
+div#queryModal label,div#queryModal input,div#queryModal a {
+	font-size: 75%;
+}
+
+div#queryModal a.cancel {
+	float: right;
+}
+
+div.modalAdvanced {
+	display: none;
+	font-size: 10pt;
+	margin-bottom: 7px;
+}
+
+div.modalAdvanced .toggle {
+	margin-left: 20px;
+	margin-top: 5px;
+}
+
+div.waiting {
+	width: 100%;
+	height: 81px;
+	padding-top: 15px;
+}
+
+div#waitingModal,div.waiting {
+	display: none;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-image: url("/alexis/images/waiting.gif");
+}
+
+#canvasContainer {
+	border: 1px solid #ccc;
+	background-color: #f0f0f0;
+	width: 860px;
+	height: 555px;
+	position: absolute;
+	top: 80px;
+}
+
+#canvas {
+	border: 0px;
+	width: 800px;
+	height: 500px;
+    position: absolute;
+    top: 20px;
+    left: 35px;
+}
+
+#canvasProperties {
+	margin-left: 5px;
+	position: absolute;
+	left: 900px;
+	top: 65px;
+}
+
+#canvasProperties #nodeInfo {
+	display: none;
+	padding-bottom: 4px;
+}
+
+#nodeInfo form input {
+	float: right;
+	clear: both;
+	padding: 0px;
+	margin: 3px;
+	width: 125px;
+}
+
+#canvasProperties #nodeInfo #selectedNodes {
+	margin-left: 8px;
+	font-size: 80%;
+	width: 200px;
+}
+
+div.node {
+	font-size: 100%;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	border: 1px solid #999;
+	padding: 5px;
+	background-color: #333;
+	color: #fff;
+	min-width: 82px;
+	text-align: center;
+}
+
+div.selectedNode {
+	background-color: #ff7400;
+}
+
+div#selectedNodes div.node {
+	margin: 5px;
+}
+
+div.root {
+	background-color: #356aa0;
+}
+
+h2.loading {
+	border: 1px solid #999;
+	width: 50%;
+	padding: 20px;
+	text-align: center;
+	background-color: #fff;
+	margin: 0 auto;
+	margin-top: 220px;
+}
+
+ul.topNames {
+	font-size: 15pt;
+	vertical-align: middle;
+	text-align: justify;
+	padding-right: 10px;
+}
+
+ul.topNames li {
+	display: inline-block;
+	margin: 0px;
+	padding: 2px;
+	white-space: nowrap;
+	vertical-align: middle;
+	line-height: 1em;
+}
+
+ul.topNames li a {
+	text-decoration: none;
+}
+
+ul.topNames li a:HOVER {
+	text-decoration: underline;
+}
+
+table,tr,td,th {
+	margin: 2px;
+}
+
+td,th {
+	padding: 4px;
+}
+
+div#flotContainer {
+	float: left;
+	width: 75%;
+}
+
+div#flotChart {
+	margin-top: 10px;
+}
+
+div#flotLegend {
+	margin-top: 5px;
+}
+
+div.tickLabel {
+	
+}
+
+div#chartInteraction {
+	width: 620px;
+	float: left;
+}
+
+div#chartPointInteraction {
+	float: left;
+	width: 420px;
+	margin-top: -86px;
+}
+
+fieldset {
+	padding-left: 15px;
+	margin-top: 10pt;
+	border: 1px solid #ccc;
+	border-radius: 8px;
+}
+
+legend {
+	padding-left: 2px;
+	padding-right: 2px;
+}
+
+em {
+	font-style: italic;
+}
+
+fieldset div {
+	margin-bottom: 5pt;
+}
+
+fieldset.termPredictors {
+	width: 420px;
+	padding-top: 0.5em;
+	padding-bottom: 0.5em;
+}
+
+fieldset.results {
+	border: 1px solid #385d8a;
+}
+
+fieldset.results h2 {
+	margin-bottom: 0.5em;
+}
+
+div.labelAndInput {
+	float: left;
+	margin-right: 15px;
+}
+
+div.buttonContainer {
+	float: none;
+	clear: both;
+}
+
+div#ui-datepicker-div {
+	font-size: 92%;
+}
+
+dt.ui_tpicker_time_label,dt.ui_tpicker_hour_label,dt.ui_tpicker_minute_label
+	{
+	padding-top: 4px;
+	padding-bottom: 4px;
+	font-size: 105%;
+	line-height: 1.2em;
+}
+
+.ui-slider {
+	margin-left: 0.5em;
+	margin-right: 0.6em;
+	width: 11em;
+	padding-left: 2em;
+	padding-right: 3em;
+}
+
+.ui-slider .ui-slider-handle {
+	
+}
+
+input.selectSeriesButton,button.selectSeriesButton {
+	float: left;
+	width: 8em;
+	margin-top: 2.125em;
+}
+
+div#tooltip {
+	padding: 6px 6px 9px 6px;
+	font-size: 85%;
+}
+
+div.correlationResults {
+	float: left;
+	width: 75%;
+}
+
+div.legend {
+	padding: 5px;
+	font-size: 80%;
+}
+
+div.legend ul {
+	list-style-position: inside;
+}
+
+table.correlationMatrix,th,td {
+	border: 1px solid #333;
+	border-spacing: 0px;
+}
+
+table.correlationMatrix td {
+	text-align: center;
+}
+
+table.correlationMatrix td.weak,span.weakCorrelation {
+	background-color: #ffff00;
+}
+
+table.correlationMatrix td.strong,span.strongCorrelation {
+	background-color: #00ff00;
+}
+
+table.correlationMatrix thead tr th,table.correlationMatrix tr th {
+	background-color: #356AA0;
+	color: #FFE;
+}
+
+p.instructions {
+    font-size: 9.5pt;
+}

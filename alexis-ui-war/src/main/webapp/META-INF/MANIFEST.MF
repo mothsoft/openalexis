@@ -1,0 +1,54 @@
+Manifest-Version: 1.0
+Class-Path: activation-1.1.jar alexis-dao.jar alexis-domain.jar alexis
+ -engine.jar alexis-rest-api.jar alexis-security.jar alexis-service-ap
+ i.jar alexis-service-impl.jar antlr-2.7.7.jar aopalliance-1.0.jar apa
+ che-mime4j-core-0.7.jar apache-mime4j-dom-0.7.jar asm-3.1.jar aspectj
+ rt-1.6.8.jar aspectjweaver-1.6.8.jar avro-1.5.1.jar batik-awt-util-1.
+ 6-1.jar batik-ext-1.6-1.jar batik-gui-util-1.6-1.jar batik-util-1.6-1
+ .jar bcmail-jdk15-1.45.jar bcprov-jdk15-1.45.jar boilerpipe-1.2.0.jar
+  commons-beanutils-1.7.0.jar commons-codec-1.6.jar commons-collection
+ s-3.2.1.jar commons-compress-1.3.jar commons-digester-1.6.jar commons
+ -fileupload-1.2.1.jar commons-io-1.3.2.jar commons-lang-2.4.jar commo
+ ns-logging-1.1.1.jar commons-logging-adapters-1.1.jar commons-math3-3
+ .0.jar commons-validator-1.3.1.jar cxf-api-2.5.1.jar cxf-common-utili
+ ties-2.5.1.jar cxf-rt-bindings-xml-2.5.1.jar cxf-rt-core-2.5.1.jar cx
+ f-rt-frontend-jaxrs-2.5.1.jar cxf-rt-transports-common-2.5.1.jar cxf-
+ rt-transports-http-2.5.1.jar dom4j-1.6.1.jar fontbox-1.6.0.jar geroni
+ mo-javamail_1.4_spec-1.7.1.jar geronimo-stax-api_1.0_spec-1.0.1.jar g
+ son-1.7.1.jar guava-r05.jar hibernate-commons-annotations-4.0.1.Final
+ .jar hibernate-core-4.1.2.Final.jar hibernate-entitymanager-4.1.2.Fin
+ al.jar hibernate-jpa-2.0-api-1.0.1.Final.jar hibernate-search-4.1.1.F
+ inal.jar hibernate-search-analyzers-4.1.1.Final.jar hibernate-search-
+ engine-4.1.1.Final.jar hibernate-search-orm-4.1.1.Final.jar httpclien
+ t-4.1.1.jar httpcore-4.1.jar icu4j-2.6.1.jar isoparser-1.0-beta-5.jar
+  jackson-core-asl-1.9.0.jar jackson-jaxrs-1.9.0.jar jackson-mapper-as
+ l-1.9.0.jar javassist-3.6.0.GA.jar javassist-3.15.0-GA.jar jaxb-impl-
+ 2.2.1.1.jar jaxen-1.1.1.jar jboss-logging-3.1.0.GA.jar jboss-transact
+ ion-api_1.1_spec-1.0.0.Final.jar jcommon-1.0.12.jar jdom-1.0.jar jemp
+ box-1.6.0.jar jettison-1.3.jar jfreechart-1.0.9.jar jsr311-api-1.1.1.
+ jar jta-1.1.jar log4j-1.2.15.jar lucene-analyzers-3.5.0.jar lucene-co
+ re-3.5.0.jar lucene-grouping-3.5.0.jar lucene-highlighter-3.5.0.jar l
+ ucene-memory-3.5.0.jar lucene-misc-3.5.0.jar lucene-smartcn-3.5.0.jar
+  lucene-spatial-3.5.0.jar lucene-spellchecker-3.5.0.jar lucene-stempe
+ l-3.5.0.jar mail-1.4.jar metadata-extractor-2.4.0-beta-1.jar myfaces-
+ api-2.1.5.jar myfaces-impl-2.1.5.jar neethi-3.0.1.jar netcdf-4.2-min.
+ jar openutils-log4j-2.0.4.jar oro-2.0.8.jar paranamer-2.3.jar pdfbox-
+ 1.6.0.jar poi-3.8-beta5.jar poi-ooxml-3.8-beta5.jar poi-ooxml-schemas
+ -3.8-beta5.jar poi-scratchpad-3.8-beta5.jar prettyfaces-jsf2-3.3.0.ja
+ r quartz-1.8.5.jar rome-1.0.jar scannotation-1.0.2.jar slf4j-api-1.6.
+ 4.jar slf4j-log4j12-1.6.4.jar snappy-java-1.0.1-rc3.jar solr-analysis
+ -extras-3.5.0.jar solr-commons-csv-3.5.0.jar solr-core-3.5.0.jar solr
+ -solrj-3.5.0.jar spring-aop-3.0.5.RELEASE.jar spring-asm-3.0.5.RELEAS
+ E.jar spring-beans-3.0.5.RELEASE.jar spring-context-3.0.5.RELEASE.jar
+  spring-context-support-3.0.5.RELEASE.jar spring-core-3.0.5.RELEASE.j
+ ar spring-expression-3.0.5.RELEASE.jar spring-jdbc-3.0.5.RELEASE.jar 
+ spring-orm-3.0.5.RELEASE.jar spring-security-config-3.0.5.RELEASE.jar
+  spring-security-core-3.0.5.RELEASE.jar spring-security-web-3.0.5.REL
+ EASE.jar spring-tx-3.0.5.RELEASE.jar spring-web-3.0.5.RELEASE.jar sta
+ x2-api-3.1.1.jar tagsoup-1.2.1.jar tika-core-1.1.jar tika-parsers-1.1
+ .jar tomahawk20-1.1.12.jar twitter-integration.jar twitter4j-core-2.2
+ .5.jar vorbis-java-core-0.1-tests.jar vorbis-java-core-0.1.jar vorbis
+ -java-tika-0.1.jar woodstox-core-asl-4.1.1.jar wsdl4j-1.6.2.jar xalan
+ -2.6.0.jar xmlbeans-2.3.0.jar xmlParserAPIs-2.0.2.jar xmlschema-core-
+ 2.0.1.jar xom-1.0.jar
+

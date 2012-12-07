@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+	<ui:composition template="/WEB-INF/layout/base.xhtml">
+	    <ui:define name="title">Dashboard</ui:define>
+	    <ui:define name="content">
+
+            <ui:fragment rendered="#{empty dashboardBackingBean.mostActiveDataSets and empty dashboardBackingBean.topRecentContent}">
+                <div class="dashboardWidget">
+	                <h1>Welcome</h1>
+	                <p>
+	                    Please set up some topics and sources via the tabs above.  As data becomes available, this dashboard view
+	                    will show summary graphs and highlight top content.
+	                </p>
+                </div>
+            </ui:fragment>
+
+            <ui:fragment rendered="#{not empty dashboardBackingBean.topRecentContent}">
+            <div class="dashboardWidget" id="topDocumentsWidget">
+                <h1>Top Recent Content</h1>
+                <div class="dashboardTopDocuments">
+                    <ul>
+                        <ui:repeat value="#{dashboardBackingBean.topRecentContent}" var="document">
+                             <li>
+                                 <a href="#{document.url}" target="_blank">#{document.title}</a>
+                                 <a class="action" href="#{request.contextPath}/documents/#{document.id}/details">details</a>
+                             </li>
+                         </ui:repeat>
+                    </ul>
+                    <span class="caption">Last Day</span>
+                </div>
+            </div>
+            </ui:fragment>
+
+            <div class="dashboardWidget" id="mostActiveTopicsWidget">
+                <ui:fragment rendered="#{not empty dashboardBackingBean.mostActiveDataSets}">
+	                <h1>Most Active Topics</h1>
+	                <div class="graph">
+                        <img class="graph" 
+                             src="#{request.contextPath}/chart/line/?n=12&amp;w=405&amp;h=265#{dashboardBackingBean.mostActiveDataSetsQueryParameters}" />
+                        <span class="graphCaption">Last 12 Hours</span>
+                    </div>
+                </ui:fragment>
+            </div>
+            
+            <div class="dashboardWidget" id="topNamesWidget">
+                <ui:fragment rendered="#{not empty dashboardBackingBean.topNames}">
+                    <h1>Top Names</h1>
+                    <div class="topNames">
+                        <ul class="topNames">
+                            <ui:repeat value="#{dashboardBackingBean.topNames}" var="namedEntity">
+                                <li>
+                                    <h:outputLink value="#{request.contextPath}/documents/search">
+                                        <f:param name="q" value="&quot;#{namedEntity.name}&quot;" />
+                                        <f:param name="order" value="date" />
+                                        <h:outputText value="#{namedEntity.name}" 
+                                                      style="font-size: #{50 + (3 * (((namedEntity.count * 1000) / (dashboardBackingBean.topNamedEntityMaxCount * 1000)) * 30))}%" />
+                                    </h:outputLink>
+                                </li>
+                            </ui:repeat>
+                        </ul>
+                        <span class="caption">Last 12 Hours</span>
+                    </div>
+                </ui:fragment>
+            </div>
+
+	        <ui:fragment rendered="#{false}">
+	            <h1>Recommendations</h1>
+	            <p>There are no recommendations available at this time. Please check back later.</p>
+	        </ui:fragment>
+	        
+	    </ui:define>
+	</ui:composition>
+
+</html>

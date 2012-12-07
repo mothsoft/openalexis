@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:c="http://java.sun.com/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+
+<ui:composition template="/WEB-INF/layout/base.xhtml">
+	<ui:define name="title">Documents</ui:define>
+	<ui:define name="content">
+
+        <ui:fragment rendered="#{listDocumentsBackingBean.queryValidationError == false}">
+	        <h1 class="floatingHeader">
+	            <ui:fragment rendered="#{!listDocumentsBackingBean.search}">Document Stream</ui:fragment>
+	            <ui:fragment rendered="#{listDocumentsBackingBean.search}">Search Results <small>for <em>#{listDocumentsBackingBean.searchString}</em>, found #{listDocumentsBackingBean.totalRowsAvailable}</small></ui:fragment>
+	        </h1>
+	    </ui:fragment>
+
+        <ui:fragment rendered="#{listDocumentsBackingBean.search and listDocumentsBackingBean.queryValidationError}">
+           <span class="errorBox">
+               <h:outputFormat value="#{msg['validator.searchExpression']}">
+                   <f:param value="#{listDocumentsBackingBean.searchString}" />
+               </h:outputFormat>
+           </span>
+        </ui:fragment>
+
+        <h:form>
+
+        <div class="filterOptions">
+            <ui:fragment rendered="#{listDocumentsBackingBean.search and param['ref'] == 'graph'}">
+               <h:outputLink value="#{request.contextPath}/analysis/semantic/">
+                   <f:param name="q" value="#{param['q']}" />
+                   <h:outputText value="return to graph" />
+               </h:outputLink>
+            </ui:fragment>
+            <ui:fragment rendered="#{!listDocumentsBackingBean.search}">
+	            <ui:fragment rendered="#{listDocumentsBackingBean.all}">
+	                <a href="#{request.contextPath}/documents/topics">in topics</a>
+	                <span class="noLink">all</span>
+	            </ui:fragment>
+	            <ui:fragment rendered="#{listDocumentsBackingBean.topics}">
+	                <span class="noLink">in topics</span>
+	                <a href="#{request.contextPath}/documents/all">all</a>
+	            </ui:fragment>
+            </ui:fragment>
+        </div>
+        
+        <div class="paginationControls">
+            <ui:fragment rendered="#{listDocumentsBackingBean.all and listDocumentsBackingBean.newerPageNumber != listDocumentsBackingBean.olderPageNumber}">
+                <a href="#{request.contextPath}/documents/all?page=#{listDocumentsBackingBean.newerPageNumber}">&lt; newer</a>
+                <a href="#{request.contextPath}/documents/all?page=#{listDocumentsBackingBean.olderPageNumber}">older &gt;</a>
+            </ui:fragment>
+            <ui:fragment rendered="#{listDocumentsBackingBean.topics and listDocumentsBackingBean.newerPageNumber != listDocumentsBackingBean.olderPageNumber}">
+                <a href="#{request.contextPath}/documents/topics?page=#{listDocumentsBackingBean.newerPageNumber}">&lt; newer</a>
+                <a href="#{request.contextPath}/documents/topics?page=#{listDocumentsBackingBean.olderPageNumber}">older &gt;</a>
+            </ui:fragment>
+            <ui:fragment rendered="#{listDocumentsBackingBean.search and !listDocumentsBackingBean.queryValidationError 
+                                        and listDocumentsBackingBean.newerPageNumber != listDocumentsBackingBean.olderPageNumber}">
+                <ui:fragment rendered="#{listDocumentsBackingBean.pageNumber != 0}">
+                    <a href="#{request.contextPath}/documents/search?q=#{listDocumentsBackingBean.searchStringEncoded}&amp;page=#{listDocumentsBackingBean.newerPageNumber}&amp;ref=#{param['ref']}&amp;order=#{param['order']}">&lt; previous</a>
+                </ui:fragment>
+                <ui:fragment rendered="#{listDocumentsBackingBean.olderPageNumber gt listDocumentsBackingBean.pageNumber}">
+                    <a href="#{request.contextPath}/documents/search?q=#{listDocumentsBackingBean.searchStringEncoded}&amp;page=#{listDocumentsBackingBean.olderPageNumber}&amp;ref=#{param['ref']}&amp;order=#{param['order']}">next &gt;</a>
+                </ui:fragment>
+            </ui:fragment>
+        </div>
+        
+        <ui:fragment rendered="#{empty listDocumentsBackingBean.documents and not listDocumentsBackingBean.queryValidationError}">
+            <p style="width:95%; float: none; clear: both">No results found.</p>
+        </ui:fragment>
+
+        <ui:repeat value="#{listDocumentsBackingBean.documents}" var="document">
+        
+            <div class="documentListItem">
+            
+                <ui:fragment rendered="#{document.type == 'T'}">
+                    <ui:include src="tweet.xhtml">
+                        <ui:param name="tweet" value="#{document}" />
+                        <ui:param name="isTweetDetail" value="#{false}" />
+                    </ui:include>
+                </ui:fragment>
+                
+                <ui:fragment rendered="#{document.type == 'W'}">
+	                <div class="icon">
+	                    <img class="icon" src="#{request.contextPath}/images/rss48.png" />
+	                </div>
+	                
+	                <div class="documentListItemLink">
+	                    <a href="#{document.url}" target="_blank">#{document.title}</a>
+	                </div>
+
+	                <ui:fragment rendered="#{not empty document.description}">
+	  	                <div class="documentListItemAttribute">
+    	                    Description:
+    	                    <ui:fragment rendered="#{fn:length(document.description) &gt; 345}">
+                                <h:outputText styleClass="documentListItemAttributeValue" value="#{fn:substring(document.description, 0, 345)}..." />
+    	                    </ui:fragment>
+                            <ui:fragment rendered="#{fn:length(document.description) &lt;= 345}">
+                                <h:outputText styleClass="documentListItemAttributeValue" value="#{document.description}" />
+                            </ui:fragment>
+		                </div>
+	                </ui:fragment>
+	                <div class="documentListItemAttribute">
+	                    URL: 
+                        <ui:fragment rendered="#{fn:length(document.url) &gt; 160}">
+                            <h:outputText styleClass="documentListItemAttributeValue" value="#{fn:substring(document.url, 0, 160)}..." />
+                        </ui:fragment>
+                        <ui:fragment rendered="#{fn:length(document.url) &lt;= 160}">
+                            <h:outputText styleClass="documentListItemAttributeValue" value="#{document.url}" />
+                        </ui:fragment>
+	                </div>
+	                <ui:fragment rendered="#{document.contentLength != -1}">
+		                <div class="documentListItemAttribute">
+		                    Retrieved: 
+		                    <h:outputText styleClass="documentListItemAttributeValue" value="#{document.retrievalDate}">
+                                <f:convertDateTime type="both" dateStyle="default" timeZone="#{currentUser.timeZone}" />
+		                    </h:outputText>,  
+		                    Size: 
+		                    <h:outputText styleClass="documentListItemAttributeValue" value="#{document.contentLength}">
+		                        <f:converter converterId="humanReadableBytesConverter" />
+		                    </h:outputText>
+		                </div>
+	                </ui:fragment>
+	            </ui:fragment>
+
+                <ui:fragment rendered="#{not empty document.creationDate and document.type != 'T'}">
+                    <div class="documentListItemAttribute">
+                        Created:
+                        <span class="documentListItemAttributeValue">
+                            <h:outputText value="#{document.creationDate}">
+                                <f:convertDateTime type="both" dateStyle="default" timeZone="#{currentUser.timeZone}" />
+                            </h:outputText>
+                        </span>
+                    </div>
+                </ui:fragment>
+
+                <ui:fragment rendered="#{not empty listDocumentsBackingBean.topicDocuments[document.id]}">
+	               <div class="documentListItemAttribute #{document.type == 'T' ? 'documentListItemAttributeTweet' : ''}">
+	                   Topics: 
+	                   <span class="documentListItemAttributeValue">
+	                    <ui:repeat
+	                       value="#{listDocumentsBackingBean.topicDocuments[document.id]}"
+	                       var="topicDocument"
+	                       varStatus="status">
+	                       #{topicDocument.topic.name}<ui:fragment rendered="#{!status.last}">#{", "}</ui:fragment>
+	                    </ui:repeat>
+	                </span>
+	               </div>
+                </ui:fragment>
+
+               <div class="documentListItemActions #{document.type == 'T' ? 'documentListItemActionsTweet' : ''}">
+                   <strong>Actions</strong>:
+                   <a href="#{request.contextPath}/documents/#{document.id}/details" class="action">details</a>
+               </div>
+                
+            </div>
+            
+        </ui:repeat>   
+ 
+        </h:form>
+
+	</ui:define>
+</ui:composition>
+
+</html>

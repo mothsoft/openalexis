@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:security="http://www.springframework.org/schema/security"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+          http://www.springframework.org/schema/security
+          http://www.springframework.org/schema/security/spring-security-3.0.xsd">
+
+    <security:http realm="mothsoft.com">
+        <security:session-management
+            session-fixation-protection="newSession" />
+        <security:intercept-url pattern="/login/**"
+            access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <security:intercept-url pattern="/css/*"
+            access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <security:intercept-url pattern="/js/*"
+            access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <security:intercept-url pattern="/images/*"
+            access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <security:intercept-url pattern="/favicon.ico"
+            access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <security:intercept-url pattern="/admin/**"
+            access="ROLE_ADMIN" />
+        <security:intercept-url pattern="/**"
+            access="ROLE_USER" />
+        <security:form-login login-page="/login/"
+            default-target-url="/dashboard/" login-processing-url="/login/auth"
+            always-use-default-target="true" />
+        <security:logout invalidate-session="true"
+            logout-url="/logout" />
+        <security:custom-filter ref="storeUsernameInSessionFilter"
+            after="SECURITY_CONTEXT_FILTER" />
+    </security:http>
+
+    <security:authentication-manager>
+        <security:authentication-provider
+            ref="authenticationProvider" />
+    </security:authentication-manager>
+
+    <bean id="authenticationProvider"
+        class="com.mothsoft.alexis.web.security.AlexisWebAuthenticationProvider">
+        <constructor-arg index="0" ref="userDetailsService" />
+        <constructor-arg index="1">
+            <bean
+                class="org.springframework.security.authentication.encoding.ShaPasswordEncoder">
+                <constructor-arg index="0" value="256" />
+            </bean>
+        </constructor-arg>
+        <constructor-arg index="2" ref="userDao" />
+        <constructor-arg index="3" ref="transactionManager" />
+    </bean>
+
+    <bean id="userDetailsService"
+        class="com.mothsoft.alexis.service.security.AlexisUserDetailsService">
+        <constructor-arg index="0" ref="userDao" />
+    </bean>
+
+    <bean id="storeUsernameInSessionFilter"
+        class="com.mothsoft.alexis.web.security.StoreUsernameInSessionFilter" />
+
+</beans>

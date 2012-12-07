@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core">
+
+<ui:composition template="/WEB-INF/layout/base.xhtml">
+	<ui:define name="title">Topics</ui:define>
+	<ui:define name="content">
+       
+        <h1>Topics</h1>
+
+        <form action="#{request.contextPath}/topics/add" method="get" class="addTopicForm">
+            <button type="submit" class="addTopicButton">add topic</button>
+        </form>
+
+        <h:form>
+
+        <ui:repeat value="#{listTopicsBackingBean.topics}" var="topic">
+            <div class="topicListItem">
+                <span class="header">#{topic.name}</span>
+                <span class="topicListItemDescription">
+                    #{topic.descriptionSummary}                
+                </span>
+                <span class="topicListItemActions">
+                    <a href="#{request.contextPath}/topics/#{topic.id}/details" class="action">details</a>
+                    <a href="#{request.contextPath}/topics/#{topic.id}/edit" class="action">edit</a>
+                    <h:commandLink actionListener="#{addEditTopicBackingBean.remove}" 
+                                   action="/topics/list?faces-redirect=true" value="remove" title="remove" styleClass="action"
+                                   onclick="return confirm('Are you sure you wish to remove &quot;#{topic.name}&quot; as a topic?');">
+                        <f:attribute name="topicId" value="#{topic.id}" />
+                    </h:commandLink>
+                </span>
+            </div>
+        </ui:repeat>
+
+        <ui:fragment rendered="#{empty listTopicsBackingBean.topics}">
+            <p class="noData">No topics added yet--try the 'add topic' button above.</p>
+        </ui:fragment>
+		
+        </h:form>
+
+	</ui:define>
+</ui:composition>
+
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+
+<ui:composition template="/WEB-INF/layout/base.xhtml">
+    <ui:define name="title">Analysis :: Correlation</ui:define>
+    <ui:define name="content">
+         <script type="text/javascript">
+            function switchSeries() {}
+         
+            $(document).ready(function() {
+            	$(document).ready(function() {
+            	    $("#startDate").datetimepicker({
+            	        ampm : true,
+            	        dateFormat : "mm/dd/yy",
+            	        timeFormat : "h:mm TT"
+            	    });
+            	    $("#endDate").datetimepicker({
+            	        ampm : true,
+            	        dateFormat : "mm/dd/yy",
+            	        timeFormat : "h:mm TT"
+            	    });
+            	});
+            	$(".waiting").hide();
+            });
+        </script>
+ 
+        <h1>
+            Correlation
+        </h1>
+
+        <h:form style="float:left">
+            <ui:include src="select-series.xhtml">
+                <ui:param name="backingBean" value="#{selectSeriesBackingBean}" />
+            </ui:include>
+
+            <div class="labelAndInput">
+                <h:outputLabel for="startDate">Start Date</h:outputLabel>
+                <t:inputText id="startDate" forceId="true" size="28" value="#{selectSeriesBackingBean.startDate}">
+                    <f:convertDateTime pattern="MM/dd/yyyy h:mm a" timeZone="#{currentUser.timeZone}" />
+                </t:inputText>
+            </div>
+
+            <div class="labelAndInput">
+                <h:outputLabel for="endDate">End Date</h:outputLabel>
+                <t:inputText id="endDate" forceId="true" size="28"
+                    value="#{selectSeriesBackingBean.endDate}">
+                    <f:convertDateTime pattern="MM/dd/yyyy h:mm a" timeZone="#{currentUser.timeZone}" />
+                </t:inputText>
+            </div>
+
+            <h:commandButton id="correlateCommandButton" value="Correlate" styleClass="selectSeriesButton" onclick="$('.waiting').show();">
+				<f:ajax execute="selectSeries startDate endDate"
+					render="@form correlationResults" listener="#{correlationBackingBean.correlate}" />
+			</h:commandButton>
+			<h:message for="correlateCommandButton" styleClass="validationError" />
+            
+            <h:panelGroup id="correlationResults" layout="block" styleClass="correlationResults">
+                <ui:fragment rendered="#{correlationBackingBean.correlationMatrix != null}">
+                    <table class="correlationMatrix">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <ui:repeat value="#{correlationBackingBean.dataSetLabels}" var="label">
+                                    <th>#{label}</th>                                           
+                                </ui:repeat>
+                            </tr>
+                            <c:forEach var="row" items="#{correlationBackingBean.correlationMatrix}" varStatus="status">
+                                <tr>
+                                    <th>#{correlationBackingBean.dataSetLabels[status.index]}</th>
+                                    <c:forEach var="column" items="#{correlationBackingBean.correlationMatrix[status.index]}" varStatus="status2">
+                                        <c:set var="cell" value="#{correlationBackingBean.correlationMatrix[status.index][status2.index]}" />
+                                        <c:set var="cellClass" value="" />
+    
+                                        <c:choose>
+                                            <c:when test="#{ (cell &gt;= 0.75 and cell &lt; 0.85) or (cell &lt;= -0.75 and cell &gt; -0.85)}">
+                                                <c:set var="cellClass" value="weak" />
+                                            </c:when>
+                                            <c:when test="#{ cell &gt;= 0.85 or cell &lt;= -0.85 }">
+                                                <c:set var="cellClass" value="strong" />
+                                            </c:when>
+                                            <c:otherwise>
+                                                <c:set var="cellClass" value="" />
+                                            </c:otherwise>
+                                        </c:choose>
+                                        
+                                        <ui:fragment rendered="#{cell eq 'NaN'}">
+                                            <td>N/A</td>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{cell eq 1.000}">
+                                            <td class="strong">1</td>
+                                        </ui:fragment>
+                                        <ui:fragment rendered="#{cell != 'NaN' and cell != 1.0}">
+                                            <td class="#{cellClass}">
+                                                <h:outputText value="#{cell}">
+                                                    <f:convertNumber minFractionDigits="3" maxFractionDigits="3" />
+                                                </h:outputText>
+                                            </td>
+                                        </ui:fragment>
+                                    </c:forEach>
+                                </tr>
+                            </c:forEach>
+                        </thead>
+                    </table>
+                    <div class="legend">
+                        Legend:
+                        <ul>
+                            <li>N/A : denotes insufficient data to find correlation</li>
+                            <li><span class="weakCorrelation">Yellow</span>: denotes moderate correlation (positive or negative)</li>
+                            <li><span class="strongCorrelation">Green</span>: denotes strong correlation (positive or negative)</li>
+                        </ul>
+                    </div>
+                </ui:fragment>
+                <script type="text/javascript">
+                    $(document).ready(function() {
+                        $("#startDate").datetimepicker({
+                            ampm : true,
+                            dateFormat : "mm/dd/yy",
+                            timeFormat : "h:mm TT"
+                        });
+                        $("#endDate").datetimepicker({
+                            ampm : true,
+                            dateFormat : "mm/dd/yy",
+                            timeFormat : "h:mm TT"
+                        });
+                    });
+                    $(".waiting").hide();
+                </script>
+            </h:panelGroup>
+        </h:form>
+        
+    </ui:define>
+    
+</ui:composition>
+
+</html>

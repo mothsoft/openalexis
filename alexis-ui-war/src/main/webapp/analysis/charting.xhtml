@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:t="http://myfaces.apache.org/tomahawk">
+
+<ui:composition template="/WEB-INF/layout/base.xhtml">
+    <ui:define name="title">Analysis :: Charting</ui:define>
+    <ui:define name="content">
+
+        <h1>
+            Charting
+        </h1>
+        
+        <script type="text/javascript">var authorization = '#{currentUser.apiBasicAuthorizationHeaderValue}';</script>
+        <script type="text/javascript" src="#{request.contextPath}/js/charting.js"></script>
+        
+        <h:form style="float:left">
+            <ui:include src="select-series.xhtml">
+                <ui:param name="backingBean" value="#{selectSeriesBackingBean}" />
+            </ui:include>
+            
+            <div class="labelAndInput">
+                <h:outputLabel for="startDate">Start Date</h:outputLabel>
+                <t:inputText id="startDate" forceId="true" size="28" value="#{selectSeriesBackingBean.startDate}"
+                             onchange="javascript:switchSeries();">
+                    <f:convertDateTime pattern="MM/dd/yyyy h:mm a" timeZone="#{currentUser.timeZone}" />
+                </t:inputText>
+            </div>
+
+            <div class="labelAndInput">
+                <h:outputLabel for="endDate">End Date</h:outputLabel>
+                <t:inputText id="endDate" forceId="true" size="28"
+                    value="#{selectSeriesBackingBean.endDate}"
+                    onchange="javascript:switchSeries();">
+                    <f:convertDateTime pattern="MM/dd/yyyy h:mm a" timeZone="#{currentUser.timeZone}" />
+                </t:inputText>
+            </div>
+            
+            <button class="selectSeriesButton" value="Chart" type="button" onclick="switchSeries();">Chart</button>
+
+            <div id="flotContainer">
+                <div id="flotChart" style="width:800px;height:400px"></div>
+                <div id="flotLegend"></div>
+            </div>
+
+        </h:form>
+
+    </ui:define>
+    
+</ui:composition>
+
+</html>

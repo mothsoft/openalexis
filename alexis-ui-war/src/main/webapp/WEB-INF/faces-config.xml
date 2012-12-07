@@ -1,0 +1,242 @@
+<?xml version="1.0"?>
+<faces-config xmlns="http://java.sun.com/xml/ns/javaee"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
+  version="2.0">
+
+  <application>
+    <locale-config>
+      <default-locale>en</default-locale>
+    </locale-config>
+    <message-bundle>com.mothsoft.alexis.web.messages</message-bundle>
+    <el-resolver>org.springframework.web.jsf.el.SpringBeanFacesELResolver</el-resolver>
+  </application>
+
+  <lifecycle>
+    <phase-listener>com.mothsoft.alexis.web.faces.LoginErrorPhaseListener</phase-listener>
+  </lifecycle>
+
+  <managed-bean>
+    <managed-bean-name>currentUser</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.CurrentUser</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>navigation</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.Navigation</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>dashboardBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.DashboardBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>documentService</property-name>
+      <value>#{documentService}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>dataSetService</property-name>
+      <value>#{dataSetService}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>searchBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.SearchBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>listSourcesBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.ListSourcesBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>sourceService</property-name>
+      <value>#{sourceService}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>addEditSourceBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.AddEditSourceBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>sourceService</property-name>
+      <value>#{sourceService}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>userService</property-name>
+      <value>#{userService}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>listTopicsBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.ListTopicsBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>topicService</property-name>
+      <value>#{topicService}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>addEditTopicBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.AddEditTopicBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>topicService</property-name>
+      <value>#{topicService}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>viewTopicDetailsBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.ViewTopicDetailsBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>topicService</property-name>
+      <value>#{topicService}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>dataSetService</property-name>
+      <value>#{dataSetService}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>documentService</property-name>
+      <value>#{documentService}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>listDocumentsBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.ListDocumentsBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>documentService</property-name>
+      <value>#{documentService}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>viewDocumentDetailsBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.ViewDocumentDetailsBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>documentService</property-name>
+      <value>#{documentService}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>twitterBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.TwitterBackingBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+    <managed-property>
+      <property-name>sourceService</property-name>
+      <value>#{sourceService}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>twitterService</property-name>
+      <value>#{twitterService}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>userService</property-name>
+      <value>#{userService}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>chartingBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.ChartingBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>selectSeriesBackingBean</property-name>
+      <value>#{selectSeriesBackingBean}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>correlationBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.CorrelationBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>selectSeriesBackingBean</property-name>
+      <value>#{selectSeriesBackingBean}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>dataSetService</property-name>
+      <value>#{dataSetService}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>termPredictorsBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.TermPredictorsBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>documentService</property-name>
+      <value>#{documentService}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>selectSeriesBackingBean</property-name>
+      <value>#{selectSeriesBackingBean}</value>
+    </managed-property>
+  </managed-bean>
+  
+  <managed-bean>
+    <managed-bean-name>selectSeriesBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.SelectSeriesBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>dataSetService</property-name>
+      <value>#{dataSetService}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>listModelsBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.ListModelsBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>modelService</property-name>
+      <value>#{modelService}</value>
+    </managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <managed-bean-name>addEditModelBackingBean</managed-bean-name>
+    <managed-bean-class>com.mothsoft.alexis.web.AddEditModelBackingBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+    <managed-property>
+      <property-name>dataSetService</property-name>
+      <value>#{dataSetService}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>modelService</property-name>
+      <value>#{modelService}</value>
+    </managed-property>
+    <managed-property>
+      <property-name>topicService</property-name>
+      <value>#{topicService}</value>
+    </managed-property>
+  </managed-bean>
+
+  <converter>
+    <converter-id>humanReadableBytesConverter</converter-id>
+    <converter-class>com.mothsoft.alexis.web.faces.HumanReadableBytesConverter</converter-class>
+  </converter>
+
+  <converter>
+    <converter-id>tweetConverter</converter-id>
+    <converter-class>com.mothsoft.alexis.web.faces.TweetConverter</converter-class>
+  </converter>
+
+  <validator>
+    <validator-id>searchExpressionValidator</validator-id>
+    <validator-class>com.mothsoft.alexis.web.faces.LuceneSearchExpressionValidator</validator-class>
+  </validator>
+
+</faces-config> 

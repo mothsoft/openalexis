@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+  <bean id="documentService" class="com.mothsoft.alexis.service.impl.DocumentServiceImpl">
+    <property name="documentDao" ref="documentDao" />
+  </bean>
+
+  <bean id="sourceService" class="com.mothsoft.alexis.service.impl.SourceServiceImpl">
+    <property name="sourceDao" ref="sourceDao" />
+    <property name="rssFeedDao" ref="rssFeedDao" />
+  </bean>
+
+  <bean id="topicService" class="com.mothsoft.alexis.service.impl.TopicServiceImpl">
+    <property name="dataSetDao" ref="dataSetDao" />
+    <property name="topicDao" ref="topicDao" />
+  </bean>
+
+  <bean id="twitterService" class="com.mothsoft.integration.twitter.TwitterServiceImpl">
+    <constructor-arg ref="properties" />
+  </bean>
+
+  <bean id="userService" class="com.mothsoft.alexis.service.impl.UserServiceImpl">
+    <property name="userDao" ref="userDao" />
+    <property name="socialConnectionDao" ref="socialConnectionDao" />
+  </bean>
+
+  <bean id="dataSetService" class="com.mothsoft.alexis.service.impl.DataSetServiceImpl">
+    <constructor-arg index="0" ref="dataSetDao" />
+    <constructor-arg index="1" ref="dataSetTypeDao" />
+    <constructor-arg index="2" ref="dataSetPointDao" />
+    <constructor-arg index="3" ref="topicDao" />
+    <constructor-arg index="4" ref="correlationCalculator" />
+  </bean>
+  
+  <bean id="modelService" class="com.mothsoft.alexis.service.impl.ModelServiceImpl">
+    <constructor-arg index="0" ref="modelDao" />
+    <constructor-arg index="1" value="${alexis.models.directory}" />
+  </bean>
+
+  <bean id="correlationCalculator"
+    class="com.mothsoft.alexis.engine.numeric.CorrelationCalculatorImpl">
+    <constructor-arg index="0" ref="dataSetPointDao" />
+  </bean>
+
+</beans>

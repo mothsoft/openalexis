@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+>
+
+<ui:composition template="/WEB-INF/layout/base.xhtml">
+    <ui:define name="title">Topics :: Details</ui:define>
+    <ui:define name="content">
+
+        <h1>Topic Details</h1>
+
+        <ul>
+            <li><strong>Name:</strong> #{viewTopicDetailsBackingBean.topic.name}</li>
+            <ui:fragment rendered="#{not empty viewTopicDetailsBackingBean.topic.description}">
+                <li><strong>Description:</strong> #{viewTopicDetailsBackingBean.topic.description}</li>
+            </ui:fragment>
+            <ui:fragment rendered="#{not empty viewTopicDetailsBackingBean.topic.searchExpression}">
+                <li><strong>Search Expression:</strong>
+                   <ul>
+                       <li>#{viewTopicDetailsBackingBean.topic.searchExpression}</li>
+                   </ul>
+                </li>
+            </ui:fragment>
+         </ul>
+         
+         <div class="graph">
+             <img class="graph" src="#{request.contextPath}/chart/line/?ds=#{viewTopicDetailsBackingBean.dataSet.id}" />
+             <span class="graphCaption">Last 12 Hours</span>
+         </div>
+         
+         <ui:fragment rendered="#{not empty viewTopicDetailsBackingBean.documents}">
+             <h2 class="floatingHeader">Recent Documents</h2>
+             <div class="paginationControls">
+                 <h:outputLink value="#{request.contextPath}/documents/search">
+	               <f:param name="q" value="#{viewTopicDetailsBackingBean.topic.searchExpression}" />
+	               <f:param name="order" value="date" />
+	               <h:outputText value="more..." />
+	            </h:outputLink>
+             </div>
+             <ul class="topicRecentDocuments">
+	             <ui:repeat value="#{viewTopicDetailsBackingBean.documents}" var="document">
+	                 <li>
+                         <a href="#{document.url}" target="_blank">#{document.title}</a>
+                         <a class="action" href="#{request.contextPath}/documents/#{document.id}/details">details</a>
+                         <ui:fragment rendered="#{not empty document.description}">
+	                         <p class="documentListItemAttribute">
+                                 #{document.description}
+	                         </p>	                 
+                         </ui:fragment>
+	                 </li>
+	             </ui:repeat>
+             </ul>
+         </ui:fragment>
+         
+         
+
+    </ui:define>
+</ui:composition>
+
+</html>

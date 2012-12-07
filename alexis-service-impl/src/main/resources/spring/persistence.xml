@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+  <bean id="dataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+    <property name="jndiName" value="java:comp/env/jdbc/alexis" />
+  </bean>
+
+  <bean name="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+    <property name="dataSource" ref="dataSource" />
+    <property name="entityManagerFactory" ref="entityManagerFactory" />
+  </bean>
+
+  <bean
+    class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor" />
+
+  <bean
+    class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+
+  <bean id="entityManagerFactory"
+    class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+    <property name="dataSource" ref="dataSource" />
+    <property name="persistenceUnitName" value="default" />
+    <property name="jpaProperties" ref="properties" />
+  </bean>
+
+  <bean class="org.springframework.orm.jpa.JpaTransactionManager">
+    <property name="entityManagerFactory" ref="entityManagerFactory" />
+  </bean>
+
+  <tx:annotation-driven />
+
+  <bean id="dataSetDao" class="com.mothsoft.alexis.dao.DataSetDaoImpl" />
+  <bean id="dataSetPointDao" class="com.mothsoft.alexis.dao.DataSetPointDaoImpl" />
+  <bean id="dataSetTypeDao" class="com.mothsoft.alexis.dao.DataSetTypeDaoImpl" />
+  <bean id="documentDao" class="com.mothsoft.alexis.dao.DocumentDaoImpl" />
+  <bean id="modelDao" class="com.mothsoft.alexis.dao.ModelDaoImpl" />
+  <bean id="rssFeedDao" class="com.mothsoft.alexis.dao.RssFeedDaoImpl" />
+  <bean id="socialConnectionDao" class="com.mothsoft.alexis.dao.SocialConnectionDaoImpl" />
+  <bean id="sourceDao" class="com.mothsoft.alexis.dao.SourceDaoImpl" />
+  <bean id="termDao" class="com.mothsoft.alexis.dao.TermDaoImpl" />
+  <bean id="topicDao" class="com.mothsoft.alexis.dao.TopicDaoImpl" />
+  <bean id="tweetDao" class="com.mothsoft.alexis.dao.TweetDaoImpl" />
+  <bean id="userDao" class="com.mothsoft.alexis.dao.UserDaoImpl" />
+
+</beans>

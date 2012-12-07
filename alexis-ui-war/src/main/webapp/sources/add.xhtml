@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+>
+
+<ui:composition template="/WEB-INF/layout/base.xhtml">
+    <ui:define name="title">Sources :: Add Source</ui:define>
+    <ui:define name="content">
+    
+        <h1>Add Source</h1>
+
+        <ul id="addSourceType">
+         <li class="#{addEditSourceBackingBean.rss ? 'selected' : ''}">
+             <a href="#{request.contextPath}/sources/add/rss">RSS Feed</a>
+         </li>
+         <li class="#{addEditSourceBackingBean.twitter ? 'selected' : ''}">
+             <a href="#{request.contextPath}/sources/add/twitter">Twitter</a>
+         </li>
+        </ul>
+        
+        <h:form id="addSourceForm">
+            <ui:remove>*** Twitter ***</ui:remove>
+	        <ui:fragment rendered="#{addEditSourceBackingBean.twitter}">
+
+	            <h2>Twitter</h2>
+	            <p>
+	                You currently have #{addEditSourceBackingBean.numberOfTwitterProfiles} Twitter profiles registered. 
+	                Each profile's timeline will be retrieved and analyzed.
+	            </p>
+                <ul>
+                    <ui:repeat value="#{addEditSourceBackingBean.twitterProfiles}" var="profile">
+                        <li>#{profile.remoteUsername}</li>
+                    </ui:repeat>
+                    <li class="last">
+                        <h:commandLink actionListener="#{twitterBackingBean.requestOauthAuthorization}" value="add a profile" immediate="true" />
+                    </li>
+                </ul>
+	            
+	        </ui:fragment>
+
+            <ui:remove>*** RSS Feed ***</ui:remove>
+	        <ui:fragment rendered="#{addEditSourceBackingBean.rss}">
+
+                <h2>RSS Feed</h2>
+
+                <h:outputLabel for="addEditSourceUrl">
+                    URL *
+                </h:outputLabel>
+                
+	            <h:inputText id="addEditSourceUrl" label="URL"
+	                value="#{addEditSourceBackingBean.url}" size="72" maxlength="255" 
+	                required="true" validator="#{addEditSourceBackingBean.validateUrl}">
+	            </h:inputText>
+	            <h:message for="addEditSourceUrl" styleClass="validationError" />
+
+	            <h:commandButton value="Save" styleClass="save" actionListener="#{addEditSourceBackingBean.saveRss}" 
+	                             action="/sources/list?faces-redirect=true" />
+	        
+	        </ui:fragment>
+	        
+            <ui:fragment rendered="#{addEditSourceBackingBean.twitter or addEditSourceBackingBean.rss}">
+                <h:commandLink action="/sources/add?faces-redirect=true" value="cancel" styleClass="cancel" immediate="true" />
+            </ui:fragment>
+        </h:form>
+
+    </ui:define>
+</ui:composition>
+</html>

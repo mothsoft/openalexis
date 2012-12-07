@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+>
+
+<ui:composition template="/WEB-INF/layout/base.xhtml">
+    <ui:define name="title">Topics :: Add Topic</ui:define>
+    <ui:define name="content">
+
+        <ui:fragment rendered="#{!addEditTopicBackingBean.edit}">
+            <h1>Add Topic</h1>
+        </ui:fragment>
+        <ui:fragment rendered="#{addEditTopicBackingBean.edit}">
+            <h1>Edit Topic</h1>
+        </ui:fragment>
+        
+        <h:form styleClass="add">
+            <h:outputLabel for="addEditTopicName">
+                Name *
+            </h:outputLabel>
+
+            <h:inputText id="addEditTopicName" label="Name"
+                value="#{addEditTopicBackingBean.name}" size="35" maxlength="32" required="true" 
+                validator="#{addEditTopicBackingBean.validateTopicName}">
+                <f:validateLength maximum="32" />
+            </h:inputText>
+            <h:message for="addEditTopicName" styleClass="validationError" />
+
+            <h:outputLabel for="addEditTopicSearchExpression">
+                Search Expression *
+            </h:outputLabel>
+            <p class="tip"><strong>Tip:</strong> &quot;Quote&quot; terms, +require terms, or -exclude terms for best results. 
+            Or, if you like to live on the edge, try something like: <em>+android +(gingerbread or samsung or htc)</em></p>
+
+            <span class="addEditTopicSearchExpression">
+	           <h:inputTextarea id="addEditTopicSearchExpression" label="Search Expression"
+	               value="#{addEditTopicBackingBean.searchExpression}" cols="75" rows="4"
+	               maxlength="255" styleClass="addEditTopicSearchExpression" required="true">
+	               <f:validateLength maximum="255" />
+	               <f:validator validatorId="searchExpressionValidator" />
+	           </h:inputTextarea>
+	           <h:message for="addEditTopicSearchExpression" styleClass="validationError" />
+            </span>
+            
+            <h:outputLabel for="addEditTopicDescription">
+                Description
+            </h:outputLabel>
+            <h:inputTextarea id="addEditTopicDescription" label="Description"
+                value="#{addEditTopicBackingBean.description}" cols="75" rows="4"
+                maxlength="255" styleClass="addEditTopicDescription">
+                <f:validateLength maximum="255" />
+            </h:inputTextarea>
+            <h:message for="addEditTopicDescription" styleClass="validationError" />
+
+            <h:commandButton value="Save" styleClass="save"
+                actionListener="#{addEditTopicBackingBean.save}" action="/topics/list?faces-redirect=true" />
+
+        </h:form>
+        <h:form styleClass="add">
+            <h:commandLink action="/topics/list?faces-redirect=true" value="cancel" styleClass="cancel" />
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>

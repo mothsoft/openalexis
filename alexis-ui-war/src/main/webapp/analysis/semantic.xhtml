@@ -1,0 +1,95 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core">
+
+<ui:composition template="/WEB-INF/layout/base.xhtml">
+    <ui:define name="title">Analysis :: Semantic Graph </ui:define>
+    <ui:define name="content">
+
+        <h1 class="floatingHeader">
+            Semantic Graph
+        </h1>
+        
+        <div class="startOver">
+            <a href="#" onclick="javascript:startOver();">start over</a>
+        </div>
+
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/physics/ParticleModel.js"></script>
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/physics/Magnet.js"></script>
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/physics/Spring.js"></script>
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/physics/Particle.js"></script>
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/physics/RungeKuttaIntegrator.js"></script>
+        
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/layout/graph/ForceDirectedLayout.js"></script>
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/layout/view/HTMLGraphView.js"></script>
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/layout/view/SVGGraphView.js"></script>
+
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/util/Timer.js"></script>
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/util/EventHandler.js"></script>
+
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/io/DataGraph.js"></script>
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/io/HTTP.js"></script>
+        
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/io/HTTP.js"></script>
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/io/JSONLoader.js"></script>
+        <script language="JavaScript" src="#{request.contextPath}/js/jsviz/controller.js"></script>
+        
+        <script type="text/javascript" src="#{request.contextPath}/js/semantic.js"></script>
+        <script type="text/javascript">
+            var authorization = '#{currentUser.apiBasicAuthorizationHeaderValue}';
+        </script>
+        
+        <div id="canvasContainer">
+            <div id="canvas"></div>
+        </div>
+        
+        <div id="canvasProperties">
+            <div id="nodeInfo">
+                <h2>Selected:</h2> 
+                <div id="selectedNodes">
+                </div>
+                <form onsubmit="return false;">
+                    <input type="submit" value="graph this" 
+                           onclick="$('#query').val(selectedNodesQueryString);init();" />
+                </form>
+                <form action="#{request.contextPath}/documents/search" method="get">
+                    <input type="hidden" id="searchq" name="q" value="#{param['q']}" />
+                    <input type="hidden" id="ref" name="ref" value="graph" />
+                    <input type="hidden" id="order" name="order" value="date" />
+                    <input type="submit" value="review content" 
+                           onclick="$('#searchq').val(selectedNodesQueryString);" />
+                </form>
+            </div>
+        </div>
+        
+        <div id="queryModal">
+	        <label for="query">What do you want to know about?</label>
+	        <input type="text" class="text" id="query" name="query" size="24" maxlength="75" value="#{param['q']}" />
+	        
+	        <div class="modalAdvanced">
+	            <div class="header">+ Advanced Options</div>
+	            <div class="toggleDefaultHide toggle">
+	                <label for="startDate">Start Date</label>
+	                <input type="text" class="date" id="startDate" name="startDate" />
+	                
+	                <label for="endDate">End Date</label>
+                    <input type="text" class="date" id="endDate" name="endDate" />
+	            </div>
+	        </div>
+	        
+	        <input type="button" onclick="javascript: try {init(); } catch(err) {alert(err);}" value="search" />
+	        <a class="cancel" href="#" onclick="javascript:$('#queryModal').dialog('close');">cancel</a>
+        </div>
+        
+        <div id="waitingModal">
+        </div>
+        
+    </ui:define>
+    
+</ui:composition>
+
+</html>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+      
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:c="http://java.sun.com/jstl/core"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
+      
+      <f:loadBundle basename="com.mothsoft.alexis.web.messages" var="msg" />
+      
+<head>
+    <title><ui:insert name="title">mothsoft alexis :: powerful textual data mining</ui:insert></title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />  
+    <link href="#{request.contextPath}/css/reset.css" rel="stylesheet" type="text/css"/>
+    <link href="#{request.contextPath}/css/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    <link href="#{request.contextPath}/css/base.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript" src="https://platform.twitter.com/widgets.js"></script>
+    <script src="#{request.contextPath}/js/functions.js" type="text/javascript"></script>
+    <script src="#{request.contextPath}/js/jquery-1.7.2.min.js" type="text/javascript"></script>
+    <script src="#{request.contextPath}/js/jquery-ui-1.8.20.custom.min.js" type="text/javascript"></script>
+    <script src="#{request.contextPath}/js/jquery-ui-timepicker-addon.js" type="text/javascript"></script>
+    <script src="#{request.contextPath}/js/jquery.flot.js" type="text/javascript"></script>
+</head>
+<body>
+    <f:view>
+
+      <div id="branding">
+          <span id="mothsoft"></span>
+      </div>
+
+      <div id="main">
+	    <ui:fragment rendered="#{currentUser.authenticated and request.servletPath != '/login.jsf'}">
+	        <ui:insert name="navigation">
+	        <div id="navigation">
+	           <a href="#{request.contextPath}/dashboard/" class="navigation #{navigation.dashboard ? 'selected' : ''}">Dashboard</a>
+	           <a href="#{request.contextPath}/topics/" class="navigation #{navigation.topics ? 'selected' : ''}">Topics</a>
+	           <a href="#{request.contextPath}/sources/" class="navigation #{navigation.sources ? 'selected' : ''}">Sources</a>
+	           <a href="#{request.contextPath}/documents/" class="navigation #{navigation.documents ? 'selected': ''}">Documents</a>
+	           <a href="#{request.contextPath}/analysis/" class="navigation #{navigation.analysis ? 'selected': ''}">Analysis</a>
+	           <div id="search">
+	               <form action="#{request.contextPath}/documents/search" enctype="application/x-www-form-urlencoded"
+	                     onsubmit="return validateRequired($('#q'));">
+	                   <input type="text" id="q" name="q" class="text search" maxlength="128" />
+	                   <button type="submit" class="button">search</button>
+	               </form>
+	               <script type="text/javascript">
+                       $("#q").focus();
+                   </script>
+	            </div>
+	        </div>
+	        
+	        <span class="logout">
+	            <a href="#{request.contextPath}/logout" title="Logout" class="logout">Logout</a>
+	            #{currentUser.username}
+	        </span> 
+	       </ui:insert>
+       </ui:fragment>
+	    
+	   <div id="content">
+
+           <h:messages globalOnly="true" styleClass="errorBox" />	       
+
+	       <ui:insert name="content">
+	           Default page content
+	       </ui:insert>
+	   </div>
+	   
+	 </div>
+	 
+  </f:view>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+>
+
+<ui:composition template="/WEB-INF/layout/base.xhtml">
+    <ui:define name="title">Document :: Details</ui:define>
+    <ui:define name="content">
+
+        <h1>Document Details</h1>
+
+        <ui:fragment rendered="#{viewDocumentDetailsBackingBean.document != null}">
+   
+            <ui:fragment rendered="#{viewDocumentDetailsBackingBean.document.title != null 
+                                         and viewDocumentDetailsBackingBean.document.type == 'W'}">
+                <h2 class="documentDetailsTitle">#{viewDocumentDetailsBackingBean.document.title}</h2>
+            </ui:fragment>
+        
+            <ul class="documentDetails">
+                
+                <ui:fragment rendered="#{viewDocumentDetailsBackingBean.document.type == 'T'}">
+                    <ui:include src="tweet.xhtml">
+                        <ui:param name="tweet" value="#{viewDocumentDetailsBackingBean.document}" />
+                        <ui:param name="isTweetDetail" value="#{true}" />
+                    </ui:include>
+                </ui:fragment>
+                
+                <ui:fragment rendered="#{viewDocumentDetailsBackingBean.document.type != 'T'}">
+
+	                <ui:fragment rendered="#{viewDocumentDetailsBackingBean.document.description != null}">
+	                  <li><strong>Description:</strong> #{viewDocumentDetailsBackingBean.document.description}</li>
+	                </ui:fragment>
+	                
+                </ui:fragment>
+
+                <li><strong>Document ID:</strong> #{viewDocumentDetailsBackingBean.document.id}</li>
+
+                <li><strong>URL:</strong> <a href="#{viewDocumentDetailsBackingBean.document.url}" target="_blank">#{viewDocumentDetailsBackingBean.document.url}</a></li>
+
+                <li><strong>Created: </strong>
+		            <h:outputText value="#{viewDocumentDetailsBackingBean.document.creationDate}">
+		                <f:convertDateTime type="both" dateStyle="default" timeZone="#{currentUser.timeZone}" />
+		            </h:outputText>
+                </li>
+
+                <li><strong>Retrieved: </strong>
+                    <h:outputText value="#{viewDocumentDetailsBackingBean.document.retrievalDate}">
+                        <f:convertDateTime type="both" dateStyle="default" timeZone="#{currentUser.timeZone}" />
+                    </h:outputText>
+                </li>
+                
+                <ui:remove>
+	                <ui:fragment rendered="#{not empty viewDocumentDetailsBackingBean.document.sentenceCount}">
+	                  <li><strong>Number of sentences:</strong> #{fn:length(viewDocumentDetailsBackingBean.document.sentenceCount)}</li>
+	                </ui:fragment>
+                </ui:remove>
+                
+                <ui:fragment rendered="#{viewDocumentDetailsBackingBean.document.termCount > 0}">
+                  <li><strong>Term Count:</strong> #{viewDocumentDetailsBackingBean.document.termCount}</li>
+                </ui:fragment>
+                
+                <ui:fragment rendered="#{not empty viewDocumentDetailsBackingBean.topicDocuments}">
+	                <li><strong>Associated Topics:</strong>
+	                   <ul>
+	                   <ui:repeat
+	                       value="#{viewDocumentDetailsBackingBean.topicDocuments}"
+	                       var="topicDocument">
+	                       <li>#{topicDocument.topic.name}</li>
+	                   </ui:repeat>
+	                   </ul>
+	                </li>
+                </ui:fragment>
+
+                <ui:fragment rendered="#{viewDocumentDetailsBackingBean.document.state.value &lt; 3}">
+                    <p><strong>Semantic Analysis is pending for this document.</strong></p>
+                </ui:fragment>
+
+				<ui:fragment rendered="#{not empty viewDocumentDetailsBackingBean.importantNamedEntities}">
+				<li class="importantNamedEntities">
+				    <strong>Important Named Entities:</strong>
+				    <div class="graph">
+				        <ui:repeat
+				            value="#{viewDocumentDetailsBackingBean.importantNamedEntities}"
+				            var="importantNamedEntity">
+				            <div class="graphItem">
+				                <span class="graphNameLabel">#{importantNamedEntity.name}</span> 
+				                <span class="graphBar" style="height: 10px; width: #{((importantNamedEntity.count * 1000) / (viewDocumentDetailsBackingBean.importantNamedEntitiesMaxCount * 1000)) * 100 * 3.75 + 5}px"></span>
+				             </div>
+				         </ui:repeat>
+				     </div>
+				</li>
+				</ui:fragment>
+				
+                <ui:fragment rendered="#{not empty viewDocumentDetailsBackingBean.importantTerms}">
+                <li class="importantTerms">
+                    <strong>Important Terms:</strong>
+					<div class="graph">
+						<ui:repeat
+							value="#{viewDocumentDetailsBackingBean.importantTerms}"
+							var="importantTerm">
+							<div class="graphItem">
+								<span class="graphNameLabel">#{importantTerm.termValue}</span> 
+								<span class="graphBar" style="height: 10px; width: #{importantTerm.percentageOfMaximum * 3.75 + 5}px"></span>
+							</div>
+						</ui:repeat>
+					</div>
+			   </li>
+			   </ui:fragment>
+            </ul>
+        </ui:fragment>
+
+    </ui:define>
+</ui:composition>
+
+</html>
