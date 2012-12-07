@@ -11,6 +11,10 @@ This software is built with Maven. Issue 'mvn clean install -Dmaven.test.skip=tr
 
 Installation
 ==============
+* Complete installation of https://github.com/mothsoft/stanford-nlp-war
+* Create file alexis.properties in the root package of a location accessible to servlet container's shared class loader (example: TOMCAT_HOME/shared/classes)
+    * Override any settings from alexis-service-impl/src/main/resources/com/mothsoft/alexis/service/alexis.properties that differ from your environment
+    * You will likely need to update filesystem properties (values starting /home/alexis) and Twitter integration settings
 * Push alexis-ui-war/target/alexis.war to servlet container
 * Push alexis-service-war/target/api.war to servlet container
 * Create starter database by importing alexis-domain/alexis.ddl into MySQL
