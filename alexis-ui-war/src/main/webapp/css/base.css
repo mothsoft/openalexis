@@ -76,11 +76,21 @@ div#branding {
 }
 
 div#branding span#mothsoft {
-	background-image: url('/alexis/images/mothsoft.png');
+	display: none;
+	/*background-image: url('/alexis/images/mothsoft.png');
 	background-repeat: no-repeat;
 	display: block;
 	width: 155px;
-	height: 32px;
+	height: 32px;*/
+}
+
+div#branding span#openAlexis {
+	display: inline;
+	color: #ffcc00;
+	position: relative;
+	top: 10px;
+	left: 12px;
+	font-size: 110%;
 }
 
 div#breadcrumb {

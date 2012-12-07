@@ -11,7 +11,7 @@
       <f:loadBundle basename="com.mothsoft.alexis.web.messages" var="msg" />
       
 <head>
-    <title><ui:insert name="title">mothsoft alexis :: powerful textual data mining</ui:insert></title>
+    <title><ui:insert name="title">#{msg['alexis.title']}</ui:insert></title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />  
     <link href="#{request.contextPath}/css/reset.css" rel="stylesheet" type="text/css"/>
     <link href="#{request.contextPath}/css/jquery-ui.css" rel="stylesheet" type="text/css"/>
@@ -28,6 +28,7 @@
 
       <div id="branding">
           <span id="mothsoft"></span>
+          <span id="openAlexis">#{msg['alexis.header']}</span>
       </div>
 
       <div id="main">
