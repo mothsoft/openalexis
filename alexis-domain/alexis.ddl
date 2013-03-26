@@ -12,6 +12,11 @@ CREATE TABLE user(
     is_admin tinyint(1) DEFAULT 0
 );
 
+ALTER TABLE user ADD UNIQUE KEY(username);
+
+INSERT INTO user(username, salt, is_admin) VALUES('admin', hex(random()), 1);
+UPDATE user set hashed_password = sha2(CONCAT('adm1N!', '{', salt, '}'), 256) where username = 'admin';
+
 CREATE TABLE user_api_token (
     id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
@@ -224,26 +229,6 @@ CREATE TABLE document_association (
     FOREIGN KEY(document_id) REFERENCES document(id),
     FOREIGN KEY(term_a_id) REFERENCES term(id),
     FOREIGN KEY(term_b_id) REFERENCES term(id)
-);
-
-CREATE TABLE trainer_corpus (
-    id BIGINT NOT NULL AUTO_INCREMENT,
-    document_count INT DEFAULT 0,
-    PRIMARY KEY(id)
-);
-
-INSERT INTO trainer_corpus
-    VALUES(1, 0);
-
-CREATE TABLE trainer_corpus_term_document_count(
-    id BIGINT NOT NULL AUTO_INCREMENT,
-    trainer_corpus_id BIGINT NOT NULL,
-    term_id BIGINT NOT NULL,
-    document_count INT NOT NULL DEFAULT 0,
-    PRIMARY KEY(id),
-    FOREIGN KEY(term_id) REFERENCES term(id),
-    FOREIGN KEY(trainer_corpus_id) REFERENCES trainer_corpus(id),
-    UNIQUE KEY(trainer_corpus_id, term_id) 
 );
 
 CREATE TABLE data_set_type(
