@@ -36,6 +36,10 @@ public class UserServiceImpl implements UserService {
         this.userDao = userDao;
     }
 
+    public void addUser(final User user) {
+        this.userDao.add(user);
+    }
+
     public User getUser(final Long userId) {
         return this.userDao.get(userId);
     }

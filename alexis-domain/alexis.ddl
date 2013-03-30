@@ -9,13 +9,17 @@ CREATE TABLE user(
     username varchar(32),
     hashed_password char(64),
     salt char(64),
-    is_admin tinyint(1) DEFAULT 0
+    is_admin tinyint(1) DEFAULT 0,
+    external_auth_provider varchar(64),
+    external_id varchar(128),
+    external_access_token varchar(128) 
 );
 
 ALTER TABLE user ADD UNIQUE KEY(username);
 
-INSERT INTO user(username, salt, is_admin) VALUES('admin', hex(random()), 1);
-UPDATE user set hashed_password = sha2(CONCAT('adm1N!', '{', salt, '}'), 256) where username = 'admin';
+--example of creating an admin-level user
+--INSERT INTO user(username, salt, is_admin) VALUES('admin', hex(random()), 1);
+--UPDATE user set hashed_password = sha2(CONCAT('adm1N!', '{', salt, '}'), 256) where username = 'admin';
 
 CREATE TABLE user_api_token (
     id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -24,6 +28,10 @@ CREATE TABLE user_api_token (
     last_used TIMESTAMP NOT NULL,
     FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE
 );
+
+--example of creating a persistent system-level credential for encrypted system-to-system-communication
+--INSERT INTO user_api_token(user_id, token, last_used) 
+--    VALUES( (SELECT id FROM user WHERE username = 'admin'), UUID(), '2037-12-31 23:59:59');
 
 CREATE TABLE social_connection(
     id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,

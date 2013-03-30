@@ -22,6 +22,7 @@ http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
       <ref bean="documentResourceV1" />
       <ref bean="dataSetResourceV1" />
       <ref bean="analysisResourceV1" />
+      <ref bean="sourceResourceV1" />
     </jaxrs:serviceBeans>
   </jaxrs:server>
 
@@ -38,6 +39,11 @@ http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
   <bean id="analysisResourceV1"
     class="com.mothsoft.alexis.rest.analysis.v1.impl.AnalysisResourceImpl">
     <constructor-arg index="0" ref="documentService" />
+  </bean>
+
+  <bean id="sourceResourceV1"
+    class="com.mothsoft.alexis.rest.source.v1.impl.SourceResourceImpl">
+    <constructor-arg index="0" ref="sourceService" />
   </bean>
 
 </beans>

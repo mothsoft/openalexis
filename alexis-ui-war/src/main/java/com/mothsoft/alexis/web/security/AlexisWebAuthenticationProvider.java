@@ -76,7 +76,9 @@ public class AlexisWebAuthenticationProvider extends AbstractUserDetailsAuthenti
                 final String encodedPassword = AlexisWebAuthenticationProvider.this.passwordEncoder.encodePassword(
                         password, user.getPasswordSalt());
 
-                if (!username.equals(token.getName()) || !encodedPassword.equals(user.getHashedPassword())) {
+                // credentials are bad if none are stored (external auth) or they don't match
+                if (user.getHashedPassword() == null || !username.equals(token.getName())
+                        || !encodedPassword.equals(user.getHashedPassword())) {
                     throw new BadCredentialsException(username);
                 }
 

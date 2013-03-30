@@ -19,6 +19,8 @@ import com.mothsoft.alexis.domain.UserApiToken;
 
 public interface UserDao {
 
+    public void add(User user);
+    
     public User get(Long id);
 
     public User findUserByUsername(String username);

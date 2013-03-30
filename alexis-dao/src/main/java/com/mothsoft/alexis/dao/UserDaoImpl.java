@@ -41,6 +41,10 @@ public class UserDaoImpl implements UserDao {
         this.em = em;
     }
 
+    public void add(final User user) {
+        this.em.persist(user);
+    }
+    
     public User get(final Long id) {
         return this.em.find(User.class, id);
     }

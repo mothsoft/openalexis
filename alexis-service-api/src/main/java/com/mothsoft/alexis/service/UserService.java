@@ -19,6 +19,8 @@ import com.mothsoft.alexis.domain.User;
 
 public interface UserService {
 
+    public void addUser(User user);
+    
     public void addOrUpdateSocialConnection(User user, SocialConnection socialConnection);
 
     public User getUser(Long userId);
