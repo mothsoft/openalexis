@@ -26,11 +26,6 @@
 <body>
     <f:view>
 
-      <div id="branding">
-          <span id="mothsoft"></span>
-          <span id="openAlexis">#{msg['alexis.header']}</span>
-      </div>
-
       <div id="main">
 	    <ui:fragment rendered="#{currentUser.authenticated and request.servletPath != '/login.jsf'}">
 	        <ui:insert name="navigation">
@@ -43,8 +38,9 @@
 	           <div id="search">
 	               <form action="#{request.contextPath}/documents/search" enctype="application/x-www-form-urlencoded"
 	                     onsubmit="return validateRequired($('#q'));">
+                       <label for="q">Search:</label>
 	                   <input type="text" id="q" name="q" class="text search" maxlength="128" />
-	                   <button type="submit" class="button">search</button>
+	                   <button type="submit" class="button">&#10003;</button>
 	               </form>
 	               <script type="text/javascript">
                        $("#q").focus();
