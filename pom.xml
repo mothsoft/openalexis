@@ -19,6 +19,11 @@
             </snapshots>
             <url>http://boilerpipe.googlecode.com/svn/repo/</url>
         </repository>
+        <repository>
+            <id>spring-milestone</id>
+            <name>Spring Maven MILESTONE Repository</name>
+            <url>http://maven.springframework.org/milestone</url>
+        </repository>
     </repositories>
 
     <build>
@@ -290,6 +295,11 @@
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-spring</artifactId>
                 <version>3.9</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security.oauth</groupId>
+                <artifactId>spring-security-oauth2</artifactId>
+                <version>1.0.2.RELEASE</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -9,10 +9,7 @@ CREATE TABLE user(
     username varchar(32),
     hashed_password char(64),
     salt char(64),
-    is_admin tinyint(1) DEFAULT 0,
-    external_auth_provider varchar(64),
-    external_id varchar(128),
-    external_access_token varchar(128) 
+    is_admin tinyint(1) DEFAULT 0
 );
 
 ALTER TABLE user ADD UNIQUE KEY(username);

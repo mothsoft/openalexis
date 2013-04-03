@@ -47,15 +47,6 @@ public class User {
     @Column(name = "is_admin", columnDefinition = "bit")
     private boolean admin;
 
-    @Column(name = "external_auth_provider", length = 64)
-    private String externalAuthProvider;
-
-    @Column(name = "external_id", length = 128)
-    private String externalId;
-
-    @Column(name = "external_access_token", length = 128)
-    private String externalAccessToken;
-
     @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private List<SocialConnection> socialConnections;
@@ -124,30 +115,6 @@ public class User {
 
     public List<UserApiToken> getApiTokens() {
         return this.apiTokens;
-    }
-
-    public String getExternalAuthProvider() {
-        return externalAuthProvider;
-    }
-
-    public void setExternalAuthProvider(String externalAuthProvider) {
-        this.externalAuthProvider = externalAuthProvider;
-    }
-
-    public String getExternalId() {
-        return externalId;
-    }
-
-    public void setExternalId(String externalId) {
-        this.externalId = externalId;
-    }
-
-    public String getExternalAccessToken() {
-        return externalAccessToken;
-    }
-
-    public void setExternalAccessToken(String externalAccessToken) {
-        this.externalAccessToken = externalAccessToken;
     }
 
 }
