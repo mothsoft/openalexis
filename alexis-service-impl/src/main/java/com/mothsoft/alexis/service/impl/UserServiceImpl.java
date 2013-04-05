@@ -19,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mothsoft.alexis.dao.SocialConnectionDao;
 import com.mothsoft.alexis.dao.UserDao;
 import com.mothsoft.alexis.domain.SocialConnection;
+import com.mothsoft.alexis.domain.SocialNetworkType;
 import com.mothsoft.alexis.domain.User;
+import com.mothsoft.alexis.domain.UserApiToken;
 import com.mothsoft.alexis.service.UserService;
 
 @Transactional
@@ -56,4 +58,15 @@ public class UserServiceImpl implements UserService {
         user.getSocialConnections().add(socialConnection);
         update(user);
     }
+
+    @Override
+    public SocialConnection findSocialConnectionByRemoteUsername(String username, SocialNetworkType networkType) {
+        return this.socialConnectionDao.findByRemoteUsername(username, networkType);
+    }
+
+    @Override
+    public UserApiToken createApiToken(User user) {
+        return this.userDao.createApiToken(user);
+    }
+
 }

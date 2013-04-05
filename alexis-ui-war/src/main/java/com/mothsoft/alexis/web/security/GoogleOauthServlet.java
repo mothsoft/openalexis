@@ -15,7 +15,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 public class GoogleOauthServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private static final String GOOGLE_OAUTH_URL = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=%s&redirect_uri=%s&scope=%s";
+    private static final String GOOGLE_OAUTH_URL = "https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=%s&redirect_uri=%s&scope=%s&access_type=offline";
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException,
             IOException {

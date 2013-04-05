@@ -14,12 +14,16 @@
  */
 package com.mothsoft.alexis.dao;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import org.springframework.stereotype.Repository;
 
 import com.mothsoft.alexis.domain.SocialConnection;
+import com.mothsoft.alexis.domain.SocialNetworkType;
 
 @Repository
 public class SocialConnectionDaoImpl implements SocialConnectionDao {
@@ -33,6 +37,23 @@ public class SocialConnectionDaoImpl implements SocialConnectionDao {
 
     public void update(final SocialConnection socialConnection) {
         this.em.merge(socialConnection);
+    }
+
+    @Override
+    public SocialConnection findByRemoteUsername(String username, SocialNetworkType socialNetworkType) {
+        final Query query = this.em.createQuery("FROM SocialConnection sc WHERE sc.remoteUsername = :username "
+                + "AND socialNetworkType = :socialNetworkType");
+        query.setParameter("username", username);
+        query.setParameter("socialNetworkType", socialNetworkType);
+
+        @SuppressWarnings("unchecked")
+        final List<SocialConnection> socialConnections = query.getResultList();
+
+        if (!socialConnections.isEmpty()) {
+            return socialConnections.get(0);
+        }
+
+        return null;
     }
 
 }

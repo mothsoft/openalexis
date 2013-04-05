@@ -20,5 +20,8 @@ public enum SocialNetworkType {
     F,
 
     /* Twitter */
-    T
+    T,
+
+    /* Google */
+    G
 }

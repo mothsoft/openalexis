@@ -15,16 +15,22 @@
 package com.mothsoft.alexis.service;
 
 import com.mothsoft.alexis.domain.SocialConnection;
+import com.mothsoft.alexis.domain.SocialNetworkType;
 import com.mothsoft.alexis.domain.User;
+import com.mothsoft.alexis.domain.UserApiToken;
 
 public interface UserService {
 
     public void addUser(User user);
-    
+
     public void addOrUpdateSocialConnection(User user, SocialConnection socialConnection);
 
     public User getUser(Long userId);
 
     public void update(User user);
+
+    public SocialConnection findSocialConnectionByRemoteUsername(String username, SocialNetworkType networkType);
+
+    public UserApiToken createApiToken(User user);
 
 }

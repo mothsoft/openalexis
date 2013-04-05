@@ -142,9 +142,9 @@ span.logout {
     font-size: 82%;
     background-color: #ffffff;
     color: #333333;
-    position: absolute;
-    top: 24px;
-    right: 10%;
+    width: 50%;
+    float: right;
+    text-align: right;
 }
 
 ul {
@@ -205,6 +205,19 @@ div#login {
 	margin-right: auto;
 	margin-top: 2em;
 	width: 14em;
+}
+
+div#login-social {
+    margin-left: auto;
+    margin-right: auto;
+    width: 14em;
+    font-size: 70%;
+    margin-top: 42px;
+}
+
+div#login-social input.google {
+	height: 36px;
+	width: 164px;
 }
 
 div#login form {

@@ -20,6 +20,8 @@
             access="IS_AUTHENTICATED_ANONYMOUSLY" />
         <security:intercept-url pattern="/favicon.ico"
             access="IS_AUTHENTICATED_ANONYMOUSLY" />
+        <security:intercept-url pattern="/profiles/google/oauth-request"
+            access="IS_AUTHENTICATED_ANONYMOUSLY" />
         <security:intercept-url pattern="/admin/**"
             access="ROLE_ADMIN" />
         <security:intercept-url pattern="/**"
@@ -31,11 +33,16 @@
             logout-url="/logout" />
         <security:custom-filter ref="storeUsernameInSessionFilter"
             after="SECURITY_CONTEXT_FILTER" />
+        <security:custom-filter before="OPENID_FILTER"
+            ref="googleOauthAuthenticationFilter" />
     </security:http>
 
-    <security:authentication-manager>
+    <security:authentication-manager
+        alias="authenticationManager">
         <security:authentication-provider
             ref="authenticationProvider" />
+        <security:authentication-provider
+            ref="googleOauthAuthenticationProvider" />
     </security:authentication-manager>
 
     <bean id="authenticationProvider"
@@ -58,5 +65,17 @@
 
     <bean id="storeUsernameInSessionFilter"
         class="com.mothsoft.alexis.web.security.StoreUsernameInSessionFilter" />
+
+    <bean id="googleOauthAuthenticationFilter"
+        class="com.mothsoft.alexis.web.security.GoogleOauthAuthenticationFilter">
+        <constructor-arg index="0" ref="properties" />
+        <property name="authenticationManager" ref="authenticationManager" />
+    </bean>
+
+    <bean id="googleOauthAuthenticationProvider"
+        class="com.mothsoft.alexis.web.security.GoogleOauthAuthenticationProvider">
+        <constructor-arg index="0" ref="userService" />
+        <constructor-arg index="1" ref="userDetailsService" />
+    </bean>
 
 </beans>

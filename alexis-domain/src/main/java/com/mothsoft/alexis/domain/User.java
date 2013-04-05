@@ -114,6 +114,10 @@ public class User {
     }
 
     public List<UserApiToken> getApiTokens() {
+        if(this.apiTokens == null) {
+            this.apiTokens = new ArrayList<UserApiToken>();
+        }
+        
         return this.apiTokens;
     }
 

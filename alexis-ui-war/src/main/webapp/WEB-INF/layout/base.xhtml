@@ -48,14 +48,17 @@
 	            </div>
 	        </div>
 	        
-	        <span class="logout">
-	            <a href="#{request.contextPath}/logout" title="Logout" class="logout">Logout</a>
-	            #{currentUser.username}
-	        </span> 
 	       </ui:insert>
        </ui:fragment>
 	    
 	   <div id="content">
+
+           <ui:fragment rendered="#{currentUser.authenticated and request.servletPath != '/login.jsf'}">
+               <span class="logout">
+                   <a href="#{request.contextPath}/logout" title="Logout" class="logout">Logout</a>
+                       #{currentUser.username}
+               </span> 
+           </ui:fragment>
 
            <h:messages globalOnly="true" styleClass="errorBox" />	       
 

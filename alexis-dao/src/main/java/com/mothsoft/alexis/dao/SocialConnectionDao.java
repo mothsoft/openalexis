@@ -15,11 +15,14 @@
 package com.mothsoft.alexis.dao;
 
 import com.mothsoft.alexis.domain.SocialConnection;
+import com.mothsoft.alexis.domain.SocialNetworkType;
 
 public interface SocialConnectionDao {
 
     public void add(SocialConnection socialConnection);
     
     public void update(SocialConnection socialConnection);
+
+    public SocialConnection findByRemoteUsername(String username, SocialNetworkType networkType);
     
 }

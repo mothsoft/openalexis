@@ -26,7 +26,14 @@
 	               $("#login-username").focus();
 	           </script>
 	       </div>
-            
+
+           <div id="login-social">
+               Social Sign In
+               <form method="post" action="#{request.contextPath}/profiles/google/oauth-request">
+                   <input class="google" type="image" src="#{request.contextPath}/images/gplus_signin.png" />
+               </form>
+           </div>
+           
         </ui:define>
     </ui:composition>
 

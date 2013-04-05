@@ -15,7 +15,7 @@ CREATE TABLE user(
 ALTER TABLE user ADD UNIQUE KEY(username);
 
 --example of creating an admin-level user
---INSERT INTO user(username, salt, is_admin) VALUES('admin', hex(random()), 1);
+--INSERT INTO user(username, salt, is_admin) VALUES('admin', MD5(rand()), 1);
 --UPDATE user set hashed_password = sha2(CONCAT('adm1N!', '{', salt, '}'), 256) where username = 'admin';
 
 CREATE TABLE user_api_token (
