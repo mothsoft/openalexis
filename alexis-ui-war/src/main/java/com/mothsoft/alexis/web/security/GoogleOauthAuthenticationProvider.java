@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mothsoft.alexis.domain.SocialConnection;
 import com.mothsoft.alexis.domain.SocialNetworkType;
 import com.mothsoft.alexis.domain.User;
+import com.mothsoft.alexis.domain.UserAuthenticationDetails;
 import com.mothsoft.alexis.service.UserService;
 import com.mothsoft.alexis.web.security.GoogleOauthAuthenticationFilter.OauthAuthenticationToken;
 
@@ -69,10 +70,14 @@ public class GoogleOauthAuthenticationProvider implements AuthenticationProvider
             user = socialConnection.getUser();
         }
 
+        this.userService.createApiToken(user);
+        this.userService.update(user);
+
         final List<GrantedAuthority> userAuthorities = new ArrayList<GrantedAuthority>();
         userAuthorities.add(new GrantedAuthorityImpl("ROLE_USER"));
 
-        final UserDetails details = this.userDetailsService.loadUserByUsername(email);
+        final UserAuthenticationDetails details = (UserAuthenticationDetails) this.userDetailsService
+                .loadUserByUsername(email);
         final UsernamePasswordAuthenticationToken newAuthentication = new UsernamePasswordAuthenticationToken(details,
                 oauthToken.getAccessToken(), userAuthorities);
 

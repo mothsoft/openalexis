@@ -26,6 +26,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 @Entity(name = "User")
@@ -59,6 +60,7 @@ public class User {
     private List<SocialConnection> socialConnections;
 
     @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "user")
+    @OrderBy("lastUsed DESC")
     private List<UserApiToken> apiTokens;
 
     public User() {

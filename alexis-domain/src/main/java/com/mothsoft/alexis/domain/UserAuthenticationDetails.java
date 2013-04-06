@@ -51,6 +51,7 @@ public final class UserAuthenticationDetails extends org.springframework.securit
         this.userId = user.getId();
         this.admin = user.isAdmin();
         this.system = false;
+        this.apiToken = user.getApiTokens().get(0).getToken();
     }
 
     public UserAuthenticationDetails(final UserAuthenticationDetails toCopy, final String apiToken) {
