@@ -33,6 +33,8 @@
             logout-url="/logout" />
         <security:custom-filter ref="storeUsernameInSessionFilter"
             after="SECURITY_CONTEXT_FILTER" />
+        <security:custom-filter ref="termsOfServiceFilter"
+            position="LAST" />
         <security:custom-filter before="OPENID_FILTER"
             ref="googleOauthAuthenticationFilter" />
     </security:http>
@@ -65,6 +67,11 @@
 
     <bean id="storeUsernameInSessionFilter"
         class="com.mothsoft.alexis.web.security.StoreUsernameInSessionFilter" />
+
+    <bean id="termsOfServiceFilter"
+        class="com.mothsoft.alexis.web.security.TermsOfServiceFilter">
+        <constructor-arg index="0" ref="userService" />
+    </bean>
 
     <bean id="googleOauthAuthenticationFilter"
         class="com.mothsoft.alexis.web.security.GoogleOauthAuthenticationFilter">

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core">
+
+<ui:composition template="/WEB-INF/layout/base.xhtml">
+    <ui:define name="title">Terms of Service</ui:define>
+    <ui:define name="content">
+        <h1>Terms of Service</h1>
+
+        <p>
+            <em>Mothsoft Alexis</em> is offered as Software as a Service
+            (SaaS) in public beta. Services are provided &quot;as
+            is&quot; without warranty of any kind, either expressed or
+            implied.
+        </p>
+        <p>This software service processes large amounts of text
+            content on behalf of users even when they are not active
+            users of the system. Because of the processing and storage
+            costs associated with both active and passive use of the
+            system, we reserve the right to truncate historical data or
+            disable feed processing for any user at any time for any
+            reason.</p>
+
+        <h:form styleClass="acceptTermsOfService">
+            <h:commandButton value="Accept" styleClass="accept"
+                actionListener="#{termsOfServiceBackingBean.accept}" />
+        </h:form>
+
+    </ui:define>
+</ui:composition>
+
+</html>

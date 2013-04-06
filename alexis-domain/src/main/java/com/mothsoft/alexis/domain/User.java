@@ -15,6 +15,7 @@
 package com.mothsoft.alexis.domain;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -46,6 +47,12 @@ public class User {
 
     @Column(name = "is_admin", columnDefinition = "bit")
     private boolean admin;
+
+    @Column(name = "creation_date", columnDefinition = "timestamp")
+    private Date creationDate;
+
+    @Column(name = "tos_accept_date", columnDefinition = "datetime")
+    private Date tosAcceptDate;
 
     @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -98,6 +105,18 @@ public class User {
         this.admin = admin;
     }
 
+    public Date getTosAcceptDate() {
+        return tosAcceptDate;
+    }
+
+    public void setTosAcceptDate(Date tosAcceptDate) {
+        this.tosAcceptDate = tosAcceptDate;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
     public List<SocialConnection> getSocialConnections() {
         return this.socialConnections;
     }
@@ -114,10 +133,10 @@ public class User {
     }
 
     public List<UserApiToken> getApiTokens() {
-        if(this.apiTokens == null) {
+        if (this.apiTokens == null) {
             this.apiTokens = new ArrayList<UserApiToken>();
         }
-        
+
         return this.apiTokens;
     }
 

@@ -1,120 +1,126 @@
 <pretty-config xmlns="http://ocpsoft.com/prettyfaces/3.3.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://ocpsoft.com/prettyfaces/3.3.0
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://ocpsoft.com/prettyfaces/3.3.0
                                         http://ocpsoft.com/xml/ns/prettyfaces/ocpsoft-pretty-faces-3.3.0.xsd">
 
-  <url-mapping id="login">
-    <pattern value="/login/" />
-    <view-id value="/login.jsf" />
-  </url-mapping>
+    <url-mapping id="login">
+        <pattern value="/login/" />
+        <view-id value="/login.jsf" />
+    </url-mapping>
 
-  <url-mapping id="dashboard">
-    <pattern value="/dashboard/" />
-    <view-id value="/dashboard.jsf" />
-  </url-mapping>
+    <url-mapping id="dashboard">
+        <pattern value="/dashboard/" />
+        <view-id value="/dashboard.jsf" />
+    </url-mapping>
 
-  <url-mapping id="topics">
-    <pattern value="/topics/" />
-    <view-id value="/topics/list.jsf" />
-  </url-mapping>
+    <url-mapping id="topics">
+        <pattern value="/topics/" />
+        <view-id value="/topics/list.jsf" />
+    </url-mapping>
 
-  <url-mapping id="topics">
-    <pattern value="/topics/add" />
-    <view-id value="/topics/add.jsf" />
-  </url-mapping>
-  
-  <url-mapping id="topicEdit">
-    <pattern value="/topics/#{addEditTopicBackingBean.id}/edit" />
-    <view-id value="/topics/add.jsf" />
-    <action>#{addEditTopicBackingBean.load}</action>
-  </url-mapping>
+    <url-mapping id="topics">
+        <pattern value="/topics/add" />
+        <view-id value="/topics/add.jsf" />
+    </url-mapping>
 
-  <url-mapping id="topicDetails">
-    <pattern value="/topics/#{viewTopicDetailsBackingBean.id}/details" />
-    <view-id value="/topics/details.jsf" />
-  </url-mapping>
+    <url-mapping id="topicEdit">
+        <pattern value="/topics/#{addEditTopicBackingBean.id}/edit" />
+        <view-id value="/topics/add.jsf" />
+        <action>#{addEditTopicBackingBean.load}</action>
+    </url-mapping>
 
-  <url-mapping id="sources">
-    <pattern value="/sources/" />
-    <view-id value="/sources/list.jsf" />
-  </url-mapping>
+    <url-mapping id="topicDetails">
+        <pattern value="/topics/#{viewTopicDetailsBackingBean.id}/details" />
+        <view-id value="/topics/details.jsf" />
+    </url-mapping>
 
-  <url-mapping id="sourcesAdd">
-    <pattern value="/sources/add" />
-    <view-id value="/sources/add.jsf" />
-  </url-mapping>
+    <url-mapping id="sources">
+        <pattern value="/sources/" />
+        <view-id value="/sources/list.jsf" />
+    </url-mapping>
 
-  <url-mapping id="sourcesAddType">
-    <pattern value="/sources/add/#{addEditSourceBackingBean.type}" />
-    <view-id value="/sources/add.jsf" />
-  </url-mapping>
+    <url-mapping id="sourcesAdd">
+        <pattern value="/sources/add" />
+        <view-id value="/sources/add.jsf" />
+    </url-mapping>
 
-  <url-mapping id="documents">
-    <pattern value="/documents/" />
-    <view-id value="/documents/list.jsf?type=topics" />
-  </url-mapping>
+    <url-mapping id="sourcesAddType">
+        <pattern value="/sources/add/#{addEditSourceBackingBean.type}" />
+        <view-id value="/sources/add.jsf" />
+    </url-mapping>
 
-  <url-mapping id="documentsTopics">
-    <pattern value="/documents/topics" />
-    <view-id value="/documents/list.jsf?type=topics" />
-  </url-mapping>
+    <url-mapping id="documents">
+        <pattern value="/documents/" />
+        <view-id value="/documents/list.jsf?type=topics" />
+    </url-mapping>
 
-  <url-mapping id="documentsAll">
-    <pattern value="/documents/all" />
-    <view-id value="/documents/list.jsf?type=all" />
-  </url-mapping>
+    <url-mapping id="documentsTopics">
+        <pattern value="/documents/topics" />
+        <view-id value="/documents/list.jsf?type=topics" />
+    </url-mapping>
 
-  <url-mapping id="documentsSearchResults">
-    <pattern value="/documents/search" />
-    <view-id value="/documents/list.jsf?type=search" />
-  </url-mapping>
+    <url-mapping id="documentsAll">
+        <pattern value="/documents/all" />
+        <view-id value="/documents/list.jsf?type=all" />
+    </url-mapping>
 
-  <url-mapping id="documentDetails">
-    <pattern value="/documents/#{viewDocumentDetailsBackingBean.id}/details" />
-    <view-id value="/documents/details.jsf" />
-  </url-mapping>
+    <url-mapping id="documentsSearchResults">
+        <pattern value="/documents/search" />
+        <view-id value="/documents/list.jsf?type=search" />
+    </url-mapping>
 
-  <url-mapping id="profilesTwitterAdd">
-    <pattern value="/profiles/twitter/add" />
-    <query-param name="oauth_token">#{twitterBackingBean.oauthToken}</query-param>
-    <query-param name="oauth_verifier">#{twitterBackingBean.oauthVerifier}</query-param>
-    <view-id value="/profiles/twitter-add.jsf" />
-    <action onPostback="true">#{twitterBackingBean.oauthCallback}</action>
-  </url-mapping>
-  
-  <url-mapping id="analysis">
-      <pattern value="/analysis/" />
-      <view-id value="/analysis/index.jsf" />
-  </url-mapping>
+    <url-mapping id="documentDetails">
+        <pattern
+            value="/documents/#{viewDocumentDetailsBackingBean.id}/details" />
+        <view-id value="/documents/details.jsf" />
+    </url-mapping>
 
-  <url-mapping id="analysis-charting">
-      <pattern value="/analysis/charting/" />
-      <view-id value="/analysis/charting.jsf" />
-  </url-mapping>
+    <url-mapping id="profilesTwitterAdd">
+        <pattern value="/profiles/twitter/add" />
+        <query-param name="oauth_token">#{twitterBackingBean.oauthToken}</query-param>
+        <query-param name="oauth_verifier">#{twitterBackingBean.oauthVerifier}</query-param>
+        <view-id value="/profiles/twitter-add.jsf" />
+        <action onPostback="true">#{twitterBackingBean.oauthCallback}</action>
+    </url-mapping>
 
-  <url-mapping id="analysis-semantic">
-      <pattern value="/analysis/semantic/" />
-      <view-id value="/analysis/semantic.jsf" />
-  </url-mapping>
+    <url-mapping id="analysis">
+        <pattern value="/analysis/" />
+        <view-id value="/analysis/index.jsf" />
+    </url-mapping>
 
-  <url-mapping id="analysis-correlation">
-      <pattern value="/analysis/correlation/" />
-      <view-id value="/analysis/correlation.jsf" />
-  </url-mapping>
+    <url-mapping id="analysis-charting">
+        <pattern value="/analysis/charting/" />
+        <view-id value="/analysis/charting.jsf" />
+    </url-mapping>
 
-  <url-mapping id="analysis-term-predictors">
-      <pattern value="/analysis/term-predictors/" />
-      <view-id value="/analysis/term-predictors.jsf" />
-  </url-mapping>
+    <url-mapping id="analysis-semantic">
+        <pattern value="/analysis/semantic/" />
+        <view-id value="/analysis/semantic.jsf" />
+    </url-mapping>
 
-  <url-mapping id="analysis-models">
-      <pattern value="/analysis/models/" />
-      <view-id value="/analysis/models/list.jsf" />
-  </url-mapping>
+    <url-mapping id="analysis-correlation">
+        <pattern value="/analysis/correlation/" />
+        <view-id value="/analysis/correlation.jsf" />
+    </url-mapping>
 
-  <url-mapping id="analysis-models-add">
-      <pattern value="/analysis/models/add" />
-      <view-id value="/analysis/models/add.jsf" />
-  </url-mapping>
+    <url-mapping id="analysis-term-predictors">
+        <pattern value="/analysis/term-predictors/" />
+        <view-id value="/analysis/term-predictors.jsf" />
+    </url-mapping>
+
+    <url-mapping id="analysis-models">
+        <pattern value="/analysis/models/" />
+        <view-id value="/analysis/models/list.jsf" />
+    </url-mapping>
+
+    <url-mapping id="analysis-models-add">
+        <pattern value="/analysis/models/add" />
+        <view-id value="/analysis/models/add.jsf" />
+    </url-mapping>
+
+    <url-mapping id="terms-of-service">
+        <pattern value="/terms-of-service/" />
+        <view-id value="/terms-of-service.jsf" />
+    </url-mapping>
 
 </pretty-config>

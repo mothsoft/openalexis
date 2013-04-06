@@ -27,7 +27,7 @@
     <f:view>
 
       <div id="main">
-	    <ui:fragment rendered="#{currentUser.authenticated and request.servletPath != '/login.jsf'}">
+	    <ui:fragment rendered="#{currentUser.authenticated and request.servletPath != '/login.jsf' and request.servletPath != '/terms-of-service.jsf'}">
 	        <ui:insert name="navigation">
 	        <div id="navigation">
 	           <a href="#{request.contextPath}/dashboard/" class="navigation #{navigation.dashboard ? 'selected' : ''}">Dashboard</a>

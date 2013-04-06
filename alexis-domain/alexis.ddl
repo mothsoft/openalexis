@@ -9,7 +9,9 @@ CREATE TABLE user(
     username varchar(32),
     hashed_password char(64),
     salt char(64),
-    is_admin tinyint(1) DEFAULT 0
+    is_admin tinyint(1) DEFAULT 0,
+    creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    tos_accept_date DATETIME DEFAULT NULL
 );
 
 ALTER TABLE user ADD UNIQUE KEY(username);
