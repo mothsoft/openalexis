@@ -38,9 +38,17 @@
 	           <div id="search">
 	               <form action="#{request.contextPath}/documents/search" enctype="application/x-www-form-urlencoded"
 	                     onsubmit="return validateRequired($('#q'));">
-                       <label for="q">Search:</label>
+                       <label id="q-label" for="q">Search:</label>
 	                   <input type="text" id="q" name="q" class="text search" maxlength="128" />
-	                   <button type="submit" class="button">&#10003;</button>
+                       <button onclick="$('#advancedSearch').toggle();return false;">&#x25BE;</button>
+	                   <button type="submit" class="button submit">&#10003;</button>
+                       <div id="advancedSearch">
+                           <label for="select-order">Order By</label>
+                           <select id="select-order" name="order">
+                               <option value="relevance">Relevance</option>
+                               <option value="date">Date</option>
+                           </select>
+                       </div>
 	               </form>
 	               <script type="text/javascript">
                        $("#q").focus();

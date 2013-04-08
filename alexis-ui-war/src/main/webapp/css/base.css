@@ -793,19 +793,32 @@ div#search form {
 }
 
 div#search form input.text {
-	width: 124px;
+	width: 94px;
+	float: left;
+	margin-right: 4px;
 }
 
 div#search label {
 	font-size: 70%;
-	weight: 300;
+	font-weight: 300;
+	margin-bottom: 0px;
 }
 
 div#search form button {
-	font-size: 12px;
-	position: absolute;
-	top: 14px;
-	left: 130px;
+	float: left;
+	margin-top: 2px;
+	margin-left: 2px;
+}
+
+div#search form div#advancedSearch {
+	display: none;
+	float: right;
+	clear: left;
+	margin-right: 2px;
+}
+
+div#search form div#advancedSearch select {
+	width: 120px;
 }
 
 select.single {
