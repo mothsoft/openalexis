@@ -12,7 +12,7 @@ CREATE TABLE user(
     is_admin tinyint(1) DEFAULT 0,
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     tos_accept_date DATETIME DEFAULT NULL,
-    is_analysis_role tinyint(1) DEFAULT 0
+    is_analysis_role tinyint(1) DEFAULT 1
 );
 
 ALTER TABLE user ADD UNIQUE KEY(username);
