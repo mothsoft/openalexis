@@ -18,6 +18,7 @@ import java.nio.charset.Charset;
 import java.util.TimeZone;
 
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.security.core.GrantedAuthority;
 
 import com.mothsoft.alexis.security.CurrentUserUtil;
 
@@ -42,6 +43,15 @@ public class CurrentUser {
 
     public TimeZone getTimeZone() {
         return CurrentUserUtil.getTimeZone();
+    }
+
+    public boolean isHasAnalysisRole() {
+        for (final GrantedAuthority authority : CurrentUserUtil.getCurrentUser().getAuthorities()) {
+            if (authority.getAuthority().equals("ROLE_ANALYSIS")) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -55,6 +55,9 @@ public class User {
     @Column(name = "tos_accept_date", columnDefinition = "datetime")
     private Date tosAcceptDate;
 
+    @Column(name = "is_analysis_role", columnDefinition = "bit")
+    private boolean analysisRole;
+
     @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private List<SocialConnection> socialConnections;
@@ -107,6 +110,10 @@ public class User {
         this.admin = admin;
     }
 
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
     public Date getTosAcceptDate() {
         return tosAcceptDate;
     }
@@ -115,8 +122,12 @@ public class User {
         this.tosAcceptDate = tosAcceptDate;
     }
 
-    public Date getCreationDate() {
-        return creationDate;
+    public boolean isAnalysisRole() {
+        return analysisRole;
+    }
+
+    public void setAnalysisRole(boolean analysisRole) {
+        this.analysisRole = analysisRole;
     }
 
     public List<SocialConnection> getSocialConnections() {

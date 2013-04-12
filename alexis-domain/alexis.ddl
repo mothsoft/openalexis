@@ -11,7 +11,8 @@ CREATE TABLE user(
     salt char(64),
     is_admin tinyint(1) DEFAULT 0,
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    tos_accept_date DATETIME DEFAULT NULL
+    tos_accept_date DATETIME DEFAULT NULL,
+    is_analysis_role tinyint(1) DEFAULT 0
 );
 
 ALTER TABLE user ADD UNIQUE KEY(username);

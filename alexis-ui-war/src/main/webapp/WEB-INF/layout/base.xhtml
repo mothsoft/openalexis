@@ -34,7 +34,9 @@
 	           <a href="#{request.contextPath}/topics/" class="navigation #{navigation.topics ? 'selected' : ''}">Topics</a>
 	           <a href="#{request.contextPath}/sources/" class="navigation #{navigation.sources ? 'selected' : ''}">Sources</a>
 	           <a href="#{request.contextPath}/documents/" class="navigation #{navigation.documents ? 'selected': ''}">Documents</a>
-	           <a href="#{request.contextPath}/analysis/" class="navigation #{navigation.analysis ? 'selected': ''}">Analysis</a>
+               <ui:fragment rendered="#{currentUser.hasAnalysisRole}">
+                   <a href="#{request.contextPath}/analysis/" class="navigation #{navigation.analysis ? 'selected': ''}">Analysis</a>
+               </ui:fragment>
 	           <div id="search">
 	               <form action="#{request.contextPath}/documents/search" enctype="application/x-www-form-urlencoded"
 	                     onsubmit="return validateRequired($('#q'));">

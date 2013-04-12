@@ -14,6 +14,7 @@
  */
 package com.mothsoft.alexis.domain;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,6 +37,7 @@ public final class UserAuthenticationDetails extends org.springframework.securit
         Set<GrantedAuthority> adminTemp = new HashSet<GrantedAuthority>();
         adminTemp.addAll(DEFAULT_AUTHORITIES);
         adminTemp.add(new GrantedAuthorityImpl("ROLE_ADMIN"));
+        adminTemp.add(new GrantedAuthorityImpl("ROLE_ANALYSIS"));
         ADMIN_AUTHORITIES = Collections.unmodifiableSet(adminTemp);
     }
 
@@ -45,8 +47,7 @@ public final class UserAuthenticationDetails extends org.springframework.securit
     private String apiToken;
 
     public UserAuthenticationDetails(final User user) {
-        super(user.getUsername(), user.getHashedPassword(), true, true, true, true, user.isAdmin() ? ADMIN_AUTHORITIES
-                : DEFAULT_AUTHORITIES);
+        super(user.getUsername(), user.getHashedPassword(), true, true, true, true, getAuthorities(user));
 
         this.userId = user.getId();
         this.admin = user.isAdmin();
@@ -54,14 +55,33 @@ public final class UserAuthenticationDetails extends org.springframework.securit
         this.apiToken = user.getApiTokens().get(0).getToken();
     }
 
+    private static Collection<GrantedAuthority> getAuthorities(final User user) {
+        if (user.isAdmin()) {
+            return ADMIN_AUTHORITIES;
+        }
+
+        final Set<GrantedAuthority> userAuthorities = new HashSet<GrantedAuthority>(DEFAULT_AUTHORITIES);
+
+        if (user.isAnalysisRole()) {
+            userAuthorities.add(new GrantedAuthorityImpl("ROLE_ANALYSIS"));
+        }
+
+        return userAuthorities;
+    }
+
     public UserAuthenticationDetails(final UserAuthenticationDetails toCopy, final String apiToken) {
-        super(toCopy.getUsername(), toCopy.getPassword(), true, true, true, true, toCopy.isAdmin() ? ADMIN_AUTHORITIES
-                : DEFAULT_AUTHORITIES);
+        super(toCopy.getUsername(), toCopy.getPassword(), true, true, true, true, getAuthorities(toCopy));
 
         this.userId = toCopy.getUserId();
         this.admin = toCopy.isAdmin();
         this.system = toCopy.isSystem();
         this.apiToken = apiToken;
+    }
+
+    private static Collection<GrantedAuthority> getAuthorities(final UserAuthenticationDetails user) {
+        final Collection<GrantedAuthority> userAuthorities = new HashSet<GrantedAuthority>();
+        userAuthorities.addAll(user.getAuthorities());
+        return userAuthorities;
     }
 
     public UserAuthenticationDetails(final boolean systemAuthentication) {

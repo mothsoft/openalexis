@@ -10,7 +10,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -75,6 +74,10 @@ public class GoogleOauthAuthenticationProvider implements AuthenticationProvider
 
         final List<GrantedAuthority> userAuthorities = new ArrayList<GrantedAuthority>();
         userAuthorities.add(new GrantedAuthorityImpl("ROLE_USER"));
+
+        if (user.isAnalysisRole()) {
+            userAuthorities.add(new GrantedAuthorityImpl("ROLE_ANALYSIS"));
+        }
 
         final UserAuthenticationDetails details = (UserAuthenticationDetails) this.userDetailsService
                 .loadUserByUsername(email);

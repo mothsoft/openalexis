@@ -24,6 +24,8 @@
             access="IS_AUTHENTICATED_ANONYMOUSLY" />
         <security:intercept-url pattern="/admin/**"
             access="ROLE_ADMIN" />
+        <security:intercept-url pattern="/analysis/**"
+            access="ROLE_ANALYSIS" />
         <security:intercept-url pattern="/**"
             access="ROLE_USER" />
         <security:form-login login-page="/login/"
