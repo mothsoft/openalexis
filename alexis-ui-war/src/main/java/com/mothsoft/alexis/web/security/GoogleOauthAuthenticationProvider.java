@@ -75,7 +75,11 @@ public class GoogleOauthAuthenticationProvider implements AuthenticationProvider
         final List<GrantedAuthority> userAuthorities = new ArrayList<GrantedAuthority>();
         userAuthorities.add(new GrantedAuthorityImpl("ROLE_USER"));
 
-        if (user.isAnalysisRole()) {
+        if (user.isAdmin()) {
+            userAuthorities.add(new GrantedAuthorityImpl("ROLE_ADMIN"));
+        }
+
+        if (user.isAnalysisRole() || user.isAdmin()) {
             userAuthorities.add(new GrantedAuthorityImpl("ROLE_ANALYSIS"));
         }
 
