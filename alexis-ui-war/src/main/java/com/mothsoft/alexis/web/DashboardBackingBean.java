@@ -55,7 +55,7 @@ public class DashboardBackingBean {
             final Long userId = CurrentUserUtil.getCurrentUserId();
             final Date end = new Date();
             final Date start = new Date(end.getTime() - DateConstants.ONE_DAY_IN_MILLISECONDS);
-            this.topRecentContent = this.documentService.listTopDocuments(userId, start, end, 10);
+            this.topRecentContent = this.documentService.listTopDocuments(userId, start, end, 15);
         }
 
         return this.topRecentContent;
