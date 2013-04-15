@@ -78,7 +78,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     public List<Document> listTopDocuments(Long userId, final Date startDate, final Date endDate, int count) {
-        return this.documentDao.listTopDocuments(userId, startDate, endDate, 10);
+        return this.documentDao.listTopDocuments(userId, startDate, endDate, 15);
     }
 
     public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
