@@ -262,7 +262,7 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
                 final String title = readTitle(entry);
                 final String description = readDescription(entry);
                 document = new Document(DocumentType.W, url, title, description);
-                document.setCreationDate(entry.getPublishedDate());
+                document.setCreationDate(this.firstNotNull(entry.getPublishedDate(), entry.getUpdatedDate(), new Date()));
 
                 this.documentDao.add(document);
 
@@ -283,7 +283,15 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
             }
 
         }
+    }
 
+    private Date firstNotNull(Date... dates) {
+        for (final Date date : dates) {
+            if (date != null) {
+                return date;
+            }
+        }
+        return null;
     }
 
     private String readDescription(final SyndEntry syndEntry) {
