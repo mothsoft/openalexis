@@ -244,9 +244,8 @@ public class TwitterRetrievalTaskImpl implements RetrievalTask {
         if (status.getURLEntities() != null) {
             for (final URLEntity entity : status.getURLEntities()) {
                 final String displayUrl = entity.getDisplayURL();
-                final String expandedUrl = entity.getExpandedURL() == null ? null : entity.getExpandedURL()
-                        .toExternalForm();
-                final String url = entity.getURL() == null ? null : entity.getURL().toExternalForm();
+                final String expandedUrl = entity.getExpandedURL();
+                final String url = entity.getURL();
                 final TweetLink link = new TweetLink((short) entity.getStart(), (short) entity.getEnd(), displayUrl,
                         expandedUrl, url);
                 links.add(link);

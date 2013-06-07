@@ -18,7 +18,6 @@ import java.util.List;
 
 import twitter4j.SavedSearch;
 import twitter4j.Status;
-import twitter4j.Tweet;
 import twitter4j.User;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
@@ -35,7 +34,7 @@ public interface TwitterService {
 
     public List<SavedSearch> listSavedSearches();
 
-    public List<Tweet> search(String query);
+    public List<Status> search(String query);
 
     /**
      * Get the home timeline corresponding to the credentials' user, greater

@@ -15,6 +15,7 @@
 package com.mothsoft.integration.twitter;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 
@@ -25,7 +26,6 @@ import twitter4j.RateLimitStatus;
 import twitter4j.ResponseList;
 import twitter4j.SavedSearch;
 import twitter4j.Status;
-import twitter4j.Tweet;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -77,11 +77,11 @@ public class TwitterServiceImpl implements TwitterService {
         }
     }
 
-    public List<Tweet> search(final String query) {
+    public List<Status> search(final String query) {
         try {
             final Twitter twitter = factory.getInstance();
             final QueryResult queryResult = twitter.search(new Query(query));
-            final List<Tweet> tweets = queryResult.getTweets();
+            final List<Status> tweets = queryResult.getTweets();
             return tweets;
         } catch (TwitterException e) {
             throw wrapException(e);
@@ -147,13 +147,15 @@ public class TwitterServiceImpl implements TwitterService {
             // check rate limit status and warn or skip remaining fetches as
             // appropriate
             final RateLimitStatus rateLimitStatus = temp.getRateLimitStatus();
-            if (rateLimitStatus.getRemainingHits() < (.1 * rateLimitStatus.getHourlyLimit())) {
-                logger.warn("Twitter rate limit approaching. Calls remaining: " + rateLimitStatus.getRemainingHits());
+            if (rateLimitStatus.getRemaining() < (.1 * rateLimitStatus.getLimit())) {
+                logger.warn("Twitter rate limit approaching. Calls remaining: " + rateLimitStatus.getRemaining());
             }
 
             if (rateLimitStatus.getRemainingHits() == 0) {
-                logger.error("Twitter rate limit hit.  Will reset at: "
-                        + rateLimitStatus.getResetTime().toLocaleString());
+                final Date resetTime = new Date(System.currentTimeMillis()
+                        + (rateLimitStatus.getSecondsUntilReset() * 1000));
+
+                logger.error("Twitter rate limit hit.  Will reset at: " + resetTime.toLocaleString());
                 break;
             }
         }
