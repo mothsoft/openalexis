@@ -17,9 +17,12 @@ package com.mothsoft.alexis.dao;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.hibernate.StaleObjectStateException;
+import org.springframework.orm.jpa.JpaOptimisticLockingFailureException;
 import org.springframework.stereotype.Repository;
 
 import com.mothsoft.alexis.domain.Topic;
@@ -76,6 +79,23 @@ public class TopicDaoImpl implements TopicDao {
     }
 
     public void remove(final Topic topic) {
+        // avoid contention with batch processes
+        for (int i = 0; i < 10; i++) {
+            try {
+                this.doRemove(topic);
+                break;
+            } catch (JpaOptimisticLockingFailureException e1) {
+                this.doRemove(topic);
+            } catch (StaleObjectStateException e2) {
+                this.doRemove(topic);
+            } catch (OptimisticLockException e3) {
+                this.doRemove(topic);
+            }
+        }
+    }
+
+    private void doRemove(final Topic topic) {
+        this.em.refresh(topic);
         this.em.remove(topic);
     }
 
