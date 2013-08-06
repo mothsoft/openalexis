@@ -157,7 +157,7 @@ div#content {
     padding: 12px;
     margin-left: 8px;
     border-radius: 9px;
-    min-height: 555px;
+    min-height: 660px;
     width: 75%;
     min-width: 600px;
 }
@@ -1001,9 +1001,9 @@ div#chartInteraction {
 }
 
 div#chartPointInteraction {
-	float: left;
-	width: 420px;
-	margin-top: -86px;
+	position: absolute;
+	left: 832px;
+	top: 170px;
 }
 
 fieldset {
@@ -1027,7 +1027,7 @@ fieldset div {
 }
 
 fieldset.termPredictors {
-	width: 420px;
+	width: 310px;
 	padding-top: 0.5em;
 	padding-bottom: 0.5em;
 }
