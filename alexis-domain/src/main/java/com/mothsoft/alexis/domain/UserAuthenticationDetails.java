@@ -17,6 +17,7 @@ package com.mothsoft.alexis.domain;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -52,7 +53,11 @@ public final class UserAuthenticationDetails extends org.springframework.securit
         this.userId = user.getId();
         this.admin = user.isAdmin();
         this.system = false;
-        this.apiToken = user.getApiTokens().get(0).getToken();
+
+        final List<UserApiToken> tokens = user.getApiTokens();
+        if (tokens != null && tokens.size() > 0) {
+            this.apiToken = tokens.get(0).getToken();
+        }
     }
 
     private static Collection<GrantedAuthority> getAuthorities(final User user) {
