@@ -24,7 +24,7 @@ Installation
 * Create starter database by importing alexis-domain/alexis.ddl into MySQL
 * Make sure data source jdbc/alexis is available to web apps (already set up for Tomcat in META-INF/context.xml)
 * Sample user creation (admin/admin): 
-    * insert into user(username, salt, is_admin) values ('admin', hex(rand()), 1);
+    * insert into user(username, salt, is_admin) values ('admin', sha2(rand(), 256), 1);
     * update user set hashed_password = sha2(CONCAT('admin', '{', salt, '}'), 256) where username = 'admin';
 
 Executing
