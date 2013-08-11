@@ -1,11 +1,3 @@
-function showElement(domId) {
-	document.getElementById(domId).style.display = "inline";
-}
-
-function hideElement(domId) {
-	document.getElementById(domId).style.display = "none";
-}
-
 function validateRequired(object) {
 	return object.val().trim().length > 0;
 }
