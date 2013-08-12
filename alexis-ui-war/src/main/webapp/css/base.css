@@ -1,6 +1,6 @@
 body {
-    background-color: #bfb4a2;
-    color: #000;
+    background-color: #777777;
+    color: #333;
     padding-top: 15px;
     padding-left: 8px;
     padding-right: 8px;
@@ -47,7 +47,7 @@ form#chartForm {
 }
 
 a {
-	color: #151b8d;
+	color: #356aa0;
 }
 
 a:visited {
@@ -68,20 +68,10 @@ a,a.navigation:HOVER {
 
 div#branding {
 	display: none;
-/* 	height: 36px;
-	background-image: none;
-	background-color: #356aa0;
-	border-bottom: 4px solid #254a70;
-	padding-top: 5px;
- */}
+}
 
 div#branding span#mothsoft {
 	display: none;
-	/*background-image: url('/alexis/images/mothsoft.png');
-	background-repeat: no-repeat;
-	display: block;
-	width: 155px;
-	height: 32px;*/
 }
 
 div#branding span#openAlexis {
@@ -117,7 +107,7 @@ div#navigation {
 div#navigation a {
 	display: block;
 	width: 100%;
-	color: #3f6d9c;
+	color: #356aa0;
 	vertical-align: middle;
 	padding-top: 4px;
 	padding-bottom: 4px;
@@ -126,11 +116,12 @@ div#navigation a {
 }
 
 div#navigation a.selected {
-	background-color: #bfb4a2;
+	background-color: #777;
+	color: #fff;
 }
 
 div#navigation a:hover {
-	color: red;
+    color: #ff7400;
 }
 
 span.logout a,span.logout a:HOVER {
@@ -565,14 +556,14 @@ div.topicListItem,div.sourceListItem,div.analysisListItem {
 }
 
 div.topicListItem span.header,div.sourceListItem span.header,div.analysisListItem span.header {
-	background-color: #356aa0;
-	color: #ffe;
 	word-wrap: break-word;
 	display: block;
 	width: 100%;
 	padding-top: 4px;
 	padding-bottom: 4px;
 	border-radius: 5px;
+    background-color: #5990c8;
+    color: #fff;
 }
 
 div.sourceListItem h2 {
@@ -736,6 +727,7 @@ div.tweet span.actions a.favorite:HOVER span {
 input.save,a.cancel {
 	float: left;
 	margin-right: 8px;
+	line-height: 24px;
 }
 
 input.save {
