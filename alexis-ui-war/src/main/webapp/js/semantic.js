@@ -29,7 +29,7 @@ function init() {
 
 	var queryString = $("#query").val();
 	$("#canvas").html("");
-	$("#queryModal").dialog("close");
+	
 	showWaitingModal();
 	buildRelatedTermsGraph(
 			"/api/analysis/v1/related-terms.json",
@@ -114,6 +114,7 @@ $(document).ready(function() {
 	
     var queryString = $("#query").val();
     if (queryString) {
+    	$('#queryModal').hide();
         init();
     } else {
         showModal();
