@@ -30,7 +30,7 @@ function init() {
 	try {
 		$('#queryModal').dialog('close');
 	} catch(e) {
-		//ignore
+		//ignore for now
 	}
 
 	var queryString = $("#query").val();
