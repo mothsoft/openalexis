@@ -677,7 +677,7 @@ div.tweet span.actions {
 	display: block;
 	float: left;
 	font-size: 75%;
-	margin-bottom: 3px;
+	margin-bottom: 11px;
 	margin-left: 20%;
 }
 
@@ -685,19 +685,25 @@ div.tweet span.actions a,div.tweet span.actions img {
 	float: left;
 }
 
+div.tweet span.actions img {
+	position: relative;
+	bottom: 3px;
+}
+
 div.tweet span.actions a {
 	margin-left: 6px;
 	margin-right: 10px;
 }
 
-div.tweet span.actions a.reply span,div.tweet span.actions a.favorite span,div.tweet span.actions a.retweet span
-	{
+div.tweet span.actions a.reply span,div.tweet span.actions a.favorite span,div.tweet span.actions a.retweet span {
 	height: 16px;
 	width: 16px;
 	margin-right: 2px;
 	background-image: url("/alexis/images/twitter_16_sprite.png");
 	display: block;
 	float: left;
+	position: relative;
+	bottom: 3px;
 }
 
 div.tweet span.actions a.reply span {
