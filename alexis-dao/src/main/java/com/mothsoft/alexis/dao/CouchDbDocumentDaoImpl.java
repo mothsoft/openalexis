@@ -113,6 +113,26 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     @Override
+    public void addRawContent(String documentId, String rev, String content, String mimeType) {
+        final URL documentUrl;
+        try {
+            documentUrl = new URL(this.couchDbDatabaseUrl + "/" + documentId + "/raw?rev=" + rev);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            NetworkingUtil.put(documentUrl, content, mimeType, this.credentialsProvider);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        final Document document = this.get(documentId);
+        document.setState(DocumentState.FETCHED);
+        document.setRetrievalDate(new Date());
+        this.update(document);
+    }
+
+    @Override
     public Document findByUrl(String url) {
 
         final URL requestUrl;
@@ -179,6 +199,16 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     @Override
+    public List<ImportantNamedEntity> getImportantNamedEntities(Long userId, Date startDate, Date endDate, int howMany) {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(String documentId, int howMany) {
+        return Collections.emptyList();
+    }
+
+    @Override
     public List<ImportantTerm> getImportantTerms(Long userId, Date startDate, Date endDate, int count,
             boolean filterStopWords) {
         return Collections.emptyList();
@@ -214,63 +244,6 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         }
     }
 
-    private DataRange<Document> buildSearchResultsRange(HttpClientResponse response, int start, int count) {
-        final int totalRows;
-        final List<Document> documents = new ArrayList<Document>(count);
-        try {
-            final JsonNode node = this.objectMapper.readTree(response.getInputStream());
-            totalRows = node.findValue(TOTAL_ROWS).getIntValue();
-
-            final JsonNode rowsNode = node.findValue(ROWS);
-            final List<JsonNode> documentNodes = rowsNode.findValues(DOC);
-
-            for (final JsonNode documentNode : documentNodes) {
-                documents.add(this.objectMapper.convertValue(documentNode, Document.class));
-            }
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        final DataRange<Document> range = new DataRange<Document>(documents, start, totalRows);
-        return range;
-    }
-
-    private DataRange<DocumentScore> buildScoredSearchResultsRange(HttpClientResponse response, int start, int count) {
-        final int totalRows;
-        final List<DocumentScore> documentScores = new ArrayList<DocumentScore>(count);
-        try {
-            final JsonNode node = this.objectMapper.readTree(response.getInputStream());
-            totalRows = node.findValue(TOTAL_ROWS).getIntValue();
-
-            final ArrayNode rowsNode = (ArrayNode) node.findValue(ROWS);
-
-            for (final Iterator<JsonNode> it = rowsNode.getElements(); it.hasNext();) {
-                final JsonNode rowNode = it.next();
-                final Document document = this.objectMapper.convertValue(rowNode.findValue(DOC), Document.class);
-
-                final float score;
-                final JsonNode scoreNode = rowNode.findValue(SCORE);
-
-                if (scoreNode == null) {
-                    score = 0.0f;
-                } else {
-                    score = (float) scoreNode.getDoubleValue();
-                }
-                documentScores.add(new DocumentScore(document, score));
-            }
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        final DataRange<DocumentScore> range = new DataRange<DocumentScore>(documentScores, start, totalRows);
-        return range;
-    }
-
     @Override
     public DataRange<Document> listDocumentsInTopicsByOwner(Long userId, int firstRecord, int numberOfRecords) {
         return new DataRange<Document>(Collections.EMPTY_LIST, 0, 0);
@@ -279,6 +252,16 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     @Override
     public List<Document> listTopDocuments(Long userId, Date startDate, Date endDate, int count) {
         return Collections.emptyList();
+    }
+
+    public void remove(final Document document) {
+        URL documentUrl;
+        try {
+            documentUrl = new URL(this.couchDbDatabaseUrl + "/" + document.getId() + "?rev=" + document.getRev());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        NetworkingUtil.delete(documentUrl, this.credentialsProvider);
     }
 
     @Override
@@ -329,24 +312,61 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         }
     }
 
-    @Override
-    public List<ImportantNamedEntity> getImportantNamedEntities(Long userId, Date startDate, Date endDate, int howMany) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(String documentId, int howMany) {
-        return Collections.emptyList();
-    }
-
-    public void remove(final Document document) {
-        URL documentUrl;
+    private DataRange<DocumentScore> buildScoredSearchResultsRange(HttpClientResponse response, int start, int count) {
+        final int totalRows;
+        final List<DocumentScore> documentScores = new ArrayList<DocumentScore>(count);
         try {
-            documentUrl = new URL(this.couchDbDatabaseUrl + "/" + document.getId() + "?rev=" + document.getRev());
-        } catch (MalformedURLException e) {
+            final JsonNode node = this.objectMapper.readTree(response.getInputStream());
+            totalRows = node.findValue(TOTAL_ROWS).getIntValue();
+
+            final ArrayNode rowsNode = (ArrayNode) node.findValue(ROWS);
+
+            for (final Iterator<JsonNode> it = rowsNode.getElements(); it.hasNext();) {
+                final JsonNode rowNode = it.next();
+                final Document document = this.objectMapper.convertValue(rowNode.findValue(DOC), Document.class);
+
+                final float score;
+                final JsonNode scoreNode = rowNode.findValue(SCORE);
+
+                if (scoreNode == null) {
+                    score = 0.0f;
+                } else {
+                    score = (float) scoreNode.getDoubleValue();
+                }
+                documentScores.add(new DocumentScore(document, score));
+            }
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        NetworkingUtil.delete(documentUrl, this.credentialsProvider);
+
+        final DataRange<DocumentScore> range = new DataRange<DocumentScore>(documentScores, start, totalRows);
+        return range;
+    }
+
+    private DataRange<Document> buildSearchResultsRange(HttpClientResponse response, int start, int count) {
+        final int totalRows;
+        final List<Document> documents = new ArrayList<Document>(count);
+        try {
+            final JsonNode node = this.objectMapper.readTree(response.getInputStream());
+            totalRows = node.findValue(TOTAL_ROWS).getIntValue();
+
+            final JsonNode rowsNode = node.findValue(ROWS);
+            final List<JsonNode> documentNodes = rowsNode.findValues(DOC);
+
+            for (final JsonNode documentNode : documentNodes) {
+                documents.add(this.objectMapper.convertValue(documentNode, Document.class));
+            }
+
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        final DataRange<Document> range = new DataRange<Document>(documents, start, totalRows);
+        return range;
     }
 
     private String toJSON(final Document document) {
@@ -365,26 +385,6 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     private String toJSON(final String text) {
         return new String(JsonStringEncoder.getInstance().encodeAsUTF8(text), Charset.forName("UTF-8"));
-    }
-
-    @Override
-    public void addRawContent(String documentId, String rev, String content, String mimeType) {
-        final URL documentUrl;
-        try {
-            documentUrl = new URL(this.couchDbDatabaseUrl + "/" + documentId + "/raw?rev=" + rev);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            NetworkingUtil.put(documentUrl, content, mimeType, this.credentialsProvider);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        final Document document = this.get(documentId);
-        document.setState(DocumentState.FETCHED);
-        document.setRetrievalDate(new Date());
-        this.update(document);
     }
 
 }
