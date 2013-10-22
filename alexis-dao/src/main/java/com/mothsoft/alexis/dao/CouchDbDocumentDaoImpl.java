@@ -17,12 +17,14 @@ package com.mothsoft.alexis.dao;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
@@ -39,6 +41,7 @@ import org.codehaus.jackson.io.JsonStringEncoder;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.node.ArrayNode;
 
 import com.mothsoft.alexis.domain.DataRange;
 import com.mothsoft.alexis.domain.Document;
@@ -56,12 +59,19 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     private static final String APPLICATION_JSON = "application/json";
     private static final String FIND_BY_URL_VIEW = "_design/views/_view/find_by_url?key=%%22%s%%22&include_docs=true";
-    private static final String SEARCH_BY_USER = "?q=userId%%3Clong%%3E:%s&include_docs=true&skip=%d&limit=%d&sort=%%5CcreationDate";
+
+    private static final String SEARCH_BY_USER = "?q=userId%%3Clong%%3E:%d&include_docs=true&skip=%d&limit=%d&sort=%%5CcreationDate";
+
+    // ?q=+userId<long>:X +(X)&include_docs=true&skip=X&limit=X
+    private static final String SEARCH_BY_USER_AND_EXPRESSION = "?q=%%2BuserId%%3Clong%%3E:%d%%20%%2B%%28%s%%29&include_docs=true&skip=%d&limit=%d";
+    private static final String SORT_DATE_ASC = "&sort=creationDate";
+    private static final String SORT_DATE_DESC = "&sort=%5CcreationDate";
 
     /* content constants */
     private static final String DOC = "doc";
     private static final String TOTAL_ROWS = "total_rows";
     private static final String ROWS = "rows";
+    private static final String SCORE = "score";
     private static final String GMT = "GMT";
 
     private URL couchDbDatabaseUrl;
@@ -228,6 +238,39 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         return range;
     }
 
+    private DataRange<DocumentScore> buildScoredSearchResultsRange(HttpClientResponse response, int start, int count) {
+        final int totalRows;
+        final List<DocumentScore> documentScores = new ArrayList<DocumentScore>(count);
+        try {
+            final JsonNode node = this.objectMapper.readTree(response.getInputStream());
+            totalRows = node.findValue(TOTAL_ROWS).getIntValue();
+
+            final ArrayNode rowsNode = (ArrayNode) node.findValue(ROWS);
+
+            for (final Iterator<JsonNode> it = rowsNode.getElements(); it.hasNext();) {
+                final JsonNode rowNode = it.next();
+                final Document document = this.objectMapper.convertValue(rowNode.findValue(DOC), Document.class);
+
+                final float score;
+                final JsonNode scoreNode = rowNode.findValue(SCORE);
+
+                if (scoreNode == null) {
+                    score = 0.0f;
+                } else {
+                    score = (float) scoreNode.getDoubleValue();
+                }
+                documentScores.add(new DocumentScore(document, score));
+            }
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        final DataRange<DocumentScore> range = new DataRange<DocumentScore>(documentScores, start, totalRows);
+        return range;
+    }
+
     @Override
     public DataRange<Document> listDocumentsInTopicsByOwner(Long userId, int firstRecord, int numberOfRecords) {
         return new DataRange<Document>(Collections.EMPTY_LIST, 0, 0);
@@ -240,8 +283,27 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     @Override
     public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
-            int first, int count) {
-        return new DataRange<DocumentScore>(Collections.EMPTY_LIST, 0, 0);
+            int start, int count) {
+        int skip = Math.max(start - 1, 0);
+        String urlString;
+
+        try {
+            query = URLEncoder.encode(query, "UTF-8");
+            urlString = this.couchDbLuceneBaseUrl.toExternalForm()
+                    + String.format(SEARCH_BY_USER_AND_EXPRESSION, userId, query, skip, count);
+
+            if (sortOrder == SortOrder.DATE_ASC) {
+                urlString += SORT_DATE_ASC;
+            } else if (sortOrder == SortOrder.DATE_DESC) {
+                urlString += SORT_DATE_DESC;
+            }
+
+            final HttpClientResponse response = NetworkingUtil.get(new URL(urlString), null, null,
+                    this.credentialsProvider);
+            return buildScoredSearchResultsRange(response, start, count);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

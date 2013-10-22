@@ -31,8 +31,10 @@ import org.junit.Test;
 
 import com.mothsoft.alexis.domain.DataRange;
 import com.mothsoft.alexis.domain.Document;
+import com.mothsoft.alexis.domain.DocumentScore;
 import com.mothsoft.alexis.domain.DocumentType;
 import com.mothsoft.alexis.domain.DocumentUser;
+import com.mothsoft.alexis.domain.SortOrder;
 
 public class CouchDbDocumentDaoImplTest {
 
@@ -160,5 +162,26 @@ public class CouchDbDocumentDaoImplTest {
             }
         }
         assertTrue("expected to find document", found);
+    }
+
+    @Test
+    public void testSearchByOwnerAndExpression() throws MalformedURLException {
+        final String url = "http://foo/" + Math.random();
+        final Long userId = 12345L;
+
+        final Document document = new Document(DocumentType.W, new URL(url), "abc", "hufflepuffery");
+        document.getDocumentUsers().add(new DocumentUser(null, userId));
+        this.documents.add(document);
+        this.dao.add(document);
+
+        assertNotNull(document);
+        assertNotNull(document.getId());
+
+        final String query = "hufflepuffery";
+        final DataRange<DocumentScore> range = this.dao.searchByOwnerAndExpression(12345L, query, SortOrder.RELEVANCE,
+                1, 10);
+        assertEquals(1, range.getRange().size());
+        assertEquals(document.getId(), range.getRange().get(0).getDocument().getId());
+
     }
 }
