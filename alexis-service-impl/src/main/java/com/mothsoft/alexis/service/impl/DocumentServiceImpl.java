@@ -82,14 +82,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
             int first, int count) {
-        final Date startDate = null; /* default */
-        final Date endDate = null; /* default */
-        return this.searchByOwnerAndExpression(userId, query, sortOrder, startDate, endDate, first, count);
-    }
-
-    public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
-            Date startDate, Date endDate, int first, int count) {
-        return this.documentDao.searchByOwnerAndExpression(userId, query, sortOrder, startDate, endDate, first, count);
+        return this.documentDao.searchByOwnerAndExpression(userId, query, sortOrder, first, count);
     }
 
     public Graph getRelatedTerms(final String queryString, final Long userId, final int howMany) {

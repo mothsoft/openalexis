@@ -34,15 +34,16 @@ public interface DocumentDao {
 
     public void addRawContent(String documentId, String rev, String content, String mimeType);
 
-    public Document get(String documentId);
+    public Document findByUrl(String url);
 
-    public void update(Document document);
+    public Document get(String documentId);
 
     public void remove(Document document);
 
-    public Document findByUrl(String url);
+    public void update(Document document);
 
     /* NLP */
+
     public List<ImportantNamedEntity> getImportantNamedEntities(Long userId, Date startDate, Date endDate, int howMany);
 
     public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(String documentId, int howMany);
@@ -63,6 +64,6 @@ public interface DocumentDao {
     public List<Document> listTopDocuments(Long userId, Date startDate, Date endDate, int count);
 
     public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
-            Date startDate, Date endDate, int first, int count);
+            int first, int count);
 
 }

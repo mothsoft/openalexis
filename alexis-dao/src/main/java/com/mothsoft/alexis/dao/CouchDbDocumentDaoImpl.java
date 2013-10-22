@@ -240,7 +240,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     @Override
     public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
-            Date startDate, Date endDate, int first, int count) {
+            int first, int count) {
         return new DataRange<DocumentScore>(Collections.EMPTY_LIST, 0, 0);
     }
 
