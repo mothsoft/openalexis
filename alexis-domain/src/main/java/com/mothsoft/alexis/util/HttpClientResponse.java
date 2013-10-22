@@ -21,18 +21,18 @@ import java.nio.charset.Charset;
 import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.AbortableHttpRequest;
 
 public final class HttpClientResponse implements Closeable {
 
-    private final HttpRequestBase request;
+    private final AbortableHttpRequest request;
     private final int statusCode;
     private final String etag;
     private final Date lastModifiedDate;
     private final InputStream inputStream;
     private final Charset charset;
 
-    public HttpClientResponse(final HttpRequestBase request, final int statusCode, final String etag,
+    public HttpClientResponse(final AbortableHttpRequest request, final int statusCode, final String etag,
             final Date lastModifiedDate, final InputStream inputStream, final Charset charset) {
         this.request = request;
         this.statusCode = statusCode;

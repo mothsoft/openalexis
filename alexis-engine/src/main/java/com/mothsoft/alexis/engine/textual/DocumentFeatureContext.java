@@ -32,7 +32,8 @@ public class DocumentFeatureContext {
     }
 
     public Integer getContextId(Term term) {
-        return term.getId().intValue();
+        // substitute for an actual ID
+        return term.getValueLowercase().hashCode();
     }
 
     public Integer getContextId(DocumentAssociation association) {

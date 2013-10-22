@@ -223,10 +223,10 @@ public class TwitterRetrievalTaskImpl implements RetrievalTask {
                     this.documentDao.add(tweet);
                 }
 
-                final DocumentUser documentUser = new DocumentUser(tweet, user);
+                final DocumentUser documentUser = new DocumentUser(tweet.getId(), user.getId());
 
                 if (isAdd || !tweet.getDocumentUsers().contains(documentUser)) {
-                    tweet.getDocumentUsers().add(new DocumentUser(tweet, user));
+                    tweet.getDocumentUsers().add(new DocumentUser(tweet.getId(), user.getId()));
                     this.documentDao.update(tweet);
                 }
             }

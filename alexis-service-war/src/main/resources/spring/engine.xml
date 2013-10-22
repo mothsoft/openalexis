@@ -21,6 +21,7 @@
         </amq:transportConnectors>
     </amq:broker>
 
+    <!-- integration with NLP queues -->
     <amq:queue id="stanfordRequestQueue" physicalName="queue.stanford.request"
         name="queue.stanford.request" />
     <amq:queue id="stanfordResponseQueue" physicalName="queue.stanford.response"
@@ -39,17 +40,39 @@
     <bean id="parseResponseMessageListener"
         class="com.mothsoft.alexis.engine.textual.ParseResponseMessageListener">
         <property name="documentDao" ref="documentDao" />
-        <property name="termDao" ref="termDao" />
         <property name="transactionManager" ref="transactionManager" />
     </bean>
 
-    <bean id="jmsContainer"
+    <bean id="parseResponseMessageListenerContainer"
         class="org.springframework.jms.listener.DefaultMessageListenerContainer"
         destroy-method="destroy">
         <property name="connectionFactory" ref="jmsConnectionFactory" />
         <property name="destination" ref="stanfordResponseQueue" />
         <property name="messageListener" ref="parseResponseMessageListener" />
-        <property name="sessionTransacted" value="false" />
+        <property name="sessionTransacted" value="true" />
+    </bean>
+
+    <!-- document retrieval queue for asynchronous fetching of documents -->
+    <amq:queue id="documentRetrievalQueue" physicalName="queue.alexis.document.retrieval"
+        name="queue.alexis.document.retrieval" />
+
+    <bean id="documentRetrievalJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="jmsConnectionFactory" />
+        <property name="defaultDestination" ref="documentRetrievalQueue" />
+    </bean>
+
+    <bean id="documentRetrievalMessageListenerContainer"
+        class="org.springframework.jms.listener.DefaultMessageListenerContainer"
+        destroy-method="destroy">
+        <property name="connectionFactory" ref="jmsConnectionFactory" />
+        <property name="destination" ref="documentRetrievalQueue" />
+        <property name="messageListener" ref="documentRetrievalMessageListener" />
+        <property name="sessionTransacted" value="true" />
+    </bean>
+
+    <bean id="documentRetrievalMessageListener"
+        class="com.mothsoft.alexis.engine.textual.RetrieveDocumentMessageListener">
+        <constructor-arg index="0" ref="documentDao" />
     </bean>
 
 </beans>

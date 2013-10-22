@@ -14,41 +14,17 @@
  */
 package com.mothsoft.alexis.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 
-@Entity(name = "TweetLink")
-@Table(name = "tweet_link")
 public class TweetLink {
 
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "tweet_id")
-    private Tweet tweet;
-
-    @Column(name = "start", columnDefinition = "smallint")
     private short start;
 
-    @Column(name = "end", columnDefinition = "smallint")
     private short end;
 
-    @Column(name = "display_url", length = 2048)
     private String displayUrl;
 
-    @Column(name = "expanded_url", length = 2048)
     private String expandedUrl;
 
-    @Column(name = "url", length = 2048)
     private String url;
 
     public TweetLink(short start, short end, String displayUrl, String expandedUrl, String url) {
@@ -60,14 +36,6 @@ public class TweetLink {
     }
 
     protected TweetLink() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Tweet getTweet() {
-        return tweet;
     }
 
     public short getStart() {
@@ -88,10 +56,6 @@ public class TweetLink {
 
     public String getUrl() {
         return url;
-    }
-
-    void setTweet(Tweet tweet) {
-        this.tweet = tweet;
     }
 
 }

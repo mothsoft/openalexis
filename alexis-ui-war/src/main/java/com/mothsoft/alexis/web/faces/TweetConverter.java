@@ -58,7 +58,7 @@ public class TweetConverter implements Converter {
         }
 
         final StringBuilder builder = new StringBuilder();
-        final String text = escapeTwitterCountedHtmlEntities(tweet.getText());
+        final String text = escapeTwitterCountedHtmlEntities(tweet.getContent());
 
         final int length = text.length();
 

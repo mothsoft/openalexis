@@ -17,11 +17,8 @@ package com.mothsoft.alexis.dao;
 import java.util.Date;
 import java.util.List;
 
-import org.hibernate.ScrollableResults;
-
 import com.mothsoft.alexis.domain.DataRange;
 import com.mothsoft.alexis.domain.Document;
-import com.mothsoft.alexis.domain.DocumentContent;
 import com.mothsoft.alexis.domain.DocumentScore;
 import com.mothsoft.alexis.domain.DocumentState;
 import com.mothsoft.alexis.domain.Graph;
@@ -34,33 +31,30 @@ public interface DocumentDao {
 
     public void add(Document document);
 
-    public void add(DocumentContent content);
-
-    public void bulkUpdateDocumentState(DocumentState queryState, DocumentState nextState);
+    public void addRawContent(String documentId, String rev, String content, String mimeType);
 
     public Document findByUrl(String url);
 
-    public Document findAndLockOneDocument(final DocumentState state);
-
-    public Document get(Long id);
+    public Document get(String documentId);
 
     public List<ImportantTerm> getImportantTerms(Long userId, Date startDate, Date endDate, int count,
             boolean filterStopWords);
 
-    public List<ImportantTerm> getImportantTerms(Long documentId, int howMany, boolean filterStopWords);
+    public List<ImportantTerm> getImportantTerms(String documentId, int howMany, boolean filterStopWords);
 
     public Graph getRelatedTerms(String query, Long userId, int howMany);
 
-    public List<TopicDocument> getTopicDocuments(Long documentId);
+    public List<TopicDocument> getTopicDocuments(String documentId);
 
-    public DataRange<Document> listDocumentsByOwner(Long userId, int first, int count);
+    public DataRange<Document> listDocumentsByOwner(Long userId, int start, int count);
 
     public DataRange<Document> listDocumentsInTopicsByOwner(Long userId, int firstRecord, int numberOfRecords);
 
     public List<Document> listTopDocuments(Long userId, Date startDate, Date endDate, int count);
 
-    public ScrollableResults scrollableSearch(Long userId, DocumentState state, String queryString,
-            SortOrder sortOrder, Date startDate, Date endDate);
+    // public ScrollableResults scrollableSearch(Long userId, DocumentState
+    // state, String queryString,
+    // SortOrder sortOrder, Date startDate, Date endDate);
 
     public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
             Date startDate, Date endDate, int first, int count);
@@ -74,6 +68,8 @@ public interface DocumentDao {
 
     public List<ImportantNamedEntity> getImportantNamedEntities(Long userId, Date startDate, Date endDate, int howMany);
 
-    public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(Long documentId, int howMany);
+    public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(String documentId, int howMany);
+
+    public void remove(Document document);
 
 }

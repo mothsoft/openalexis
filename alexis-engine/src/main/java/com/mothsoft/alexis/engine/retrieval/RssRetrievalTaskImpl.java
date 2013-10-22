@@ -23,8 +23,15 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -84,6 +91,8 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
         };
     }
 
+    private static final String DOCUMENT_ID = "DOCUMENT_ID";
+
     private DocumentDao documentDao;
     private RssFeedDao rssFeedDao;
     private SourceDao sourceDao;
@@ -91,6 +100,9 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
     private PlatformTransactionManager transactionManager;
     private TransactionTemplate transactionTemplate;
     private WebContentParser webContentParser;
+
+    // JMS queuing for document retrieval
+    private JmsTemplate jmsTemplate;
 
     private IntelligentDelay delay;
 
@@ -121,6 +133,10 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
 
     public void setWebContentParser(final WebContentParser webContentParser) {
         this.webContentParser = webContentParser;
+    }
+
+    public void setJmsTemplate(JmsTemplate jmsTemplate) {
+        this.jmsTemplate = jmsTemplate;
     }
 
     public void retrieve() {
@@ -265,6 +281,7 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
                 document.setCreationDate(this.firstNotNull(entry.getPublishedDate(), entry.getUpdatedDate(), new Date()));
 
                 this.documentDao.add(document);
+                this.queueForRetrieval(document);
 
             } else {
                 logger.info("Document already exists, will not queue again.");
@@ -274,7 +291,7 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
             for (final RssSource ithRssSource : rssFeed.getRssSources()) {
                 final Long userId = ithRssSource.getUserId();
                 final User user = this.userDao.get(userId);
-                final DocumentUser documentUser = new DocumentUser(document, user);
+                final DocumentUser documentUser = new DocumentUser(document.getId(), user.getId());
 
                 if (!document.getDocumentUsers().contains(documentUser)) {
                     document.getDocumentUsers().add(documentUser);
@@ -317,6 +334,17 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
 
     private String readTitle(final SyndEntry syndEntry) {
         return readString(syndEntry == null ? null : syndEntry.getTitle());
+    }
+
+    private void queueForRetrieval(final Document document) {
+        this.jmsTemplate.send(new MessageCreator() {
+            public Message createMessage(Session session) throws JMSException {
+                final TextMessage message = session.createTextMessage();
+                message.setStringProperty(DOCUMENT_ID, document.getId());
+                logger.info("Sending document retrieval request for: " + document.getUrl());
+                return message;
+            }
+        });
     }
 
 }

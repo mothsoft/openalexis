@@ -35,15 +35,20 @@
 
   <tx:annotation-driven />
 
+  <bean id="documentDao" class="com.mothsoft.alexis.dao.CouchDbDocumentDaoImpl">
+      <constructor-arg index="0" value="${alexis.couchdb.url}" />
+      <constructor-arg index="1" value="${alexis.couchdb.lucene.search.url}" />
+      <constructor-arg index="2" value="${alexis.couchdb.username}" />
+      <constructor-arg index="3" value="${alexis.couchdb.password}" />
+  </bean>
+
   <bean id="dataSetDao" class="com.mothsoft.alexis.dao.DataSetDaoImpl" />
   <bean id="dataSetPointDao" class="com.mothsoft.alexis.dao.DataSetPointDaoImpl" />
   <bean id="dataSetTypeDao" class="com.mothsoft.alexis.dao.DataSetTypeDaoImpl" />
-  <bean id="documentDao" class="com.mothsoft.alexis.dao.DocumentDaoImpl" />
   <bean id="modelDao" class="com.mothsoft.alexis.dao.ModelDaoImpl" />
   <bean id="rssFeedDao" class="com.mothsoft.alexis.dao.RssFeedDaoImpl" />
   <bean id="socialConnectionDao" class="com.mothsoft.alexis.dao.SocialConnectionDaoImpl" />
   <bean id="sourceDao" class="com.mothsoft.alexis.dao.SourceDaoImpl" />
-  <bean id="termDao" class="com.mothsoft.alexis.dao.TermDaoImpl" />
   <bean id="topicDao" class="com.mothsoft.alexis.dao.TopicDaoImpl" />
   <bean id="tweetDao" class="com.mothsoft.alexis.dao.TweetDaoImpl" />
   <bean id="userDao" class="com.mothsoft.alexis.dao.UserDaoImpl" />

@@ -15,7 +15,6 @@
 package com.mothsoft.alexis.domain;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -26,7 +25,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
@@ -54,11 +52,6 @@ public class Topic {
 
     @Column(name = "last_document_match_date")
     private Date lastDocumentMatchDate;
-
-    @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JoinColumn(name = "topic_id")
-    @OrderBy("score DESC")
-    private List<TopicDocument> topicDocuments;
 
     @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, orphanRemoval = true)
     @JoinColumn(name = "topic_id")
@@ -118,14 +111,6 @@ public class Topic {
 
     public void setLastDocumentMatchDate(Date lastDocumentMatchDate) {
         this.lastDocumentMatchDate = lastDocumentMatchDate;
-    }
-
-    public List<TopicDocument> getTopicDocuments() {
-        return topicDocuments;
-    }
-
-    public void setTopicDocuments(List<TopicDocument> topicDocuments) {
-        this.topicDocuments = topicDocuments;
     }
 
     @Override

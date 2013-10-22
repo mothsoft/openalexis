@@ -18,132 +18,65 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.OrderBy;
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Table;
-import javax.persistence.Version;
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
 
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.FieldBridge;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.IndexedEmbedded;
-import org.hibernate.search.annotations.Store;
-
-@Entity(name = "Document")
-@Table(name = "document")
-@Inheritance(strategy = InheritanceType.JOINED)
-@Indexed
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+        setterVisibility = Visibility.NONE)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Document {
 
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    @JsonProperty("_id")
+    String id;
 
-    @Column(name = "url", length = 4096)
+    @JsonProperty("_rev")
+    private String rev;
+
     private String url;
 
-    @Lob
-    @Column(name = "title", columnDefinition = "text")
-    @Field(store = Store.NO)
     private String title;
 
-    @Lob
-    @Column(name = "description", columnDefinition = "text")
-    @Field(store = Store.NO)
     private String description;
 
-    @Column(name = "state", columnDefinition = "tinyint")
-    @Field(name = "state")
-    @FieldBridge(impl = DocumentStateFieldBridge.class)
-    private int intState;
+    private String content;
 
-    private transient DocumentState state;
+    private DocumentState state;
 
-    @Column(name = "creation_date")
-    @Field(name = "creationDate")
-    @FieldBridge(impl = DateAsLongFieldBridge.class)
     private Date creationDate;
 
-    @Column(name = "retrieval_date")
     private Date retrievalDate;
 
-    @Column(name = "last_modified_date")
     private Date lastModifiedDate;
 
-    @Lob
-    @Column(name = "etag", columnDefinition = "text")
     private String etag;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @PrimaryKeyJoinColumn(name = "document_id")
-    @IndexedEmbedded(prefix = "content.")
-    private DocumentContent documentContent;
-
-    @Column(name = "content_length")
-    private Integer contentLength;
-
-    @Column(name = "term_count")
     private Integer termCount;
 
-    @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "document")
-    @OrderBy("associationWeight desc")
+    @JsonProperty("associations")
     private List<DocumentAssociation> documentAssociations;
 
-    @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "document")
-    @OrderBy("tfIdf desc")
+    @JsonProperty("terms")
     private List<DocumentTerm> documentTerms;
 
-    // FIXME - there has to be a proper way to filter/left join these for
-    // permissioning. couldn't make it work. if i had it probably would have
-    // broken caching potential anyway...
-    @OneToMany(cascade = {}, mappedBy = "document", fetch = FetchType.LAZY)
-    @OrderBy("score DESC")
-    @Field(name = "topicUser")
-    @FieldBridge(impl = TopicDocumentFieldBridge.class)
     private List<TopicDocument> topicDocuments;
 
-    @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
-    @JoinColumn(name = "document_id")
-    @Field(name = "user")
-    @FieldBridge(impl = DocumentUserFieldBridge.class)
-    private List<DocumentUser> documentUsers;
+    @JsonProperty("users")
+    private Set<DocumentUser> documentUsers;
 
-    @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY, mappedBy = "document")
-    @OrderBy("count DESC")
+    @JsonProperty("namedEntities")
     private List<DocumentNamedEntity> documentNamedEntities;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type", columnDefinition = "char(1)")
-    @FieldBridge(impl = DocumentStateFieldBridge.class)
     private DocumentType type = DocumentType.W;
 
-    @Version
-    @Column(name = "version", columnDefinition = "smallint unsigned")
-    protected Integer version;
-
-    @Column(name = "indexed", columnDefinition = "bit")
-    protected boolean indexed = true;
+    @JsonProperty("_attachments")
+    private Map<String, Object> attachments;
 
     public Document(final DocumentType type, final URL url, final String title, final String description) {
         this.type = type;
@@ -153,9 +86,8 @@ public class Document {
 
         this.title = title;
         this.description = description;
-        this.contentLength = -1;
         this.termCount = -1;
-        this.documentUsers = new ArrayList<DocumentUser>();
+        this.documentUsers = new HashSet<DocumentUser>();
     }
 
     protected Document() {
@@ -164,31 +96,106 @@ public class Document {
         this.documentNamedEntities = Collections.emptyList();
     }
 
-    @PrePersist
-    @PreUpdate
-    protected void prePersist() {
-        this.intState = this.state.getValue();
+    public void onErrorState(final DocumentState state) {
+        if (state.getValue() < 50 || state.equals(DocumentState.LOCKED)) {
+            throw new IllegalStateException("Invalid state " + state.toString()
+                    + " suggested, probably not an error state");
+        }
+        this.state = state;
     }
 
-    @PostLoad
-    protected void postLoad() {
-        this.state = DocumentState.getByValue(this.intState);
+    public void setParsedContent(final ParsedContent parsedContent) {
+
+        if (this.termCount > 0) {
+            throw new IllegalStateException("This document has already been initialized!");
+        }
+
+        this.documentAssociations = new ArrayList<DocumentAssociation>(parsedContent.getDocumentAssociations());
+        for (final DocumentAssociation documentAssociation : this.documentAssociations) {
+            documentAssociation.setDocumentId(this.id);
+        }
+
+        this.documentTerms = new ArrayList<DocumentTerm>(parsedContent.getTerms());
+        for (final DocumentTerm documentTerm : this.documentTerms) {
+            documentTerm.setDocumentId(this.id);
+        }
+
+        this.documentNamedEntities = new ArrayList<DocumentNamedEntity>(parsedContent.getNamedEntities());
+        for (final DocumentNamedEntity entity : this.documentNamedEntities) {
+            entity.setDocumentId(this.id);
+        }
+
+        this.termCount = parsedContent.getDocumentTermCount();
+
+        this.state = DocumentState.PARSED;
     }
 
-    public Long getId() {
-        return this.id;
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getRev() {
+        return rev;
+    }
+
+    public void setRev(String rev) {
+        this.rev = rev;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public DocumentState getState() {
+        return state;
+    }
+
+    public void setState(DocumentState state) {
+        this.state = state;
     }
 
     public Date getCreationDate() {
         return creationDate;
     }
 
-    public void setCreationDate(final Date creationDate) {
+    public void setCreationDate(Date creationDate) {
         this.creationDate = creationDate;
     }
 
     public Date getRetrievalDate() {
-        return this.retrievalDate;
+        return retrievalDate;
     }
 
     public void setRetrievalDate(Date retrievalDate) {
@@ -211,125 +218,60 @@ public class Document {
         this.etag = etag;
     }
 
-    public DocumentContent getDocumentContent() {
-        return this.documentContent;
-    }
-
-    public Integer getContentLength() {
-        return contentLength;
-    }
-
     public Integer getTermCount() {
-        return this.termCount;
+        return termCount;
     }
 
-    public String getUrl() {
-        return url;
+    public void setTermCount(Integer termCount) {
+        this.termCount = termCount;
     }
 
     public List<DocumentAssociation> getDocumentAssociations() {
-        return this.documentAssociations;
+        return documentAssociations;
+    }
+
+    public void setDocumentAssociations(List<DocumentAssociation> documentAssociations) {
+        this.documentAssociations = documentAssociations;
     }
 
     public List<DocumentTerm> getDocumentTerms() {
-        return this.documentTerms;
+        return documentTerms;
     }
 
-    public DocumentState getState() {
-        return state;
-    }
-
-    public int getIntState() {
-        return intState;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public DocumentType getType() {
-        return this.type;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getText() {
-        return this.documentContent == null ? "" : this.documentContent.getText();
+    public void setDocumentTerms(List<DocumentTerm> documentTerms) {
+        this.documentTerms = documentTerms;
     }
 
     public List<TopicDocument> getTopicDocuments() {
         return topicDocuments;
     }
 
-    public List<DocumentUser> getDocumentUsers() {
-        return this.documentUsers;
+    public void setTopicDocuments(List<TopicDocument> topicDocuments) {
+        this.topicDocuments = topicDocuments;
     }
 
-    public void lock() {
-        this.intState = DocumentState.LOCKED.getValue();
-        this.state = DocumentState.LOCKED;
+    public Set<DocumentUser> getDocumentUsers() {
+        return documentUsers;
     }
 
-    public void onErrorState(final DocumentState state) {
-        if (state.getValue() < 50 || state.equals(DocumentState.LOCKED)) {
-            throw new IllegalStateException("Invalid state " + state.toString()
-                    + " suggested, probably not an error state");
-        }
-        this.intState = state.getValue();
-        this.state = state;
+    public void setDocumentUsers(Set<DocumentUser> documentUsers) {
+        this.documentUsers = documentUsers;
     }
 
-    public void setDocumentContent(final DocumentContent documentContent) {
-        this.documentContent = documentContent;
-    }
-
-    public void setParsedContent(final ParsedContent parsedContent) {
-
-        if (this.termCount > 0) {
-            throw new IllegalStateException("This document has already been initialized!");
-        }
-
-        this.documentAssociations = new ArrayList<DocumentAssociation>(parsedContent.getDocumentAssociations());
-        for (final DocumentAssociation documentAssociation : this.documentAssociations) {
-            documentAssociation.setDocument(this);
-        }
-
-        this.documentTerms = new ArrayList<DocumentTerm>(parsedContent.getTerms());
-        for (final DocumentTerm documentTerm : this.documentTerms) {
-            documentTerm.setDocument(this);
-        }
-
-        this.documentNamedEntities = new ArrayList<DocumentNamedEntity>(parsedContent.getNamedEntities());
-        for (final DocumentNamedEntity entity : this.documentNamedEntities) {
-            entity.setDocument(this);
-        }
-
-        this.termCount = parsedContent.getDocumentTermCount();
-
-        this.state = DocumentState.PARSED;
-        this.intState = this.state.getValue();
-    }
-
-    public void setState(final DocumentState nextState) {
-        this.state = nextState;
-        this.intState = this.state.getValue();
-    }
-
-    public boolean isIndexed() {
-        return indexed;
-    }
-
-    public void setIndexed(boolean indexed) {
-        this.indexed = indexed;
-    }
-
-    public Integer getVersion() {
-        return this.version;
-    }
-
-    public List<DocumentNamedEntity> getNamedEntities() {
+    public List<DocumentNamedEntity> getDocumentNamedEntities() {
         return documentNamedEntities;
     }
+
+    public void setDocumentNamedEntities(List<DocumentNamedEntity> documentNamedEntities) {
+        this.documentNamedEntities = documentNamedEntities;
+    }
+
+    public DocumentType getType() {
+        return type;
+    }
+
+    public void setType(DocumentType type) {
+        this.type = type;
+    }
+
 }

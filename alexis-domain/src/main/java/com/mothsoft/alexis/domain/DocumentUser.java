@@ -14,62 +14,46 @@
  */
 package com.mothsoft.alexis.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
-import org.hibernate.search.annotations.ContainedIn;
-
-@Entity(name = "DocumentUser")
-@Table(name = "document_user")
 public class DocumentUser {
 
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    @JsonIgnore
+    private String documentId;
 
-    @ManyToOne
-    @JoinColumn(name = "document_id")
-    @ContainedIn
-    private Document document;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    private Long userId;
 
     public DocumentUser() {
         // default constructor
     }
 
-    public DocumentUser(final Document document, final User user) {
-        this.document = document;
-        this.user = user;
+    public DocumentUser(final String documentId, final Long userId) {
+        this.documentId = documentId;
+        this.userId = userId;
     }
 
-    public Long getId() {
-        return this.id;
+    public String getDocumentId() {
+        return documentId;
     }
 
-    public Document getDocument() {
-        return document;
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
-    public User getUser() {
-        return user;
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((document == null || document.id == null) ? 0 : document.id.hashCode());
-        result = prime * result + ((user == null || user.id == null) ? 0 : user.id.hashCode());
+        result = prime * result + ((documentId == null) ? 0 : documentId.hashCode());
+        result = prime * result + ((userId == null) ? 0 : userId.hashCode());
         return result;
     }
 
@@ -82,15 +66,15 @@ public class DocumentUser {
         if (getClass() != obj.getClass())
             return false;
         DocumentUser other = (DocumentUser) obj;
-        if (document == null) {
-            if (other.document != null)
+        if (documentId == null) {
+            if (other.documentId != null)
                 return false;
-        } else if (!document.id.equals(other.document.id))
+        } else if (!documentId.equals(other.documentId))
             return false;
-        if (user == null) {
-            if (other.user != null)
+        if (userId == null) {
+            if (other.userId != null)
                 return false;
-        } else if (!user.id.equals(other.user.id))
+        } else if (!userId.equals(other.userId))
             return false;
         return true;
     }

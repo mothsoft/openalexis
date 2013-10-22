@@ -49,7 +49,7 @@ public class DocumentFeatures {
             increment(termVector, termId, documentTerm.getCount());
         }
 
-        for (final DocumentNamedEntity entity : document.getNamedEntities()) {
+        for (final DocumentNamedEntity entity : document.getDocumentNamedEntities()) {
             final Integer id = context.getContextId(entity);
             increment(nameVector, id, 1);
         }

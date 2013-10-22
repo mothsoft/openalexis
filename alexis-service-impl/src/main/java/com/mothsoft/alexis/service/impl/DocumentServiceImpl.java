@@ -49,7 +49,7 @@ public class DocumentServiceImpl implements DocumentService {
         this.documentDao = documentDao;
     }
 
-    public Document getDocument(Long id) {
+    public Document getDocument(String id) {
         // FIXME - add security check
         final Document document = this.documentDao.get(id);
         return document;
@@ -65,11 +65,11 @@ public class DocumentServiceImpl implements DocumentService {
         return this.documentDao.getImportantTerms(userId, startDate, endDate, count, filterStopWords);
     }
 
-    public List<ImportantTerm> getImportantTerms(Long documentId, int howMany, boolean filterStopWords) {
+    public List<ImportantTerm> getImportantTerms(String documentId, int howMany, boolean filterStopWords) {
         return this.documentDao.getImportantTerms(documentId, howMany, filterStopWords);
     }
 
-    public List<TopicDocument> getTopicDocuments(Long documentId) {
+    public List<TopicDocument> getTopicDocuments(String documentId) {
         return this.documentDao.getTopicDocuments(documentId);
     }
 
@@ -117,12 +117,12 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(Long documentId, int howMany) {
+    public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(String documentId, int howMany) {
         return this.documentDao.getImportantNamedEntitiesForDocument(documentId, howMany);
     }
 
     @Override
-    public Double getSimilarity(Long aId, Long bId) {
+    public Double getSimilarity(String aId, String bId) {
         final Document a = this.getDocument(aId);
         final Document b = this.getDocument(bId);
 

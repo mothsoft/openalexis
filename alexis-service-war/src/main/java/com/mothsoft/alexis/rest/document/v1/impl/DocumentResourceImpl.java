@@ -39,19 +39,19 @@ public class DocumentResourceImpl implements DocumentResource {
     }
 
     @Override
-    public Document getDocument(Long id) {
+    public Document getDocument(String id) {
         final com.mothsoft.alexis.domain.Document domain = this.service.getDocument(id);
         return toDto(domain);
     }
 
     @Override
-    public Double getSimilarity(Long aId, Long bId) {
+    public Double getSimilarity(String aId, String bId) {
         return this.service.getSimilarity(aId, bId);
     }
 
     @Override
-    public String getDocumentText(Long id) {
-        return this.service.getDocument(id).getDocumentContent().getText();
+    public String getDocumentText(String id) {
+        return this.service.getDocument(id).getContent();
     }
 
     @Override

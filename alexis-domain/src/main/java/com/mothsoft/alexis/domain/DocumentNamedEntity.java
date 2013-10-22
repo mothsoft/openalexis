@@ -14,32 +14,12 @@
  */
 package com.mothsoft.alexis.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
-@Entity(name = "DocumentNamedEntity")
-@Table(name = "document_named_entity")
 public class DocumentNamedEntity {
 
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    private String documentId;
 
-    @ManyToOne
-    @JoinColumn(name = "document_id")
-    private Document document;
-
-    @Column(name = "name", length = 255)
     private String name;
 
-    @Column(name = "count", columnDefinition = "smallint unsigned")
     private Integer count;
 
     public DocumentNamedEntity() {
@@ -51,8 +31,12 @@ public class DocumentNamedEntity {
         this.count = count;
     }
 
-    public Document getDocument() {
-        return document;
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
     public String getName() {
@@ -61,14 +45,6 @@ public class DocumentNamedEntity {
 
     public Integer getCount() {
         return count;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    protected void setDocument(Document document) {
-        this.document = document;
     }
 
 }

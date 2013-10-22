@@ -19,59 +19,28 @@ import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-
 import org.apache.commons.lang.StringUtils;
-import org.hibernate.search.annotations.Field;
-import org.hibernate.search.annotations.Indexed;
-import org.hibernate.search.annotations.Store;
 
-@Entity(name = "Tweet")
-@Table(name = "tweet")
-@PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id")
-@Indexed
 public class Tweet extends Document {
 
-    @Column(name = "remote_tweet_id")
     private Long remoteTweetId;
 
-    @Column(name = "screen_name")
-    @Field(name = "author", store = Store.NO)
     private String screenName;
 
-    @Column(name = "full_name")
-    @Field(name = "author", store = Store.NO)
     private String fullName;
 
-    @Column(name = "profile_image_url", length = 4096)
     private String profileImageUrl;
 
-    @Transient
     private transient String title;
 
-    @Column(name = "is_retweet", columnDefinition = "bit")
     private boolean retweet;
 
-    @Column(name = "retweet_user_name")
     private String retweetUserName;
 
-    @OneToMany(cascade = { CascadeType.ALL })
-    @JoinColumn(name = "tweet_id")
     private List<TweetLink> links;
 
-    @OneToMany(cascade = { CascadeType.ALL })
-    @JoinColumn(name = "tweet_id")
     private List<TweetMention> mentions;
 
-    @OneToMany(cascade = { CascadeType.ALL })
-    @JoinColumn(name = "tweet_id")
     private List<TweetHashtag> hashtags;
 
     public Tweet(Long remoteTweetId, Date createdAt, String screenName, String fullName, URL profileImageUrl,
@@ -85,26 +54,13 @@ public class Tweet extends Document {
         this.fullName = fullName;
         this.profileImageUrl = profileImageUrl.toExternalForm();
 
-        final DocumentContent documentContent = new DocumentContent(this, text);
-        setDocumentContent(documentContent);
+        this.setContent(text);
 
         this.links = links;
         this.mentions = mentions;
         this.hashtags = hashtags;
         this.retweet = retweet;
         this.retweetUserName = retweetUserName;
-
-        for (final TweetLink ith : links) {
-            ith.setTweet(this);
-        }
-
-        for (final TweetMention ith : mentions) {
-            ith.setTweet(this);
-        }
-
-        for (final TweetHashtag ith : hashtags) {
-            ith.setTweet(this);
-        }
     }
 
     private static URL urlOf(Long remoteTweetId, String screenName) {
@@ -161,7 +117,7 @@ public class Tweet extends Document {
     @Override
     public String getTitle() {
         if (this.title == null) {
-            this.title = StringUtils.abbreviate(getText(), 100);
+            this.title = StringUtils.abbreviate(getContent(), 100);
         }
 
         return this.title;

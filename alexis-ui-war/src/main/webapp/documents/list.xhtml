@@ -111,16 +111,12 @@
                             <h:outputText styleClass="documentListItemAttributeValue" value="#{document.url}" />
                         </ui:fragment>
 	                </div>
-	                <ui:fragment rendered="#{document.contentLength != -1}">
+	                <ui:fragment rendered="#{document.retrievalDate != null}">
 		                <div class="documentListItemAttribute">
 		                    Retrieved: 
 		                    <h:outputText styleClass="documentListItemAttributeValue" value="#{document.retrievalDate}">
                                 <f:convertDateTime type="both" dateStyle="default" timeZone="#{currentUser.timeZone}" />
-		                    </h:outputText>,  
-		                    Size: 
-		                    <h:outputText styleClass="documentListItemAttributeValue" value="#{document.contentLength}">
-		                        <f:converter converterId="humanReadableBytesConverter" />
-		                    </h:outputText>
+		                    </h:outputText>  
 		                </div>
 	                </ui:fragment>
 	            </ui:fragment>

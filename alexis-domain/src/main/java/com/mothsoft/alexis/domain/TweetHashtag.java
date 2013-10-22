@@ -14,35 +14,13 @@
  */
 package com.mothsoft.alexis.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 
-@Entity(name = "TweetHashtag")
-@Table(name = "tweet_hashtag")
 public class TweetHashtag {
 
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "tweet_id")
-    private Tweet tweet;
-
-    @Column(name = "start", columnDefinition = "smallint")
     private short start;
 
-    @Column(name = "end", columnDefinition = "smallint")
     private short end;
 
-    @Column(name = "hashtag", length = 140)
     private String hashtag;
 
     public TweetHashtag(short start, short end, String hashtag) {
@@ -52,14 +30,6 @@ public class TweetHashtag {
     }
 
     protected TweetHashtag() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Tweet getTweet() {
-        return tweet;
     }
 
     public short getStart() {
@@ -72,10 +42,6 @@ public class TweetHashtag {
 
     public String getHashtag() {
         return hashtag;
-    }
-
-    void setTweet(Tweet tweet) {
-        this.tweet = tweet;
     }
 
 }

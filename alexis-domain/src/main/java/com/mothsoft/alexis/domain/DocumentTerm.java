@@ -14,49 +14,24 @@
  */
 package com.mothsoft.alexis.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
-
-@Entity(name = "DocumentTerm")
-@Table(name = "document_term")
 public class DocumentTerm implements Comparable<DocumentTerm> {
 
-    @Id
-    DocumentTermId id;
+    private String documentId;
 
-    @ManyToOne
-    @JoinColumn(name = "document_id", insertable = false, updatable = false)
-    private Document document;
-
-    @ManyToOne
-    @JoinColumn(name = "term_id", insertable = false, updatable = false, columnDefinition = "integer unsigned")
     private Term term;
 
-    @Column(name = "term_count")
     private Integer count;
 
-    @Column(name = "tf_idf")
     private Float tfIdf;
 
-    public DocumentTerm(final Term term, final Integer count) {
+    public DocumentTerm(final String documentId, final Term term, final Integer count) {
+        this.documentId = documentId;
         this.term = term;
         this.count = count;
     }
 
     protected DocumentTerm() {
         super();
-    }
-    
-    @PrePersist
-    public void prePersist() {
-        this.id = new DocumentTermId();
-        this.id.documentId = this.document.id;
-        this.id.termId = this.term.getId();
     }
 
     public Integer getCount() {
@@ -66,17 +41,17 @@ public class DocumentTerm implements Comparable<DocumentTerm> {
     public Float getTfIdf() {
         return this.tfIdf;
     }
-    
+
     public void setTfIdf(Float tfIdf) {
         this.tfIdf = tfIdf;
     }
 
-    public Document getDocument() {
-        return document;
+    public String getDocumentId() {
+        return documentId;
     }
 
-    public void setDocument(Document document) {
-        this.document = document;
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
     public Term getTerm() {

@@ -30,16 +30,16 @@ public interface DocumentResource {
 
     @Path("/{id}")
     @GET
-    public Document getDocument(@PathParam("id") Long id);
+    public Document getDocument(@PathParam("id") String id);
 
     @Path("/{a}/similarity/{b}")
     @GET
-    public Double getSimilarity(@PathParam("a") Long aId, @PathParam("b") Long bId);
+    public Double getSimilarity(@PathParam("a") String aId, @PathParam("b") String bId);
 
     @Path("/{id}/text")
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    public String getDocumentText(@PathParam("id") Long id);
+    public String getDocumentText(@PathParam("id") String id);
 
     @GET
     @Path("/important-terms")

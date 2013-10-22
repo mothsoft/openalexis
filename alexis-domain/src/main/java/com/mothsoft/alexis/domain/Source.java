@@ -15,10 +15,7 @@
 package com.mothsoft.alexis.domain;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
-import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,13 +23,6 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Table;
-
-import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.codehaus.jackson.map.jsontype.TypeIdResolver;
-import org.codehaus.jackson.map.type.TypeFactory;
-import org.codehaus.jackson.type.JavaType;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity(name = "Source")
 @Table(name = "source")
@@ -84,36 +74,5 @@ public abstract class Source {
     public abstract SourceType getSourceType();
 
     public abstract String getDescription();
-
-}
-
-class SourceTypeIdResolver implements TypeIdResolver {
-
-    private Map<String, JavaType> types;
-
-    @Override
-    public org.codehaus.jackson.annotate.JsonTypeInfo.Id getMechanism() {
-        return JsonTypeInfo.Id.CUSTOM;
-    }
-
-    @Override
-    public String idFromValue(Object object) {
-        final Source source = (Source) object;
-        return source.getSourceType().name();
-    }
-
-    @Override
-    public void init(JavaType type) {
-        this.types = new HashMap<String, JavaType>();
-
-        this.types.put(SourceType.ALL.name(), TypeFactory.fromCanonical(Source.class.getCanonicalName()));
-        this.types.put(SourceType.R.name(), TypeFactory.fromCanonical(RssSource.class.getCanonicalName()));
-        this.types.put(SourceType.T.name(), TypeFactory.fromCanonical(TwitterSource.class.getCanonicalName()));
-    }
-
-    @Override
-    public JavaType typeFromId(String id) {
-        return types.get(id);
-    }
 
 }

@@ -33,7 +33,7 @@ public class ViewDocumentDetailsBackingBean {
     private DocumentService documentService;
 
     // state
-    private Long id;
+    private String id;
     private Document document;
     private List<ImportantNamedEntity> importantNamedEntities;
     private Integer importantNamedEntitiesMaxCount = Integer.valueOf(0);
@@ -49,11 +49,11 @@ public class ViewDocumentDetailsBackingBean {
         this.documentService = documentService;
     }
 
-    public Long getId() {
+    public String getId() {
         return this.id;
     }
 
-    public void setId(final Long id) {
+    public void setId(final String id) {
         this.id = id;
     }
 

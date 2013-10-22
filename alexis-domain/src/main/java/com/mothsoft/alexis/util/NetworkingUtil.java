@@ -23,13 +23,24 @@ import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpEntityEnclosingRequest;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.AuthCache;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.AbortableHttpRequest;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.auth.BasicScheme;
+import org.apache.http.impl.client.BasicAuthCache;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
@@ -43,8 +54,39 @@ public class NetworkingUtil {
 
     private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
+    public static int delete(final URL url, final CredentialsProvider credentialsProvider) {
+        final HttpDelete delete = new HttpDelete(url.toExternalForm());
+
+        // set up HTTP context
+        final HttpHost targetHost = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
+        final AuthCache authCache = new BasicAuthCache();
+        final BasicScheme basicAuth = new BasicScheme();
+        authCache.put(targetHost, basicAuth);
+
+        final HttpClientContext localContext = HttpClientContext.create();
+        localContext.setAuthCache(authCache);
+        localContext.setCredentialsProvider(credentialsProvider);
+        localContext.setTargetHost(targetHost);
+
+        final HttpClient client = getClient();
+        HttpResponse response;
+        try {
+            response = client.execute(targetHost, delete, localContext);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        int statusCode = response.getStatusLine().getStatusCode();
+
+        return statusCode;
+    }
+
     public static HttpClientResponse get(final URL url, final String etag, final Date lastModifiedDate)
             throws IOException {
+        return get(url, etag, lastModifiedDate, null);
+    }
+
+    public static HttpClientResponse get(final URL url, final String etag, final Date lastModifiedDate,
+            final CredentialsProvider credentialsProvider) throws IOException {
 
         final HttpGet get = new HttpGet(url.toExternalForm());
 
@@ -63,7 +105,25 @@ public class NetworkingUtil {
         Date responseLastModifiedDate = null;
 
         final HttpClient client = getClient();
-        HttpResponse response = client.execute(get);
+        HttpResponse response = null;
+
+        if (credentialsProvider != null) {
+            // set up HTTP context
+            final HttpHost targetHost = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
+            final AuthCache authCache = new BasicAuthCache();
+            final BasicScheme basicAuth = new BasicScheme();
+            authCache.put(targetHost, basicAuth);
+
+            final HttpClientContext localContext = HttpClientContext.create();
+            localContext.setAuthCache(authCache);
+            localContext.setCredentialsProvider(credentialsProvider);
+            localContext.setTargetHost(targetHost);
+
+            response = client.execute(targetHost, get, localContext);
+        } else {
+            response = client.execute(get);
+        }
+
         statusCode = response.getStatusLine().getStatusCode();
 
         InputStream is = null;
@@ -123,6 +183,52 @@ public class NetworkingUtil {
         final Charset charset = getCharset(entity);
 
         return new HttpClientResponse(post, status, null, null, is, charset);
+    }
+
+    public static HttpClientResponse post(final URL url, final String content, final String mimeType,
+            final CredentialsProvider credentialsProvider) throws IOException {
+        final HttpPost post = new HttpPost(url.toExternalForm());
+        post.setEntity(new StringEntity(content));
+        post.setHeader("Content-Type", mimeType);
+        return NetworkingUtil.execute(url, post, credentialsProvider);
+    }
+
+    public static HttpClientResponse put(final URL url, final String content, final String mimeType,
+            final CredentialsProvider credentialsProvider) throws IOException {
+        final HttpPut put = new HttpPut(url.toExternalForm());
+        put.setEntity(new StringEntity(content));
+        put.setHeader("Content-Type", mimeType);
+        return NetworkingUtil.execute(url, put, credentialsProvider);
+    }
+
+    private static HttpClientResponse execute(final URL url, final HttpEntityEnclosingRequest method,
+            final CredentialsProvider credentialsProvider) throws IOException {
+
+        // set up HTTP context
+        final HttpHost targetHost = new HttpHost(url.getHost(), url.getPort(), url.getProtocol());
+        final AuthCache authCache = new BasicAuthCache();
+        final BasicScheme basicAuth = new BasicScheme();
+        authCache.put(targetHost, basicAuth);
+
+        final HttpClientContext localContext = HttpClientContext.create();
+        localContext.setAuthCache(authCache);
+        localContext.setCredentialsProvider(credentialsProvider);
+        localContext.setTargetHost(targetHost);
+
+        final HttpClient client = getClient();
+
+        HttpResponse response = client.execute(targetHost, method, localContext);
+        int status = response.getStatusLine().getStatusCode();
+
+        if (status < 200 || status > 300) {
+            throw new IOException("status: " + status);
+        }
+
+        final HttpEntity entity = response.getEntity();
+        final InputStream is = entity.getContent();
+        final Charset charset = getCharset(entity);
+
+        return new HttpClientResponse((AbortableHttpRequest)method, status, null, null, is, charset);
     }
 
     private static HttpClient getClient() {

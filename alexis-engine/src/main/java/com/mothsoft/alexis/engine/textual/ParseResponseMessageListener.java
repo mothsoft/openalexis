@@ -35,17 +35,12 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.springframework.jms.listener.SessionAwareMessageListener;
-import org.springframework.orm.jpa.JpaSystemException;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.TransactionSystemException;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.mothsoft.alexis.dao.DocumentDao;
-import com.mothsoft.alexis.dao.TermDao;
 import com.mothsoft.alexis.domain.AssociationType;
 import com.mothsoft.alexis.domain.Document;
 import com.mothsoft.alexis.domain.DocumentAssociation;
@@ -65,16 +60,11 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
     private static final Pattern PUNCT_PATTERN = Pattern.compile("\\p{Punct}");
 
     private DocumentDao documentDao;
-    private TermDao termDao;
     private PlatformTransactionManager transactionManager;
     private TransactionTemplate transactionTemplate;
 
     public void setDocumentDao(final DocumentDao documentDao) {
         this.documentDao = documentDao;
-    }
-
-    public void setTermDao(final TermDao termDao) {
-        this.termDao = termDao;
     }
 
     public void setTransactionManager(final PlatformTransactionManager transactionManager) {
@@ -85,13 +75,13 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
     @Override
     public void onMessage(final TextMessage message, final Session session) throws JMSException {
 
-        final long documentId = message.getLongProperty(DOCUMENT_ID);
+        final String documentId = message.getStringProperty(DOCUMENT_ID);
         logger.info("Received response for document ID: " + documentId);
 
         final String xml = message.getText();
 
         try {
-            final ParsedContent parsedContent = readResponse(xml);
+            final ParsedContent parsedContent = readResponse(xml, documentId);
             updateDocument(documentId, parsedContent);
         } catch (final IOException e) {
             final JMSException e2 = new JMSException(e.getMessage());
@@ -101,7 +91,7 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
     }
 
     @SuppressWarnings("unchecked")
-    private ParsedContent readResponse(final String xml) throws IOException {
+    private ParsedContent readResponse(final String xml, final String documentId) throws IOException {
         // turn the content into a ParsedContent complex object
         final Map<Term, Integer> termCountMap = new HashMap<Term, Integer>();
         final Map<String, DocumentAssociation> associationCountMap = new HashMap<String, DocumentAssociation>();
@@ -122,8 +112,10 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
 
         int sentencePosition = 1;
 
+        final Map<String, Term> termCache = new HashMap<String, Term>();
+
         for (final Node ith : sentenceNodes) {
-            parseSentence(sentencePosition++, (Element) ith, termCountMap, associationCountMap);
+            parseSentence(sentencePosition++, (Element) ith, termCountMap, termCache, associationCountMap);
         }
         sentenceNodes.clear();
 
@@ -147,7 +139,7 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
         final List<DocumentTerm> documentTerms = new ArrayList<DocumentTerm>();
         for (final Term term : termCountMap.keySet()) {
             final Integer count = termCountMap.get(term);
-            documentTerms.add(new DocumentTerm(term, count));
+            documentTerms.add(new DocumentTerm(documentId, term, count));
         }
 
         // sort the named entities by count
@@ -163,7 +155,8 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
 
     @SuppressWarnings("unchecked")
     private void parseSentence(final Integer position, final Element element, final Map<Term, Integer> termCountMap,
-            Map<String, DocumentAssociation> associationMap) throws IOException {
+            final Map<String, Term> termCache, final Map<String, DocumentAssociation> associationMap)
+            throws IOException {
 
         final List<Term> terms = new ArrayList<Term>();
 
@@ -183,7 +176,7 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
                 partOfSpeech = PartOfSpeech.parse(pos);
             }
 
-            final Term term = findOrCreateTerm(value, partOfSpeech);
+            final Term term = findOrCreateTerm(value, partOfSpeech, termCache);
             terms.add(term);
             countTerm(term, termCountMap);
         }
@@ -219,41 +212,16 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
         }
     }
 
-    private Term findOrCreateTerm(final String value, final PartOfSpeech partOfSpeech) {
-        final int maxTries = 20;
-        int retryCount = maxTries;
+    private Term findOrCreateTerm(final String value, final PartOfSpeech partOfSpeech, final Map<String, Term> termCache) {
+        final String key = value + ":" + partOfSpeech.name();
 
-        Term term = null;
-        while (term == null && retryCount > 0) {
-            retryCount--;
-
-            try {
-                term = this.transactionTemplate.execute(new TransactionCallback<Term>() {
-                    public Term doInTransaction(TransactionStatus status) {
-                        try {
-                            Term term = ParseResponseMessageListener.this.termDao.find(value, partOfSpeech);
-                            if (term == null) {
-                                term = new Term(value, partOfSpeech);
-                                ParseResponseMessageListener.this.termDao.add(term);
-                            }
-                            return term;
-                        } catch (JpaSystemException e) {
-                            throw new TransactionSystemException(e.getLocalizedMessage());
-                        }
-                    }
-                });
-            } catch (TransactionException e) {
-                if (retryCount == 0) {
-                    logger.error("Retried transaction " + maxTries + " times; failed every time!" + e, e);
-                    throw e;
-                } else {
-                    logger.warn("Experienced transaction failure: " + e.getLocalizedMessage() + "; will retry!");
-                    continue;
-                }
-            }
+        if (termCache.containsKey(key)) {
+            return termCache.get(key);
+        } else {
+            final Term term = new Term(value, partOfSpeech);
+            termCache.put(key, term);
+            return term;
         }
-
-        return term;
     }
 
     private void countTerm(Term term, Map<Term, Integer> termCountMap) {
@@ -266,7 +234,7 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
         termCountMap.put(term, currentValue + 1);
     }
 
-    private void updateDocument(final Long documentId, final ParsedContent parsedContent) {
+    private void updateDocument(final String documentId, final ParsedContent parsedContent) {
         logger.info("Beginning to update document: " + documentId);
 
         final StopWatch stopWatch = new StopWatch();

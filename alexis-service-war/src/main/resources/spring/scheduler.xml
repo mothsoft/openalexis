@@ -42,9 +42,7 @@
         class="com.mothsoft.alexis.engine.textual.TransactionalCompositeTaskImpl">
         <constructor-arg>
             <list>
-                <!-- Run the Lucene indexing to completion -->
-                <bean
-                    class="com.mothsoft.alexis.engine.textual.LuceneIndexerTask" />
+                <!-- Run any necessary startup jobs -->
                 <!-- Then, start the runtime Quartz -->
                 <bean
                     class="com.mothsoft.alexis.service.scheduler.StartQuartzTask">
@@ -67,12 +65,11 @@
             <list>
                 <ref bean="rssRetrievalTrigger" />
                 <ref bean="twitterRetrievalTrigger" />
-                <ref bean="documentRetrievalTrigger" />
                 <ref bean="batchDocumentAnalysisTrigger" />
                 <ref bean="topicActivityDataSetImporterTrigger" />
                 <ref bean="stockQuoteDataSetImporterTrigger" />
-                <ref bean="modelTrainerTrigger" />
-            </list>
+<!--                 <ref bean="modelTrainerTrigger" />
+ -->            </list>
         </property>
         <property name="autoStartup" value="false" />
         <property name="startupDelay" value="5" />
@@ -108,6 +105,7 @@
         <property name="userDao" ref="userDao" />
         <property name="transactionManager" ref="transactionManager" />
         <property name="webContentParser" ref="webContentParser" />
+        <property name="jmsTemplate" ref="documentRetrievalJmsTemplate" />
     </bean>
 
     <bean id="twitterRetrievalTrigger"
@@ -136,7 +134,7 @@
         <property name="userDao" ref="userDao" />
     </bean>
 
-    <bean id="documentRetrievalTrigger"
+<!--     <bean id="documentRetrievalTrigger"
         class="org.springframework.scheduling.quartz.SimpleTriggerBean">
         <property name="jobDetail" ref="documentRetrievalJobDetail" />
         <property name="startDelay" value="30000" />
@@ -160,9 +158,11 @@
         <property name="responseQueue" ref="stanfordResponseQueue" />
         <property name="documentDao" ref="documentDao" />
         <property name="webContentParser" ref="webContentParser" />
+        
         <property name="transactionManager" ref="transactionManager" />
+        
     </bean>
-
+ -->
     <bean id="batchDocumentAnalysisTrigger"
         class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="batchDocumentAnalysisJobDetail" />
@@ -181,14 +181,17 @@
     <bean id="batchDocumentAnalysisTask" class="com.mothsoft.alexis.engine.textual.CompositeTaskImpl">
         <constructor-arg>
             <list>
+                <!-- 
                 <bean
                     class="com.mothsoft.alexis.engine.textual.TFIDFCalculatorImpl" />
-                <bean
+                 -->
+<!--                 <bean
                     class="com.mothsoft.alexis.engine.textual.TopicDocumentMatcherImpl">
                     <property name="topicDao" ref="topicDao" />
                     <property name="documentDao" ref="documentDao" />
                     <property name="transactionManager" ref="transactionManager" />
                 </bean>
+ -->                <!-- 
                 <bean
                     class="com.mothsoft.alexis.engine.predictive.OpenNLPMaxentModelExecutorTask">
                     <property name="baseDirectory" value="${alexis.models.directory}" />
@@ -197,6 +200,7 @@
                     <property name="modelDao" ref="modelDao" />
                     <property name="transactionManager" ref="transactionManager" />
                 </bean>
+                 -->
             </list>
         </constructor-arg>
     </bean>
@@ -258,7 +262,7 @@
     </bean>
 
     <!-- model trainer -->
-    <bean id="modelTrainerTrigger"
+<!--     <bean id="modelTrainerTrigger"
         class="org.springframework.scheduling.quartz.SimpleTriggerBean">
         <property name="jobDetail" ref="modelTrainerJobDetail" />
         <property name="startDelay" value="15000" />
@@ -285,7 +289,7 @@
         <property name="iterations" value="${alexis.models.maxent.iterations}" />
         <property name="cutoff" value="${alexis.models.maxent.cutoff}" />
     </bean>
-
+ -->
     <import resource="classpath:spring/scheduler-task-*.xml" />
 
 </beans>

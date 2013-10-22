@@ -16,69 +16,57 @@ package com.mothsoft.alexis.domain;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Version;
-
-@Entity(name = "TopicDocument")
-@Table(name = "topic_document")
 public class TopicDocument {
 
-    @Id
-    @GeneratedValue
-    private Long id;
+    private Long topicId;
 
-    @ManyToOne
-    @JoinColumn(name = "topic_id")
-    private Topic topic;
+    private String documentId;
 
-    @ManyToOne
-    @JoinColumn(name = "document_id")
-    private Document document;
-
-    @Column(name = "score")
     private Float score;
 
-    @Column(name = "creation_date")
     private Date creationDate;
-
-    @Version
-    @Column(name = "version", columnDefinition = "smallint unsigned")
-    protected Integer version;
 
     public TopicDocument() {
         // default constructor
     }
 
-    public TopicDocument(final Topic topic, final Document document, final Float score) {
-        this.topic = topic;
-        this.document = document;
+    public TopicDocument(final Long topicId, final String documentId, final Float score, final Date creationDate) {
+        this.topicId = topicId;
+        this.documentId = documentId;
         this.score = score;
+        this.creationDate = creationDate;
     }
 
-    public Long getId() {
-        return id;
+    public Long getTopicId() {
+        return topicId;
     }
 
-    public Topic getTopic() {
-        return topic;
+    public void setTopicId(Long topicId) {
+        this.topicId = topicId;
     }
 
-    public Document getDocument() {
-        return document;
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
     public Float getScore() {
         return score;
     }
 
+    public void setScore(Float score) {
+        this.score = score;
+    }
+
     public Date getCreationDate() {
-        return this.creationDate;
+        return creationDate;
+    }
+
+    public void setCreationDate(Date creationDate) {
+        this.creationDate = creationDate;
     }
 
 }

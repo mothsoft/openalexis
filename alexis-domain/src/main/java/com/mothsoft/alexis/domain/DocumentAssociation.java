@@ -14,61 +14,32 @@
  */
 package com.mothsoft.alexis.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.PostLoad;
-import javax.persistence.Table;
-
 /**
  * A conceptually-related pair of terms in the context of a document
  * 
  * @author tgarrett
  * 
  */
-@Entity(name = "DocumentAssociation")
-@Table(name = "document_association")
 public class DocumentAssociation {
 
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private String documentId;
 
-    @ManyToOne
-    @JoinColumn(name = "document_id")
-    private Document document;
-
-    @ManyToOne
-    @JoinColumn(name = "term_a_id")
     private Term a;
 
-    @ManyToOne
-    @JoinColumn(name = "term_b_id")
     private Term b;
 
-    @Column(name = "association_type", columnDefinition = "tinyint")
-    private int intAssociationType;
-
-    @Column(name = "association_count")
     private int associationCount;
 
-    @Column(name = "association_weight")
     private float associationWeight;
 
     private transient AssociationType type;
 
-    public DocumentAssociation(final Document document, final Term a, final Term b, AssociationType type, int count,
+    public DocumentAssociation(final String documentId, final Term a, final Term b, AssociationType type, int count,
             float weight) {
-        this.document = document;
+        this.documentId = documentId;
         this.a = a;
         this.b = b;
         this.type = type;
-        this.intAssociationType = this.type.getValue();
         this.associationWeight = weight;
     }
 
@@ -80,21 +51,12 @@ public class DocumentAssociation {
         // default constructor
     }
 
-    @PostLoad
-    protected void postLoad() {
-        this.type = AssociationType.getByValue(this.intAssociationType);
+    public String getDocumentId() {
+        return this.documentId;
     }
 
-    public Long getId() {
-        return this.id;
-    }
-
-    public Document getDocument() {
-        return this.document;
-    }
-
-    public void setDocument(Document document) {
-        this.document = document;
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
     public AssociationType getAssociationType() {

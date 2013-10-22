@@ -14,63 +14,23 @@
  */
 package com.mothsoft.alexis.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.PostLoad;
-import javax.persistence.PrePersist;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.persistence.Version;
 
-@Entity(name = "Term")
-@Table(name = "term", uniqueConstraints = { @UniqueConstraint(columnNames = { "term_value", "part_of_speech" }) })
 public class Term {
 
-    @Id
-    @Column(name = "id", columnDefinition = "INTEGER UNSIGNED")
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
-    @Column(name = "term_value")
     private String value;
 
-    @Column(name = "term_value_lowercase")
     private String valueLowercase;
 
-    @Column(name = "part_of_speech", columnDefinition = "tinyint")
-    private byte partOfSpeechEnumValue;
-
-    private transient PartOfSpeech partOfSpeech;
-
-    @Version
-    @Column(name = "version", columnDefinition = "tinyint unsigned")
-    protected Integer version;
+    private PartOfSpeech partOfSpeech;
 
     public Term(final String value, final PartOfSpeech partOfSpeech) {
         this.value = value;
+        this.valueLowercase = this.value.toLowerCase();
         this.partOfSpeech = partOfSpeech;
-        this.partOfSpeechEnumValue = (byte) partOfSpeech.getValue();
     }
 
     protected Term() {
         // default constructor
-    }
-
-    @PrePersist
-    protected void prePersist() {
-        this.valueLowercase = this.value.toLowerCase();
-    }
-
-    @PostLoad
-    protected void postLoad() {
-        this.partOfSpeech = PartOfSpeech.getByValue((int) this.partOfSpeechEnumValue);
-    }
-
-    public Long getId() {
-        return id;
     }
 
     public String getValue() {
@@ -83,10 +43,6 @@ public class Term {
 
     public PartOfSpeech getPartOfSpeech() {
         return partOfSpeech;
-    }
-
-    public int getPartOfSpeechEnumValue() {
-        return (int) partOfSpeechEnumValue;
     }
 
     public final String toString() {

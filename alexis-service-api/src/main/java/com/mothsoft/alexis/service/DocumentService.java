@@ -30,18 +30,18 @@ import com.mothsoft.alexis.domain.TopicDocument;
 
 public interface DocumentService {
 
-    public Document getDocument(Long id);
+    public Document getDocument(String id);
 
     public List<ImportantTerm> getImportantTerms(Long userId, Timestamp startDate, Timestamp endDate, int count,
             boolean filterStopWords);
 
-    public List<ImportantTerm> getImportantTerms(final Long documentId, int howMany, boolean filterStopWords);
+    public List<ImportantTerm> getImportantTerms(final String documentId, int howMany, boolean filterStopWords);
 
     public Graph getRelatedTerms(final String queryString, final Long userId, final int howMany);
 
-    public Double getSimilarity(final Long aId, final Long bId);
+    public Double getSimilarity(final String aId, final String bId);
 
-    public List<TopicDocument> getTopicDocuments(final Long documentId);
+    public List<TopicDocument> getTopicDocuments(final String documentId);
 
     public DataRange<Document> listDocumentsByOwner(Long userId, int firstRecord, int numberOfRecords);
 
@@ -54,7 +54,7 @@ public interface DocumentService {
 
     public DataRange<DocumentScore> searchByOwnerAndStateAndExpression(Long userId, DocumentState state, String query,
             int first, int count);
-    
+
     public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
             Date startDate, Date endDate, int first, int count);
 
@@ -63,6 +63,6 @@ public interface DocumentService {
 
     public List<ImportantNamedEntity> getImportantNamedEntities(Long userId, Date startDate, Date endDate, int howMany);
 
-    public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(Long documentId, int howMany);
+    public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(String documentId, int howMany);
 
 }

@@ -39,7 +39,7 @@ public class TweetFormatter {
         }
 
         final StringBuilder builder = new StringBuilder();
-        final String text = tweet.getText();
+        final String text = tweet.getContent();
 
         final int length = text.length();
 

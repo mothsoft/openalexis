@@ -46,7 +46,7 @@ public class ListDocumentsBackingBean {
     private DocumentService documentService;
 
     private DataRange<Document> dataRange;
-    private Map<Long, List<TopicDocument>> topicDocuments;
+    private Map<String, List<TopicDocument>> topicDocuments;
     private int pageNumber = 0;
     private Filter filter;
     private boolean queryValidationError;
@@ -63,7 +63,7 @@ public class ListDocumentsBackingBean {
         return this.dataRange.getRange();
     }
 
-    public Map<Long, List<TopicDocument>> getTopicDocuments() {
+    public Map<String, List<TopicDocument>> getTopicDocuments() {
         init();
         return this.topicDocuments;
     }
@@ -204,7 +204,7 @@ public class ListDocumentsBackingBean {
                     this.dataRange = this.documentService.listDocumentsInTopicsByOwner(userId, start, PAGE_SIZE);
                 }
 
-                this.topicDocuments = new HashMap<Long, List<TopicDocument>>();
+                this.topicDocuments = new HashMap<String, List<TopicDocument>>();
 
                 for (final Document ith : this.dataRange.getRange()) {
                     this.topicDocuments.put(ith.getId(), this.documentService.getTopicDocuments(ith.getId()));
