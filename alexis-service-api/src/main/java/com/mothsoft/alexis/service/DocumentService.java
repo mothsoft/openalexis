@@ -21,7 +21,6 @@ import java.util.List;
 import com.mothsoft.alexis.domain.DataRange;
 import com.mothsoft.alexis.domain.Document;
 import com.mothsoft.alexis.domain.DocumentScore;
-import com.mothsoft.alexis.domain.DocumentState;
 import com.mothsoft.alexis.domain.Graph;
 import com.mothsoft.alexis.domain.ImportantNamedEntity;
 import com.mothsoft.alexis.domain.ImportantTerm;
@@ -51,15 +50,6 @@ public interface DocumentService {
 
     public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
             int first, int count);
-
-    public DataRange<DocumentScore> searchByOwnerAndStateAndExpression(Long userId, DocumentState state, String query,
-            int first, int count);
-
-    public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
-            Date startDate, Date endDate, int first, int count);
-
-    public DataRange<DocumentScore> searchByOwnerAndStateAndExpression(Long userId, DocumentState state, String query,
-            Date startDate, Date endDate, int first, int count);
 
     public List<ImportantNamedEntity> getImportantNamedEntities(Long userId, Date startDate, Date endDate, int howMany);
 

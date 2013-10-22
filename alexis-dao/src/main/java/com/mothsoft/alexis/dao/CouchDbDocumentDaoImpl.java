@@ -245,17 +245,6 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     @Override
-    public DataRange<DocumentScore> searchByOwnerAndStateAndExpression(Long userId, DocumentState state, String query,
-            Date startDate, Date endDate, int first, int count) {
-        return new DataRange<DocumentScore>(Collections.EMPTY_LIST, 0, 0);
-    }
-
-    @Override
-    public int searchResultCount(Long userId, DocumentState state, String queryString, Date startDate, Date endDate) {
-        return 0;
-    }
-
-    @Override
     public void update(Document document) {
         final String content = this.toJSON(document);
 

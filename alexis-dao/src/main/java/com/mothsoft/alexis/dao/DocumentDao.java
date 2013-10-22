@@ -20,7 +20,6 @@ import java.util.List;
 import com.mothsoft.alexis.domain.DataRange;
 import com.mothsoft.alexis.domain.Document;
 import com.mothsoft.alexis.domain.DocumentScore;
-import com.mothsoft.alexis.domain.DocumentState;
 import com.mothsoft.alexis.domain.Graph;
 import com.mothsoft.alexis.domain.ImportantNamedEntity;
 import com.mothsoft.alexis.domain.ImportantTerm;
@@ -29,13 +28,24 @@ import com.mothsoft.alexis.domain.TopicDocument;
 
 public interface DocumentDao {
 
+    /* CRUD */
+
     public void add(Document document);
 
     public void addRawContent(String documentId, String rev, String content, String mimeType);
 
+    public Document get(String documentId);
+
+    public void update(Document document);
+
+    public void remove(Document document);
+
     public Document findByUrl(String url);
 
-    public Document get(String documentId);
+    /* NLP */
+    public List<ImportantNamedEntity> getImportantNamedEntities(Long userId, Date startDate, Date endDate, int howMany);
+
+    public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(String documentId, int howMany);
 
     public List<ImportantTerm> getImportantTerms(Long userId, Date startDate, Date endDate, int count,
             boolean filterStopWords);
@@ -52,24 +62,7 @@ public interface DocumentDao {
 
     public List<Document> listTopDocuments(Long userId, Date startDate, Date endDate, int count);
 
-    // public ScrollableResults scrollableSearch(Long userId, DocumentState
-    // state, String queryString,
-    // SortOrder sortOrder, Date startDate, Date endDate);
-
     public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
             Date startDate, Date endDate, int first, int count);
-
-    public DataRange<DocumentScore> searchByOwnerAndStateAndExpression(Long userId, DocumentState state, String query,
-            Date startDate, Date endDate, int first, int count);
-
-    public int searchResultCount(Long userId, DocumentState state, String queryString, Date startDate, Date endDate);
-
-    public void update(Document document);
-
-    public List<ImportantNamedEntity> getImportantNamedEntities(Long userId, Date startDate, Date endDate, int howMany);
-
-    public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(String documentId, int howMany);
-
-    public void remove(Document document);
 
 }
