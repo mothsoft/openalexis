@@ -127,6 +127,19 @@ public class CouchDbDocumentDaoImplTest {
         this.dao.add(document);
 
         this.dao.addRawContent(document.getId(), document.getRev(), "Lots of raw content here", "text/plain");
+        
+        assertEquals("Lots of raw content here", this.dao.getRawContent(document.getId()));
+    }
+
+    @Test
+    public void testAddContent() throws MalformedURLException {
+        final String url = "http://foo/" + Math.random();
+        final Document document = new Document(DocumentType.W, new URL(url), "abc", "abc123");
+        this.documents.add(document);
+        this.dao.add(document);
+
+        this.dao.addContent(document.getId(), document.getRev(), "Extracted content", "text/plain");
+        assertEquals("Extracted content", this.dao.getContent(document.getId()));
     }
 
     @Test

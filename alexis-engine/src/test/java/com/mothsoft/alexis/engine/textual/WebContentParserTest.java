@@ -45,7 +45,7 @@ public class WebContentParserTest {
         final InputStream is = this.getClass().getClassLoader().getResourceAsStream("test-article.html");
         final String document = wcp.parse(is);
         System.out.println(document);
-        assertTrue(document.contains("The self-proclaimed mastermind of"));
+        assertTrue(document.contains("including the self-proclaimed mastermind"));
     }
 
     @Test

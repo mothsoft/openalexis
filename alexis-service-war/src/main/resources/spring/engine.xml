@@ -73,6 +73,30 @@
     <bean id="documentRetrievalMessageListener"
         class="com.mothsoft.alexis.engine.textual.RetrieveDocumentMessageListener">
         <constructor-arg index="0" ref="documentDao" />
+        <constructor-arg index="1" ref="documentExtractionJmsTemplate" />
+    </bean>
+
+    <!-- document extraction queue for asynchronous extraction of document content -->
+    <amq:queue id="documentExtractionQueue" physicalName="queue.alexis.document.extraction"
+        name="queue.alexis.document.extraction" />
+
+    <bean id="documentExtractionJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <property name="connectionFactory" ref="jmsConnectionFactory" />
+        <property name="defaultDestination" ref="documentExtractionQueue" />
+    </bean>
+
+    <bean id="documentExtractionMessageListenerContainer"
+        class="org.springframework.jms.listener.DefaultMessageListenerContainer"
+        destroy-method="destroy">
+        <property name="connectionFactory" ref="jmsConnectionFactory" />
+        <property name="destination" ref="documentExtractionQueue" />
+        <property name="messageListener" ref="documentExtractionMessageListener" />
+        <property name="sessionTransacted" value="true" />
+    </bean>
+
+    <bean id="documentExtractionMessageListener"
+        class="com.mothsoft.alexis.engine.textual.DocumentExtractionMessageListener">
+        <constructor-arg index="0" ref="documentDao" />
     </bean>
 
 </beans>

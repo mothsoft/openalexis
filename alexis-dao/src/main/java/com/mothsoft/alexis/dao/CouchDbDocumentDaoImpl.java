@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -73,6 +74,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     private static final String ROWS = "rows";
     private static final String SCORE = "score";
     private static final String GMT = "GMT";
+    private static final String RAW = "raw";
+    private static final String CONTENT = "content";
 
     private URL couchDbDatabaseUrl;
     private URL couchDbLuceneBaseUrl;
@@ -114,9 +117,18 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     @Override
     public void addRawContent(String documentId, String rev, String content, String mimeType) {
+        this.addAttachment(documentId, rev, RAW, content, mimeType);
+    }
+
+    @Override
+    public void addContent(String documentId, String rev, String content, String mimeType) {
+        this.addAttachment(documentId, rev, CONTENT, content, mimeType);
+    }
+
+    private void addAttachment(String documentId, String rev, String attachmentName, String content, String mimeType) {
         final URL documentUrl;
         try {
-            documentUrl = new URL(this.couchDbDatabaseUrl + "/" + documentId + "/raw?rev=" + rev);
+            documentUrl = new URL(this.couchDbDatabaseUrl + "/" + documentId + "/" + attachmentName + "?rev=" + rev);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
@@ -130,6 +142,31 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         document.setState(DocumentState.FETCHED);
         document.setRetrievalDate(new Date());
         this.update(document);
+    }
+
+    @Override
+    public String getRawContent(String documentId) {
+        return this.getAttachment(documentId, RAW);
+    }
+
+    @Override
+    public String getContent(String documentId) {
+        return this.getAttachment(documentId, CONTENT);
+    }
+
+    private String getAttachment(String documentId, String attachmentName) {
+        final URL documentUrl;
+        try {
+            documentUrl = new URL(this.couchDbDatabaseUrl + "/" + documentId + "/" + attachmentName);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            HttpClientResponse response = NetworkingUtil.get(documentUrl, null, null, this.credentialsProvider);
+            return IOUtils.toString(response.getInputStream());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

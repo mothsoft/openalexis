@@ -33,6 +33,12 @@ public interface DocumentDao {
     public void add(Document document);
 
     public void addRawContent(String documentId, String rev, String content, String mimeType);
+    
+    public String getRawContent(String documentId);
+    
+    public void addContent(String documentId, String rev, String content, String mimeType);
+    
+    public String getContent(String documentId);
 
     public Document findByUrl(String url);
 
@@ -41,6 +47,16 @@ public interface DocumentDao {
     public void remove(Document document);
 
     public void update(Document document);
+
+    /* Search */
+    public DataRange<Document> listDocumentsByOwner(Long userId, int start, int count);
+
+    public DataRange<Document> listDocumentsInTopicsByOwner(Long userId, int firstRecord, int numberOfRecords);
+
+    public List<Document> listTopDocuments(Long userId, Date startDate, Date endDate, int count);
+
+    public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
+            int first, int count);
 
     /* NLP */
 
@@ -56,14 +72,5 @@ public interface DocumentDao {
     public Graph getRelatedTerms(String query, Long userId, int howMany);
 
     public List<TopicDocument> getTopicDocuments(String documentId);
-
-    public DataRange<Document> listDocumentsByOwner(Long userId, int start, int count);
-
-    public DataRange<Document> listDocumentsInTopicsByOwner(Long userId, int firstRecord, int numberOfRecords);
-
-    public List<Document> listTopDocuments(Long userId, Date startDate, Date endDate, int count);
-
-    public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
-            int first, int count);
 
 }

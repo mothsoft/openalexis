@@ -19,11 +19,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.jms.JMSException;
+import javax.jms.Message;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+import org.springframework.jms.core.JmsTemplate;
+import org.springframework.jms.core.MessageCreator;
 import org.springframework.jms.listener.SessionAwareMessageListener;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
@@ -35,16 +38,18 @@ import com.mothsoft.alexis.util.NetworkingUtil;
 
 public class RetrieveDocumentMessageListener implements SessionAwareMessageListener<TextMessage> {
 
-    private static final Logger logger = Logger.getLogger(ParseResponseMessageListener.class);
+    private static final Logger logger = Logger.getLogger(RetrieveDocumentMessageListener.class);
 
     private static final String DOCUMENT_ID = "DOCUMENT_ID";
     private static final String TEXT_HTML = "text/html";
 
     private DocumentDao documentDao;
+    private JmsTemplate documentExtractionJmsTemplate;
 
-    public RetrieveDocumentMessageListener(DocumentDao documentDao) {
+    public RetrieveDocumentMessageListener(DocumentDao documentDao, JmsTemplate documentExtractionJmsTemplate) {
         logger.info("Started RetrieveDocumentMessageListener!");
         this.documentDao = documentDao;
+        this.documentExtractionJmsTemplate = documentExtractionJmsTemplate;
     }
 
     @Override
@@ -57,6 +62,13 @@ public class RetrieveDocumentMessageListener implements SessionAwareMessageListe
         try {
             fetched = this.fetch(document);
             this.documentDao.addRawContent(documentId, document.getRev(), fetched, TEXT_HTML);
+
+            // get latest rev
+            document = this.documentDao.get(documentId);
+
+            // queue for content extraction
+            this.queueForExtraction(documentId);
+
         } catch (Exception e) {
             logger.warn("Exception retrieving: " + documentId + " rev " + document.getRev() + ": " + e, e);
             throw new JMSException(e.getLocalizedMessage());
@@ -78,4 +90,16 @@ public class RetrieveDocumentMessageListener implements SessionAwareMessageListe
 
         return result;
     }
+
+    private void queueForExtraction(final String documentId) {
+        this.documentExtractionJmsTemplate.send(new MessageCreator() {
+            public Message createMessage(Session session) throws JMSException {
+                final TextMessage message = session.createTextMessage();
+                message.setStringProperty(DOCUMENT_ID, documentId);
+                logger.info("Sending document extraction request for: " + documentId);
+                return message;
+            }
+        });
+    }
+
 }

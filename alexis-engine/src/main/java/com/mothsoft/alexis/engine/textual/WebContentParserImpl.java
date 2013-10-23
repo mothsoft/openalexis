@@ -38,7 +38,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import de.l3s.boilerpipe.extractors.ArticleExtractor;
+import de.l3s.boilerpipe.extractors.ArticleSentencesExtractor;
 import de.l3s.boilerpipe.extractors.KeepEverythingExtractor;
 
 public class WebContentParserImpl implements WebContentParser {
@@ -66,7 +66,8 @@ public class WebContentParserImpl implements WebContentParser {
             // if coming in as a stream and HTML, likely part of a larger
             // document (web page), we would like to do article extraction
             // FIXME - smarter handler?
-            handler = new BoilerpipeContentHandler(new FullTextContentHandler(buffer), ArticleExtractor.INSTANCE);
+            handler = new BoilerpipeContentHandler(new FullTextContentHandler(buffer),
+                    ArticleSentencesExtractor.INSTANCE);
         } else {
             // assuming full documents like Word or PDF are more about a single
             // topic
