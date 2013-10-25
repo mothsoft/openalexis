@@ -20,11 +20,16 @@ import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,6 +40,10 @@ import com.mothsoft.alexis.domain.DocumentScore;
 import com.mothsoft.alexis.domain.DocumentType;
 import com.mothsoft.alexis.domain.DocumentUser;
 import com.mothsoft.alexis.domain.SortOrder;
+import com.mothsoft.alexis.domain.Tweet;
+import com.mothsoft.alexis.domain.TweetHashtag;
+import com.mothsoft.alexis.domain.TweetLink;
+import com.mothsoft.alexis.domain.TweetMention;
 
 public class CouchDbDocumentDaoImplTest {
 
@@ -42,8 +51,14 @@ public class CouchDbDocumentDaoImplTest {
 
     private List<Document> documents;
 
+    private ObjectMapper objectMapper;
+
     @Before
     public void setUp() throws MalformedURLException {
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
+        this.objectMapper.configure(SerializationConfig.Feature.WRITE_NULL_PROPERTIES, false);
+
         this.documents = new ArrayList<Document>(128);
 
         final URL dbUrl = new URL("http://localhost:5984/alexis/");
@@ -54,8 +69,10 @@ public class CouchDbDocumentDaoImplTest {
     @After
     public void tearDown() {
         for (final Document document : this.documents) {
-            final Document documentLatestRev = this.dao.get(document.getId());
-            this.dao.remove(documentLatestRev);
+            if (document.getId() != null) {
+                final Document documentLatestRev = this.dao.get(document.getId());
+                this.dao.remove(documentLatestRev);
+            }
         }
     }
 
@@ -73,6 +90,15 @@ public class CouchDbDocumentDaoImplTest {
         final Document fetched = this.dao.get(document.getId());
         assertEquals(document.getId(), fetched.getId());
         assertEquals(document.getRev(), fetched.getRev());
+    }
+
+    @Test
+    public void testAddDocumentDifficultJson() throws IOException {
+        final InputStream is = this.getClass().getClassLoader().getResourceAsStream("difficult.json");
+
+        final Tweet tweet = this.objectMapper.readValue(is, Tweet.class);
+        this.documents.add(tweet);
+        this.dao.add(tweet);
     }
 
     @Test
@@ -127,7 +153,7 @@ public class CouchDbDocumentDaoImplTest {
         this.dao.add(document);
 
         this.dao.addRawContent(document.getId(), document.getRev(), "Lots of raw content here", "text/plain");
-        
+
         assertEquals("Lots of raw content here", this.dao.getRawContent(document.getId()));
     }
 
@@ -196,5 +222,26 @@ public class CouchDbDocumentDaoImplTest {
         assertEquals(1, range.getRange().size());
         assertEquals(document.getId(), range.getRange().get(0).getDocument().getId());
 
+    }
+
+    @Test
+    public void testFindTweetByTweetId() throws MalformedURLException {
+        final List<TweetLink> links = new ArrayList<TweetLink>();
+        links.add(new TweetLink((short) 3, (short) 6, "http://www.google.com", "http://www.google.com",
+                "http://www.google.com"));
+
+        final List<TweetMention> mentions = new ArrayList<TweetMention>();
+        mentions.add(new TweetMention((short) 9, (short) 12, 12345L, "abc", "def"));
+
+        final List<TweetHashtag> hashtags = new ArrayList<TweetHashtag>();
+        hashtags.add(new TweetHashtag((short) 14, (short) 18, "#fools"));
+
+        @SuppressWarnings("unchecked")
+        final Tweet tweet = new Tweet(12345L, new Date(), "screen1", "abc 123", new URL("http://foo"), "text", links,
+                mentions, hashtags, true, "def789");
+        this.documents.add(tweet);
+        this.dao.add(tweet);
+
+        assertNotNull(this.dao.findTweetByTweetId(12345L));
     }
 }

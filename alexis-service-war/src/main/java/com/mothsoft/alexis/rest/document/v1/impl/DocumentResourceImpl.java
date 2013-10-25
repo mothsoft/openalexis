@@ -79,7 +79,7 @@ public class DocumentResourceImpl implements DocumentResource {
             tweet.setFormattedText(TweetFormatter.format(domainTweet));
             tweet.setFullName(domainTweet.getFullName());
             tweet.setProfileImageUrl(domainTweet.getProfileImageUrl());
-            tweet.setRemoteTweetId(domainTweet.getRemoteTweetId());
+            tweet.setTweetId(domainTweet.getTweetId());
             tweet.setRetweet(domainTweet.isRetweet());
             tweet.setRetweetUserName(domainTweet.getRetweetUserName());
             tweet.setScreenName(domainTweet.getScreenName());

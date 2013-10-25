@@ -1,0 +1,28 @@
+{
+   "url": "http://twitter.com/#!/thegunwire/status/393385913642135552",
+   "content": "\"WHEN KIDS STAND THEIR GROUND\" http://t.co/EJDwdNGED8",
+   "state": "DISCOVERED",
+   "creationDate": "2013-10-25T01:26:25.886Z",
+   "termCount": -1,
+   "type": "T",
+   "tweetId": 393385913642135550,
+   "screenName": "thegunwire",
+   "fullName": "thegunwire®",
+   "profileImageUrl": "https://pbs.twimg.com/profile_images/1507555499/thegunwire_normal",
+   "retweet": false,
+   "links": [
+       {
+           "start": 31,
+           "end": 53,
+           "displayUrl": "thegunwire.tw/Hh7Q3r",
+           "expandedUrl": "http://thegunwire.tw/Hh7Q3r",
+           "url": "http://t.co/EJDwdNGED8"
+       }
+   ],
+   "mentions": [
+   ],
+   "hashtags": [
+   ],
+   "users": [
+   ]
+}

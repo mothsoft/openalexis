@@ -25,6 +25,7 @@ import com.mothsoft.alexis.domain.ImportantNamedEntity;
 import com.mothsoft.alexis.domain.ImportantTerm;
 import com.mothsoft.alexis.domain.SortOrder;
 import com.mothsoft.alexis.domain.TopicDocument;
+import com.mothsoft.alexis.domain.Tweet;
 
 public interface DocumentDao {
 
@@ -41,6 +42,8 @@ public interface DocumentDao {
     public String getContent(String documentId);
 
     public Document findByUrl(String url);
+    
+    public Tweet findTweetByTweetId(Long tweetId);
 
     public Document get(String documentId);
 

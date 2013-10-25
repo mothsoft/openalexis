@@ -129,7 +129,6 @@
         <property name="documentDao" ref="documentDao" />
         <property name="sourceDao" ref="sourceDao" />
         <property name="transactionManager" ref="transactionManager" />
-        <property name="tweetDao" ref="tweetDao" />
         <property name="twitterService" ref="twitterService" />
         <property name="userDao" ref="userDao" />
     </bean>

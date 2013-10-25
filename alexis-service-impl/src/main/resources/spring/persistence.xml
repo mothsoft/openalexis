@@ -50,7 +50,6 @@
   <bean id="socialConnectionDao" class="com.mothsoft.alexis.dao.SocialConnectionDaoImpl" />
   <bean id="sourceDao" class="com.mothsoft.alexis.dao.SourceDaoImpl" />
   <bean id="topicDao" class="com.mothsoft.alexis.dao.TopicDaoImpl" />
-  <bean id="tweetDao" class="com.mothsoft.alexis.dao.TweetDaoImpl" />
   <bean id="userDao" class="com.mothsoft.alexis.dao.UserDaoImpl" />
 
 </beans>

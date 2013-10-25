@@ -33,9 +33,9 @@
                     <f:convertDateTime dateStyle="medium" type="both" timeZone="#{currentUser.timeZone}" />
 		        </h:outputText></a>
 		        
-		        <a class="reply" target="_blank" href="https://twitter.com/intent/tweet?in_reply_to=#{tweet.remoteTweetId}"><span />Reply</a>
-		        <a class="retweet" target="_blank" href="https://twitter.com/intent/retweet?tweet_id=#{tweet.remoteTweetId}"><span />Retweet</a>
-		        <a class="favorite" target="_blank" href="https://twitter.com/intent/favorite?tweet_id=#{tweet.remoteTweetId}"><span />Favorite</a>
+		        <a class="reply" target="_blank" href="https://twitter.com/intent/tweet?in_reply_to=#{tweet.tweetId}"><span />Reply</a>
+		        <a class="retweet" target="_blank" href="https://twitter.com/intent/retweet?tweet_id=#{tweet.tweetId}"><span />Retweet</a>
+		        <a class="favorite" target="_blank" href="https://twitter.com/intent/favorite?tweet_id=#{tweet.tweetId}"><span />Favorite</a>
 		    </span>
 		</div>
     </ui:composition>

@@ -23,7 +23,7 @@ import org.apache.commons.lang.StringUtils;
 
 public class Tweet extends Document {
 
-    private Long remoteTweetId;
+    private Long tweetId;
 
     private String screenName;
 
@@ -43,12 +43,12 @@ public class Tweet extends Document {
 
     private List<TweetHashtag> hashtags;
 
-    public Tweet(Long remoteTweetId, Date createdAt, String screenName, String fullName, URL profileImageUrl,
+    public Tweet(Long tweetId, Date createdAt, String screenName, String fullName, URL profileImageUrl,
             String text, List<TweetLink> links, List<TweetMention> mentions, List<TweetHashtag> hashtags,
             boolean retweet, String retweetUserName) {
-        super(DocumentType.T, Tweet.urlOf(remoteTweetId, screenName), null, null);
+        super(DocumentType.T, Tweet.urlOf(tweetId, screenName), null, null);
 
-        this.remoteTweetId = remoteTweetId;
+        this.tweetId = tweetId;
         setCreationDate(createdAt);
         this.screenName = screenName;
         this.fullName = fullName;
@@ -63,9 +63,9 @@ public class Tweet extends Document {
         this.retweetUserName = retweetUserName;
     }
 
-    private static URL urlOf(Long remoteTweetId, String screenName) {
+    private static URL urlOf(Long tweetId, String screenName) {
         try {
-            return new URL("http://twitter.com/#!/" + screenName + "/status/" + remoteTweetId);
+            return new URL("http://twitter.com/#!/" + screenName + "/status/" + tweetId);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
@@ -74,8 +74,8 @@ public class Tweet extends Document {
     protected Tweet() {
     }
 
-    public Long getRemoteTweetId() {
-        return this.remoteTweetId;
+    public Long getTweetId() {
+        return this.tweetId;
     }
 
     public Date getCreatedAt() {

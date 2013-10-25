@@ -48,11 +48,13 @@ import com.mothsoft.alexis.domain.DataRange;
 import com.mothsoft.alexis.domain.Document;
 import com.mothsoft.alexis.domain.DocumentScore;
 import com.mothsoft.alexis.domain.DocumentState;
+import com.mothsoft.alexis.domain.DocumentType;
 import com.mothsoft.alexis.domain.Graph;
 import com.mothsoft.alexis.domain.ImportantNamedEntity;
 import com.mothsoft.alexis.domain.ImportantTerm;
 import com.mothsoft.alexis.domain.SortOrder;
 import com.mothsoft.alexis.domain.TopicDocument;
+import com.mothsoft.alexis.domain.Tweet;
 import com.mothsoft.alexis.util.HttpClientResponse;
 import com.mothsoft.alexis.util.NetworkingUtil;
 
@@ -60,6 +62,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     private static final String APPLICATION_JSON = "application/json";
     private static final String FIND_BY_URL_VIEW = "_design/views/_view/find_by_url?key=%%22%s%%22&include_docs=true";
+    private static final String FIND_BY_TWEET_ID_VIEW = "_design/views/_view/find_by_tweet_id?key=%d&include_docs=true";
 
     private static final String SEARCH_BY_USER = "?q=userId%%3Clong%%3E:%d&include_docs=true&skip=%d&limit=%d&sort=%%5CcreationDate";
 
@@ -69,6 +72,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     private static final String SORT_DATE_DESC = "&sort=%5CcreationDate";
 
     /* content constants */
+    private static final String UTF8 = "UTF-8";
+    private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final String DOC = "doc";
     private static final String TOTAL_ROWS = "total_rows";
     private static final String ROWS = "rows";
@@ -76,6 +81,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     private static final String GMT = "GMT";
     private static final String RAW = "raw";
     private static final String CONTENT = "content";
+    private static final String TYPE = "type";
 
     private URL couchDbDatabaseUrl;
     private URL couchDbLuceneBaseUrl;
@@ -101,18 +107,20 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         document.setCreationDate(now);
 
         final String content = this.toJSON(document);
+        final Map<String, Object> map;
 
         try {
             final HttpClientResponse response = NetworkingUtil.post(this.couchDbDatabaseUrl, content, APPLICATION_JSON,
                     this.credentialsProvider);
-            final Map<String, Object> map = this.objectMapper.readValue(response.getInputStream(), Map.class);
-            final String id = (String) map.get("id");
-            final String rev = (String) map.get("rev");
-            document.setId(id);
-            document.setRev(rev);
+            map = this.objectMapper.readValue(response.getInputStream(), Map.class);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to save JSON; " + content, e);
         }
+
+        final String id = (String) map.get("id");
+        final String rev = (String) map.get("rev");
+        document.setId(id);
+        document.setRev(rev);
     }
 
     @Override
@@ -172,44 +180,20 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     @Override
     public Document findByUrl(String url) {
 
-        final URL requestUrl;
-        final HttpClientResponse response;
-        try {
-            requestUrl = new URL(this.couchDbDatabaseUrl.toExternalForm()
-                    + this.toJSON(String.format(FIND_BY_URL_VIEW, url)));
-            response = NetworkingUtil.get(requestUrl, null, null, this.credentialsProvider);
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        return this.findOneWithView(FIND_BY_URL_VIEW, url);
+    }
 
-        final JsonNode node;
-        final Document document;
-        try {
-            node = this.objectMapper.readTree(response.getInputStream());
-            final int totalRows = node.findValue(TOTAL_ROWS).getIntValue();
-            final JsonNode docNode = node.findValue(DOC);
-
-            if (totalRows == 0 || docNode == null) {
-                document = null;
-            } else {
-                document = this.objectMapper.treeToValue(docNode, Document.class);
-            }
-
-        } catch (JsonParseException e) {
-            throw new RuntimeException(e);
-        } catch (JsonMappingException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        return document;
+    @Override
+    public Tweet findTweetByTweetId(Long tweetId) {
+        return (Tweet) this.findOneWithView(FIND_BY_TWEET_ID_VIEW, tweetId);
     }
 
     @Override
     public Document get(String documentId) {
+        if (documentId == null) {
+            throw new IllegalArgumentException("documentId");
+        }
+
         URL documentUrl;
         try {
             documentUrl = new URL(this.couchDbDatabaseUrl + "/" + documentId);
@@ -225,7 +209,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         }
 
         try {
-            return this.objectMapper.readValue(response.getInputStream(), Document.class);
+            final JsonNode node = this.objectMapper.readTree(response.getInputStream());
+            return this.readDocument(node);
         } catch (JsonParseException e) {
             throw new RuntimeException(e);
         } catch (JsonMappingException e) {
@@ -360,7 +345,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
             for (final Iterator<JsonNode> it = rowsNode.getElements(); it.hasNext();) {
                 final JsonNode rowNode = it.next();
-                final Document document = this.objectMapper.convertValue(rowNode.findValue(DOC), Document.class);
+
+                final Document document = this.readDocument(rowNode.findValue(DOC));
 
                 final float score;
                 final JsonNode scoreNode = rowNode.findValue(SCORE);
@@ -393,7 +379,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
             final List<JsonNode> documentNodes = rowsNode.findValues(DOC);
 
             for (final JsonNode documentNode : documentNodes) {
-                documents.add(this.objectMapper.convertValue(documentNode, Document.class));
+                final Document document = this.readDocument(documentNode);
+                documents.add(document);
             }
 
         } catch (JsonProcessingException e) {
@@ -408,7 +395,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     private String toJSON(final Document document) {
         try {
-            final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+            final DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
             dateFormat.setTimeZone(TimeZone.getTimeZone(GMT));
             return this.objectMapper.writer(dateFormat).writeValueAsString(document);
         } catch (JsonGenerationException e) {
@@ -421,7 +408,65 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     private String toJSON(final String text) {
-        return new String(JsonStringEncoder.getInstance().encodeAsUTF8(text), Charset.forName("UTF-8"));
+        return new String(JsonStringEncoder.getInstance().quoteAsUTF8(text), Charset.forName(UTF8));
+    }
+
+    private Document findOneWithView(String viewPath, Object... args) {
+        final URL requestUrl;
+        final HttpClientResponse response;
+        try {
+            requestUrl = new URL(this.couchDbDatabaseUrl.toExternalForm() + this.toJSON(String.format(viewPath, args)));
+            response = NetworkingUtil.get(requestUrl, null, null, this.credentialsProvider);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        final JsonNode node;
+        final Document document;
+        try {
+            node = this.objectMapper.readTree(response.getInputStream());
+            final JsonNode totalRowsNode = node.findValue(TOTAL_ROWS);
+            int totalRows = 0;
+
+            if (totalRowsNode == null) {
+                document = null;
+            } else {
+                totalRows = totalRowsNode.getIntValue();
+
+                final JsonNode docNode = node.findValue(DOC);
+                if (totalRows == 0 || docNode == null) {
+                    document = null;
+                } else {
+                    document = this.readDocument(docNode);
+                }
+            }
+
+        } catch (JsonParseException e) {
+            throw new RuntimeException(e);
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return document;
+    }
+
+    private Document readDocument(final JsonNode node) throws JsonParseException, JsonMappingException, IOException {
+
+        // check for tweet
+        final String type = node.findValue(TYPE).getTextValue();
+
+        if (type.equals(DocumentType.T.name())) {
+            // tweet
+            return this.objectMapper.readValue(node, Tweet.class);
+        } else {
+            // plain old document
+            return this.objectMapper.readValue(node, Document.class);
+        }
+
     }
 
 }

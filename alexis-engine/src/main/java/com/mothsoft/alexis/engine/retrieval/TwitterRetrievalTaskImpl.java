@@ -36,7 +36,6 @@ import twitter4j.auth.AccessToken;
 
 import com.mothsoft.alexis.dao.DocumentDao;
 import com.mothsoft.alexis.dao.SourceDao;
-import com.mothsoft.alexis.dao.TweetDao;
 import com.mothsoft.alexis.dao.UserDao;
 import com.mothsoft.alexis.domain.DocumentUser;
 import com.mothsoft.alexis.domain.SocialConnection;
@@ -58,7 +57,6 @@ public class TwitterRetrievalTaskImpl implements RetrievalTask {
     private SourceDao sourceDao;
     private PlatformTransactionManager transactionManager;
     private TransactionTemplate transactionTemplate;
-    private TweetDao tweetDao;
     private TwitterService twitterService;
     private UserDao userDao;
 
@@ -79,10 +77,6 @@ public class TwitterRetrievalTaskImpl implements RetrievalTask {
     public void setTransactionManager(final PlatformTransactionManager transactionManager) {
         this.transactionManager = transactionManager;
         this.transactionTemplate = new TransactionTemplate(this.transactionManager);
-    }
-
-    public void setTweetDao(final TweetDao tweetDao) {
-        this.tweetDao = tweetDao;
     }
 
     public void setTwitterService(final TwitterService twitterService) {
@@ -180,7 +174,7 @@ public class TwitterRetrievalTaskImpl implements RetrievalTask {
             for (final Status status : statuses) {
                 final Long tweetId = status.getId();
 
-                Tweet tweet = this.tweetDao.getTweetByRemoteTweetId(tweetId);
+                Tweet tweet = this.documentDao.findTweetByTweetId(tweetId);
                 final boolean isAdd = (tweet == null);
 
                 if (isAdd) {

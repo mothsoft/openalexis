@@ -52,7 +52,7 @@ public class NetworkingUtil {
 
     private static final Logger logger = Logger.getLogger(NetworkingUtil.class);
 
-    private static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
+    private static final Charset UTF8 = Charset.forName("UTF-8");
 
     public static int delete(final URL url, final CredentialsProvider credentialsProvider) {
         final HttpDelete delete = new HttpDelete(url.toExternalForm());
@@ -90,7 +90,7 @@ public class NetworkingUtil {
 
         final HttpGet get = new HttpGet(url.toExternalForm());
 
-        get.addHeader("Accept-Charset", "UTF-8");
+        get.addHeader("Accept-Charset", UTF8.name());
 
         if (etag != null) {
             get.addHeader("If-None-Match", etag);
@@ -168,7 +168,7 @@ public class NetworkingUtil {
         UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(params);
         post.setEntity(formEntity);
 
-        post.addHeader("Accept-Charset", "UTF-8");
+        post.addHeader("Accept-Charset", UTF8.name());
 
         final HttpClient client = getClient();
         HttpResponse response = client.execute(post);
@@ -188,7 +188,7 @@ public class NetworkingUtil {
     public static HttpClientResponse post(final URL url, final String content, final String mimeType,
             final CredentialsProvider credentialsProvider) throws IOException {
         final HttpPost post = new HttpPost(url.toExternalForm());
-        post.setEntity(new StringEntity(content));
+        post.setEntity(new StringEntity(content, UTF8));
         post.setHeader("Content-Type", mimeType);
         return NetworkingUtil.execute(url, post, credentialsProvider);
     }
@@ -196,7 +196,7 @@ public class NetworkingUtil {
     public static HttpClientResponse put(final URL url, final String content, final String mimeType,
             final CredentialsProvider credentialsProvider) throws IOException {
         final HttpPut put = new HttpPut(url.toExternalForm());
-        put.setEntity(new StringEntity(content));
+        put.setEntity(new StringEntity(content, UTF8));
         put.setHeader("Content-Type", mimeType);
         return NetworkingUtil.execute(url, put, credentialsProvider);
     }
@@ -228,14 +228,14 @@ public class NetworkingUtil {
         final InputStream is = entity.getContent();
         final Charset charset = getCharset(entity);
 
-        return new HttpClientResponse((AbortableHttpRequest)method, status, null, null, is, charset);
+        return new HttpClientResponse((AbortableHttpRequest) method, status, null, null, is, charset);
     }
 
     private static HttpClient getClient() {
         final HttpClient client = new DefaultHttpClient();
         client.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_1);
         client.getParams().setParameter("http.socket.timeout", new Integer(300000));
-        client.getParams().setParameter("http.protocol.content-charset", "UTF-8");
+        client.getParams().setParameter("http.protocol.content-charset", UTF8);
         return client;
     }
 
@@ -251,7 +251,7 @@ public class NetworkingUtil {
             }
         }
 
-        return DEFAULT_CHARSET;
+        return UTF8;
     }
 
 }

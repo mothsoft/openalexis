@@ -22,7 +22,7 @@ import org.codehaus.jackson.annotate.JsonTypeName;
 @XmlRootElement(name = "Tweet")
 public class Tweet extends Document {
 
-    private Long remoteTweetId;
+    private Long tweetId;
     private String screenName;
     private String fullName;
     private String profileImageUrl;
@@ -34,12 +34,12 @@ public class Tweet extends Document {
         super();
     }
 
-    public Long getRemoteTweetId() {
-        return remoteTweetId;
+    public Long getTweetId() {
+        return tweetId;
     }
 
-    public void setRemoteTweetId(Long remoteTweetId) {
-        this.remoteTweetId = remoteTweetId;
+    public void setTweetId(Long tweetId) {
+        this.tweetId = tweetId;
     }
 
     public String getScreenName() {

@@ -33,7 +33,7 @@ import com.mothsoft.alexis.domain.Document;
 
 public class DocumentExtractionMessageListener implements SessionAwareMessageListener<TextMessage> {
 
-    private static final Logger logger = Logger.getLogger(ParseResponseMessageListener.class);
+    private static final Logger logger = Logger.getLogger(DocumentExtractionMessageListener.class);
 
     private static final String DOCUMENT_ID = "DOCUMENT_ID";
     private static final String TEXT_PLAIN = "text/plain";
