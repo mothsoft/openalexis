@@ -30,19 +30,22 @@ import com.mothsoft.alexis.domain.Tweet;
 public interface DocumentDao {
 
     /* CRUD */
-
     public void add(Document document);
 
+    /** Add a Tweet and queue it for NLP processing */
+    public void add(Tweet tweet);
+
     public void addRawContent(String documentId, String rev, String content, String mimeType);
-    
+
     public String getRawContent(String documentId);
-    
+
+    /** Add document content and queue for NLP processing */
     public void addContent(String documentId, String rev, String content, String mimeType);
-    
+
     public String getContent(String documentId);
 
     public Document findByUrl(String url);
-    
+
     public Tweet findTweetByTweetId(Long tweetId);
 
     public Document get(String documentId);

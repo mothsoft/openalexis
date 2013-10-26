@@ -36,11 +36,10 @@
             </bean>
         </property>
     </bean>
-
+    
     <bean id="parseResponseMessageListener"
         class="com.mothsoft.alexis.engine.textual.ParseResponseMessageListener">
         <property name="documentDao" ref="documentDao" />
-        <property name="transactionManager" ref="transactionManager" />
     </bean>
 
     <bean id="parseResponseMessageListenerContainer"

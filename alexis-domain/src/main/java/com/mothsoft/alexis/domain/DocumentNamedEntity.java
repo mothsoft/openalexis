@@ -14,8 +14,11 @@
  */
 package com.mothsoft.alexis.domain;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 public class DocumentNamedEntity {
 
+    @JsonIgnore
     private String documentId;
 
     private String name;

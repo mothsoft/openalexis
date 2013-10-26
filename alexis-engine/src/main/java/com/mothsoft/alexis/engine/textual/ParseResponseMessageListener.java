@@ -35,10 +35,6 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 import org.springframework.jms.listener.SessionAwareMessageListener;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.mothsoft.alexis.dao.DocumentDao;
 import com.mothsoft.alexis.domain.AssociationType;
@@ -60,16 +56,9 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
     private static final Pattern PUNCT_PATTERN = Pattern.compile("\\p{Punct}");
 
     private DocumentDao documentDao;
-    private PlatformTransactionManager transactionManager;
-    private TransactionTemplate transactionTemplate;
 
     public void setDocumentDao(final DocumentDao documentDao) {
         this.documentDao = documentDao;
-    }
-
-    public void setTransactionManager(final PlatformTransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
-        this.transactionTemplate = new TransactionTemplate(this.transactionManager);
     }
 
     @Override
@@ -202,10 +191,10 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
                 final DocumentAssociation association;
                 if (associationMap.containsKey(key)) {
                     association = associationMap.get(key);
-                    association.setAssociationCount(1 + association.getAssociationCount());
+                    association.setCount(1 + association.getCount());
                 } else {
                     association = new DocumentAssociation(a, b, type);
-                    association.setAssociationCount(1 + association.getAssociationCount());
+                    association.setCount(1 + association.getCount());
                     associationMap.put(key, association);
                 }
             }
@@ -240,20 +229,14 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        this.transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-
-            @Override
-            protected void doInTransactionWithoutResult(final TransactionStatus txStatus) {
-                try {
-                    CurrentUserUtil.setSystemUserAuthentication();
-                    final Document attachedDocument = ParseResponseMessageListener.this.documentDao.get(documentId);
-                    attachedDocument.setParsedContent(parsedContent);
-                } finally {
-                    CurrentUserUtil.clearAuthentication();
-                }
-            }
-
-        });
+        try {
+            CurrentUserUtil.setSystemUserAuthentication();
+            final Document document = this.documentDao.get(documentId);
+            document.setParsedContent(parsedContent);
+            this.documentDao.update(document);
+        } finally {
+            CurrentUserUtil.clearAuthentication();
+        }
 
         stopWatch.stop();
         logger.info("Document update for ID: " + documentId + " took: " + stopWatch.toString());

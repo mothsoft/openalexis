@@ -1,20 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
-  xmlns:aop="http://www.springframework.org/schema/aop"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:amq="http://activemq.apache.org/schema/core"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
-           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+           http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core-5.5.0.xsd">
 
-  <!-- imported from JAR -->
-  <import resource="classpath:spring/properties.xml" />
-  <import resource="classpath:spring/persistence.xml" />
-  <import resource="classpath:spring/services.xml" />
+    <!-- imported from JAR -->
+    <import resource="classpath:spring/properties.xml" />
+    <import resource="classpath:spring/persistence.xml" />
+    <import resource="classpath:spring/services.xml" />
 
-  <!-- local -->
-  <import resource="classpath:spring/logging.xml" />
-  <import resource="classpath:spring/security.xml" />
-  <import resource="classpath:spring/rest-clients.xml" />
+    <!-- local -->
+    <import resource="classpath:spring/logging.xml" />
+    <import resource="classpath:spring/security.xml" />
+    <import resource="classpath:spring/rest-clients.xml" />
+
+    <!-- JMS: only needed until all services calls are remoted rather than 
+        in memory -->
+    <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory"
+        destroy-method="stop">
+        <property name="connectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL" value="tcp://localhost:61616" />
+                <property name="dispatchAsync" value="true" />
+            </bean>
+        </property>
+    </bean>
+
+    <amq:queue id="stanfordRequestQueue" physicalName="queue.stanford.request"
+        name="queue.stanford.request" />
+
+    <amq:queue id="stanfordResponseQueue" physicalName="queue.stanford.response"
+        name="queue.stanford.response" />
 
 </beans>

@@ -36,10 +36,13 @@
   <tx:annotation-driven />
 
   <bean id="documentDao" class="com.mothsoft.alexis.dao.CouchDbDocumentDaoImpl">
-      <constructor-arg index="0" value="${alexis.couchdb.url}" />
-      <constructor-arg index="1" value="${alexis.couchdb.lucene.search.url}" />
-      <constructor-arg index="2" value="${alexis.couchdb.username}" />
-      <constructor-arg index="3" value="${alexis.couchdb.password}" />
+      <constructor-arg index="0" ref="jmsConnectionFactory" />
+      <constructor-arg index="1" ref="stanfordRequestQueue" />
+      <constructor-arg index="2" ref="stanfordResponseQueue" />
+      <constructor-arg index="3" value="${alexis.couchdb.url}" />
+      <constructor-arg index="4" value="${alexis.couchdb.lucene.search.url}" />
+      <constructor-arg index="5" value="${alexis.couchdb.username}" />
+      <constructor-arg index="6" value="${alexis.couchdb.password}" />
   </bean>
 
   <bean id="dataSetDao" class="com.mothsoft.alexis.dao.DataSetDaoImpl" />

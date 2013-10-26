@@ -86,7 +86,7 @@ public class TwitterRetrievalTaskImpl implements RetrievalTask {
     public void setUserDao(final UserDao userDao) {
         this.userDao = userDao;
     }
-
+    
     public void retrieve() {
 
         CurrentUserUtil.setSystemUserAuthentication();
@@ -282,4 +282,5 @@ public class TwitterRetrievalTaskImpl implements RetrievalTask {
 
         return hashtags;
     }
+    
 }

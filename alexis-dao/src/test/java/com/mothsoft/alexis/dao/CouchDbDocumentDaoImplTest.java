@@ -19,6 +19,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +29,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
@@ -54,16 +64,30 @@ public class CouchDbDocumentDaoImplTest {
     private ObjectMapper objectMapper;
 
     @Before
-    public void setUp() throws MalformedURLException {
+    public void setUp() throws MalformedURLException, JMSException {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
         this.objectMapper.configure(SerializationConfig.Feature.WRITE_NULL_PROPERTIES, false);
 
         this.documents = new ArrayList<Document>(128);
 
+        final ConnectionFactory mockConnectionFactory = mock(ConnectionFactory.class);
+        final Connection mockConnection = mock(Connection.class);
+        final Session mockSession = mock(Session.class);
+        final TextMessage mockTextMessage = mock(TextMessage.class);
+        final MessageProducer mockProducer = mock(MessageProducer.class);
+        final Queue mockQueue1 = mock(Queue.class);
+        final Queue mockQueue2 = mock(Queue.class);
+
+        when(mockConnectionFactory.createConnection()).thenReturn(mockConnection);
+        when(mockConnection.createSession(false, Session.AUTO_ACKNOWLEDGE)).thenReturn(mockSession);
+        when(mockSession.createProducer(mockQueue1)).thenReturn(mockProducer);
+        when(mockSession.createTextMessage("text")).thenReturn(mockTextMessage);
+
         final URL dbUrl = new URL("http://localhost:5984/alexis/");
         final URL luceneUrl = new URL("http://localhost:5984/_fti/local/alexis/_design/search/all");
-        this.dao = new CouchDbDocumentDaoImpl(dbUrl, luceneUrl, "admin", "admin");
+        this.dao = new CouchDbDocumentDaoImpl(mockConnectionFactory, mockQueue1, mockQueue2, dbUrl, luceneUrl, "admin",
+                "admin");
     }
 
     @After
@@ -164,8 +188,8 @@ public class CouchDbDocumentDaoImplTest {
         this.documents.add(document);
         this.dao.add(document);
 
-        this.dao.addContent(document.getId(), document.getRev(), "Extracted content", "text/plain");
-        assertEquals("Extracted content", this.dao.getContent(document.getId()));
+        this.dao.addContent(document.getId(), document.getRev(), "text", "text/plain");
+        assertEquals("text", this.dao.getContent(document.getId()));
     }
 
     @Test

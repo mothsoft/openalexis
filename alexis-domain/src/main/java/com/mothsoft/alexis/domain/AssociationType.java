@@ -17,6 +17,8 @@ package com.mothsoft.alexis.domain;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codehaus.jackson.annotate.JsonCreator;
+
 public enum AssociationType {
     // as defined here: http://nlp.stanford.edu/pubs/LREC06_dependencies.pdf
     root(0),
@@ -105,7 +107,9 @@ public enum AssociationType {
         return this.value;
     }
 
-    public static AssociationType getByValue(int value) {
-        return map.get(value);
+    @JsonCreator
+    public static AssociationType byName(String name) {
+        return AssociationType.valueOf(name);
     }
+    
 }

@@ -14,6 +14,8 @@
  */
 package com.mothsoft.alexis.domain;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 /**
  * A conceptually-related pair of terms in the context of a document
  * 
@@ -22,29 +24,26 @@ package com.mothsoft.alexis.domain;
  */
 public class DocumentAssociation {
 
+    @JsonIgnore
     private String documentId;
 
     private Term a;
 
     private Term b;
 
-    private int associationCount;
+    private int count;
 
-    private float associationWeight;
+    private AssociationType type;
 
-    private transient AssociationType type;
-
-    public DocumentAssociation(final String documentId, final Term a, final Term b, AssociationType type, int count,
-            float weight) {
+    public DocumentAssociation(final String documentId, final Term a, final Term b, AssociationType type, int count) {
         this.documentId = documentId;
         this.a = a;
         this.b = b;
-        this.type = type;
-        this.associationWeight = weight;
+        this.count = count;
     }
 
     public DocumentAssociation(final Term a, final Term b, AssociationType type) {
-        this(null, a, b, type, 0, 0.0f);
+        this(null, a, b, type, 0);
     }
 
     protected DocumentAssociation() {
@@ -59,24 +58,28 @@ public class DocumentAssociation {
         this.documentId = documentId;
     }
 
-    public AssociationType getAssociationType() {
-        return this.type;
+    public int getCount() {
+        return count;
     }
 
-    public int getAssociationCount() {
-        return this.associationCount;
+    public void setCount(int count) {
+        this.count = count;
     }
 
-    public void setAssociationCount(int associationCount) {
-        this.associationCount = associationCount;
+    public AssociationType getType() {
+        return type;
     }
 
-    public float getAssociationWeight() {
-        return this.associationWeight;
+    public void setType(AssociationType type) {
+        this.type = type;
     }
 
-    public void setAssociationWeight(float associationWeight) {
-        this.associationWeight = associationWeight;
+    public void setA(Term a) {
+        this.a = a;
+    }
+
+    public void setB(Term b) {
+        this.b = b;
     }
 
     public Term getA() {

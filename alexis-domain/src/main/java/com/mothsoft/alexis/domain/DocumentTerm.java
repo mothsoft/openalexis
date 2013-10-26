@@ -14,8 +14,11 @@
  */
 package com.mothsoft.alexis.domain;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 public class DocumentTerm implements Comparable<DocumentTerm> {
 
+    @JsonIgnore
     private String documentId;
 
     private Term term;

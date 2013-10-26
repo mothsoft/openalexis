@@ -29,11 +29,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.JMSException;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+
 import org.apache.commons.io.IOUtils;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParseException;
@@ -60,6 +69,8 @@ import com.mothsoft.alexis.util.NetworkingUtil;
 
 public class CouchDbDocumentDaoImpl implements DocumentDao {
 
+    private static final Logger logger = Logger.getLogger(CouchDbDocumentDaoImpl.class);
+
     private static final String APPLICATION_JSON = "application/json";
     private static final String FIND_BY_URL_VIEW = "_design/views/_view/find_by_url?key=%%22%s%%22&include_docs=true";
     private static final String FIND_BY_TWEET_ID_VIEW = "_design/views/_view/find_by_tweet_id?key=%d&include_docs=true";
@@ -72,6 +83,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     private static final String SORT_DATE_DESC = "&sort=%5CcreationDate";
 
     /* content constants */
+    private static final String DOCUMENT_ID = "DOCUMENT_ID";
     private static final String UTF8 = "UTF-8";
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'";
     private static final String DOC = "doc";
@@ -83,13 +95,22 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     private static final String CONTENT = "content";
     private static final String TYPE = "type";
 
+    private ConnectionFactory jmsConnectionFactory;
+    private Queue parseRequestQueue;
+    private Queue parseResponseQueue;
+
     private URL couchDbDatabaseUrl;
     private URL couchDbLuceneBaseUrl;
     private CredentialsProvider credentialsProvider;
     private ObjectMapper objectMapper;
 
-    public CouchDbDocumentDaoImpl(final URL couchDbDatabaseUrl, final URL couchDbLuceneBaseUrl, final String username,
-            final String password) {
+    public CouchDbDocumentDaoImpl(final ConnectionFactory jmsConnectionFactory, final Queue parseRequestQueue,
+            final Queue parseResponseQueue, final URL couchDbDatabaseUrl, final URL couchDbLuceneBaseUrl,
+            final String username, final String password) {
+        this.jmsConnectionFactory = jmsConnectionFactory;
+        this.parseRequestQueue = parseRequestQueue;
+        this.parseResponseQueue = parseResponseQueue;
+
         this.couchDbDatabaseUrl = couchDbDatabaseUrl;
         this.couchDbLuceneBaseUrl = couchDbLuceneBaseUrl;
         this.credentialsProvider = new BasicCredentialsProvider();
@@ -103,8 +124,22 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     @Override
     public void add(Document document) {
-        final Date now = new Date();
-        document.setCreationDate(now);
+        this.doAdd(document);
+    }
+
+    public void add(Tweet tweet) {
+        this.doAdd(tweet);
+
+        this.requestNlpParse(tweet.getId(), tweet.getContent());
+    }
+
+    private void doAdd(Document document) {
+        // RSS and Twitter can both provide their own date. If we can't determine
+        // the date of content, default it to NOW.
+        if (document.getCreationDate() == null) {
+            final Date now = new Date();
+            document.setCreationDate(now);
+        }
 
         final String content = this.toJSON(document);
         final Map<String, Object> map;
@@ -131,6 +166,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     @Override
     public void addContent(String documentId, String rev, String content, String mimeType) {
         this.addAttachment(documentId, rev, CONTENT, content, mimeType);
+        this.requestNlpParse(documentId, content);
     }
 
     private void addAttachment(String documentId, String rev, String attachmentName, String content, String mimeType) {
@@ -465,6 +501,43 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         } else {
             // plain old document
             return this.objectMapper.readValue(node, Document.class);
+        }
+
+    }
+
+    private void requestNlpParse(String documentId, String content) {
+        Connection connection = null;
+        Session session = null;
+        MessageProducer producer = null;
+
+        // set up JMS connection, session, consumer, producer
+        try {
+            connection = this.jmsConnectionFactory.createConnection();
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            producer = session.createProducer(this.parseRequestQueue);
+
+            logger.info("Sending parse request, document ID: " + documentId);
+            final TextMessage textMessage = session.createTextMessage(content);
+            textMessage.setJMSReplyTo(this.parseResponseQueue);
+            textMessage.setStringProperty(DOCUMENT_ID, documentId);
+
+            producer.send(textMessage);
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (producer != null) {
+                    producer.close();
+                }
+                if (session != null) {
+                    session.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (JMSException e) {
+                throw new RuntimeException(e);
+            }
         }
 
     }

@@ -44,7 +44,7 @@ public class OpenNLPMaxentContextBuilder {
         for (final DocumentAssociation association : document.getDocumentAssociations()) {
             final String value = String.format(ASSOC_FORMAT, association.getA().getValueLowercase(), association.getB()
                     .getValueLowercase());
-            putAndIncrement(contextMap, value, association.getAssociationCount());
+            putAndIncrement(contextMap, value, association.getCount());
         }
 
         for (final DocumentNamedEntity name : document.getDocumentNamedEntities()) {
