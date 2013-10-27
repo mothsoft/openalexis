@@ -38,7 +38,6 @@ import org.springframework.jms.listener.SessionAwareMessageListener;
 
 import com.mothsoft.alexis.dao.DocumentDao;
 import com.mothsoft.alexis.domain.AssociationType;
-import com.mothsoft.alexis.domain.Document;
 import com.mothsoft.alexis.domain.DocumentAssociation;
 import com.mothsoft.alexis.domain.DocumentNamedEntity;
 import com.mothsoft.alexis.domain.DocumentTerm;
@@ -139,7 +138,7 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
             }
         });
 
-        return new ParsedContent(associationCountMap.values(), documentTerms, entities, documentTermCount);
+        return new ParsedContent(documentId, associationCountMap.values(), documentTerms, entities, documentTermCount);
     }
 
     @SuppressWarnings("unchecked")
@@ -231,9 +230,7 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
 
         try {
             CurrentUserUtil.setSystemUserAuthentication();
-            final Document document = this.documentDao.get(documentId);
-            document.setParsedContent(parsedContent);
-            this.documentDao.update(document);
+            this.documentDao.addParsedContent(documentId, parsedContent);
         } finally {
             CurrentUserUtil.clearAuthentication();
         }

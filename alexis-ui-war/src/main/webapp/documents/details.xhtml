@@ -53,12 +53,6 @@
                     </h:outputText>
                 </li>
                 
-                <ui:remove>
-	                <ui:fragment rendered="#{not empty viewDocumentDetailsBackingBean.document.sentenceCount}">
-	                  <li><strong>Number of sentences:</strong> #{fn:length(viewDocumentDetailsBackingBean.document.sentenceCount)}</li>
-	                </ui:fragment>
-                </ui:remove>
-                
                 <ui:fragment rendered="#{viewDocumentDetailsBackingBean.document.termCount > 0}">
                   <li><strong>Term Count:</strong> #{viewDocumentDetailsBackingBean.document.termCount}</li>
                 </ui:fragment>
@@ -81,7 +75,7 @@
 
 				<ui:fragment rendered="#{not empty viewDocumentDetailsBackingBean.importantNamedEntities}">
 				<li class="importantNamedEntities">
-				    <strong>Important Named Entities:</strong>
+				    <strong>Important Names:</strong>
 				    <div class="graph">
 				        <ui:repeat
 				            value="#{viewDocumentDetailsBackingBean.importantNamedEntities}"

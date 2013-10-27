@@ -64,10 +64,6 @@ public class DocumentServiceImpl implements DocumentService {
         return this.documentDao.getImportantTerms(userId, startDate, endDate, count, filterStopWords);
     }
 
-    public List<ImportantTerm> getImportantTerms(String documentId, int howMany, boolean filterStopWords) {
-        return this.documentDao.getImportantTerms(documentId, howMany, filterStopWords);
-    }
-
     public List<TopicDocument> getTopicDocuments(String documentId) {
         return this.documentDao.getTopicDocuments(documentId);
     }
@@ -92,11 +88,6 @@ public class DocumentServiceImpl implements DocumentService {
     public List<ImportantNamedEntity> getImportantNamedEntities(final Long userId, final Date startDate,
             final Date endDate, final int howMany) {
         return this.documentDao.getImportantNamedEntities(userId, startDate, endDate, howMany);
-    }
-
-    @Override
-    public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(String documentId, int howMany) {
-        return this.documentDao.getImportantNamedEntitiesForDocument(documentId, howMany);
     }
 
     @Override

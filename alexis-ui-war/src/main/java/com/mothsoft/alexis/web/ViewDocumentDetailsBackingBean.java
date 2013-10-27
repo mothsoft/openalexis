@@ -35,10 +35,12 @@ public class ViewDocumentDetailsBackingBean {
     // state
     private String id;
     private Document document;
+
     private List<ImportantNamedEntity> importantNamedEntities;
     private Integer importantNamedEntitiesMaxCount = Integer.valueOf(0);
 
     private List<ImportantTerm> importantTerms;
+
     private List<TopicDocument> topicDocuments;
 
     public ViewDocumentDetailsBackingBean() {
@@ -68,25 +70,8 @@ public class ViewDocumentDetailsBackingBean {
                 Hibernate.initialize(tweet.getMentions());
             }
 
-            try {
-                this.importantTerms = documentService.getImportantTerms(id, 10, true);
-            } catch (EmptyResultDataAccessException e) {
-                this.importantTerms = new ArrayList<ImportantTerm>(0);
-            }
-
-            try {
-                this.importantNamedEntities = this.documentService.getImportantNamedEntitiesForDocument(this.id, 10);
-                int max = 0;
-                for (final ImportantNamedEntity entity : this.importantNamedEntities) {
-                    if (entity.getCount() > max) {
-                        max = entity.getCount();
-                    }
-                }
-                this.importantNamedEntitiesMaxCount = max;
-            } catch (EmptyResultDataAccessException e) {
-                this.importantNamedEntities = new ArrayList<ImportantNamedEntity>();
-                this.importantNamedEntitiesMaxCount = 0;
-            }
+            this.importantTerms = this.document.getImportantTerms();
+            this.importantNamedEntities = this.document.getImportantNamedEntities();
 
             try {
                 this.topicDocuments = documentService.getTopicDocuments(id);

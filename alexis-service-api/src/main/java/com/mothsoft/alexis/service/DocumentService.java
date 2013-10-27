@@ -34,8 +34,6 @@ public interface DocumentService {
     public List<ImportantTerm> getImportantTerms(Long userId, Timestamp startDate, Timestamp endDate, int count,
             boolean filterStopWords);
 
-    public List<ImportantTerm> getImportantTerms(final String documentId, int howMany, boolean filterStopWords);
-
     public Graph getRelatedTerms(final String queryString, final Long userId, final int howMany);
 
     public Double getSimilarity(final String aId, final String bId);
@@ -52,7 +50,5 @@ public interface DocumentService {
             int first, int count);
 
     public List<ImportantNamedEntity> getImportantNamedEntities(Long userId, Date startDate, Date endDate, int howMany);
-
-    public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(String documentId, int howMany);
 
 }

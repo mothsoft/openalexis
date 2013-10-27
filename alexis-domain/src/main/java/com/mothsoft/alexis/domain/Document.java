@@ -16,7 +16,6 @@ package com.mothsoft.alexis.domain;
 
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -59,24 +58,19 @@ public class Document {
 
     private Integer termCount;
 
-    @JsonProperty("associations")
-    private List<DocumentAssociation> documentAssociations;
-
-    @JsonProperty("terms")
-    private List<DocumentTerm> documentTerms;
-
     private List<TopicDocument> topicDocuments;
 
     @JsonProperty("users")
     private Set<DocumentUser> documentUsers;
 
-    @JsonProperty("namedEntities")
-    private List<DocumentNamedEntity> documentNamedEntities;
-
     private DocumentType type = DocumentType.W;
 
     @JsonProperty("_attachments")
     private Map<String, Object> attachments;
+
+    private List<ImportantNamedEntity> importantNamedEntities;
+
+    private List<ImportantTerm> importantTerms;
 
     public Document(final DocumentType type, final URL url, final String title, final String description) {
         this.type = type;
@@ -91,9 +85,9 @@ public class Document {
     }
 
     protected Document() {
-        this.documentAssociations = Collections.emptyList();
-        this.documentTerms = Collections.emptyList();
-        this.documentNamedEntities = Collections.emptyList();
+        this.topicDocuments = new ArrayList<TopicDocument>();
+        this.importantNamedEntities = new ArrayList<ImportantNamedEntity>();
+        this.importantTerms = new ArrayList<ImportantTerm>();
     }
 
     public void onErrorState(final DocumentState state) {
@@ -102,32 +96,6 @@ public class Document {
                     + " suggested, probably not an error state");
         }
         this.state = state;
-    }
-
-    public void setParsedContent(final ParsedContent parsedContent) {
-
-        if (this.termCount > 0) {
-            throw new IllegalStateException("This document has already been initialized!");
-        }
-
-        this.documentAssociations = new ArrayList<DocumentAssociation>(parsedContent.getDocumentAssociations());
-        for (final DocumentAssociation documentAssociation : this.documentAssociations) {
-            documentAssociation.setDocumentId(this.id);
-        }
-
-        this.documentTerms = new ArrayList<DocumentTerm>(parsedContent.getTerms());
-        for (final DocumentTerm documentTerm : this.documentTerms) {
-            documentTerm.setDocumentId(this.id);
-        }
-
-        this.documentNamedEntities = new ArrayList<DocumentNamedEntity>(parsedContent.getNamedEntities());
-        for (final DocumentNamedEntity entity : this.documentNamedEntities) {
-            entity.setDocumentId(this.id);
-        }
-
-        this.termCount = parsedContent.getDocumentTermCount();
-
-        this.state = DocumentState.PARSED;
     }
 
     public String getId() {
@@ -226,22 +194,6 @@ public class Document {
         this.termCount = termCount;
     }
 
-    public List<DocumentAssociation> getDocumentAssociations() {
-        return documentAssociations;
-    }
-
-    public void setDocumentAssociations(List<DocumentAssociation> documentAssociations) {
-        this.documentAssociations = documentAssociations;
-    }
-
-    public List<DocumentTerm> getDocumentTerms() {
-        return documentTerms;
-    }
-
-    public void setDocumentTerms(List<DocumentTerm> documentTerms) {
-        this.documentTerms = documentTerms;
-    }
-
     public List<TopicDocument> getTopicDocuments() {
         return topicDocuments;
     }
@@ -258,20 +210,28 @@ public class Document {
         this.documentUsers = documentUsers;
     }
 
-    public List<DocumentNamedEntity> getDocumentNamedEntities() {
-        return documentNamedEntities;
-    }
-
-    public void setDocumentNamedEntities(List<DocumentNamedEntity> documentNamedEntities) {
-        this.documentNamedEntities = documentNamedEntities;
-    }
-
     public DocumentType getType() {
         return type;
     }
 
     public void setType(DocumentType type) {
         this.type = type;
+    }
+
+    public List<ImportantTerm> getImportantTerms() {
+        return importantTerms;
+    }
+
+    public void setImportantTerms(List<ImportantTerm> importantTerms) {
+        this.importantTerms = importantTerms;
+    }
+
+    public List<ImportantNamedEntity> getImportantNamedEntities() {
+        return importantNamedEntities;
+    }
+
+    public void setImportantNamedEntities(List<ImportantNamedEntity> importantNamedEntities) {
+        this.importantNamedEntities = importantNamedEntities;
     }
 
 }

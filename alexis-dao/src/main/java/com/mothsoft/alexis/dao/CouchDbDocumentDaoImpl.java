@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -55,12 +56,15 @@ import org.codehaus.jackson.node.ArrayNode;
 
 import com.mothsoft.alexis.domain.DataRange;
 import com.mothsoft.alexis.domain.Document;
+import com.mothsoft.alexis.domain.DocumentNamedEntity;
 import com.mothsoft.alexis.domain.DocumentScore;
 import com.mothsoft.alexis.domain.DocumentState;
+import com.mothsoft.alexis.domain.DocumentTerm;
 import com.mothsoft.alexis.domain.DocumentType;
 import com.mothsoft.alexis.domain.Graph;
 import com.mothsoft.alexis.domain.ImportantNamedEntity;
 import com.mothsoft.alexis.domain.ImportantTerm;
+import com.mothsoft.alexis.domain.ParsedContent;
 import com.mothsoft.alexis.domain.SortOrder;
 import com.mothsoft.alexis.domain.TopicDocument;
 import com.mothsoft.alexis.domain.Tweet;
@@ -70,6 +74,24 @@ import com.mothsoft.alexis.util.NetworkingUtil;
 public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     private static final Logger logger = Logger.getLogger(CouchDbDocumentDaoImpl.class);
+
+    private static final Comparator<DocumentNamedEntity> NAMED_ENTITY_SORT_BY_COUNT_DESC_COMPARATOR;
+    private static final Comparator<DocumentTerm> TERM_SORT_BY_COUNT_DESC_COMPARATOR;
+
+    static {
+        NAMED_ENTITY_SORT_BY_COUNT_DESC_COMPARATOR = new Comparator<DocumentNamedEntity>() {
+            @Override
+            public int compare(DocumentNamedEntity o1, DocumentNamedEntity o2) {
+                return -1 * o1.getCount().compareTo(o2.getCount());
+            }
+        };
+        TERM_SORT_BY_COUNT_DESC_COMPARATOR = new Comparator<DocumentTerm>() {
+            @Override
+            public int compare(DocumentTerm o1, DocumentTerm o2) {
+                return -1 * o1.getCount().compareTo(o2.getCount());
+            }
+        };
+    }
 
     private static final String APPLICATION_JSON = "application/json";
     private static final String FIND_BY_URL_VIEW = "_design/views/_view/find_by_url?key=%%22%s%%22&include_docs=true";
@@ -91,9 +113,11 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     private static final String ROWS = "rows";
     private static final String SCORE = "score";
     private static final String GMT = "GMT";
+    private static final String TYPE = "type";
+
     private static final String RAW = "raw";
     private static final String CONTENT = "content";
-    private static final String TYPE = "type";
+    private static final String PARSED = "parsed";
 
     private ConnectionFactory jmsConnectionFactory;
     private Queue parseRequestQueue;
@@ -134,7 +158,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     private void doAdd(Document document) {
-        // RSS and Twitter can both provide their own date. If we can't determine
+        // RSS and Twitter can both provide their own date. If we can't
+        // determine
         // the date of content, default it to NOW.
         if (document.getCreationDate() == null) {
             final Date now = new Date();
@@ -169,6 +194,27 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         this.requestNlpParse(documentId, content);
     }
 
+    @Override
+    public void addParsedContent(String documentId, ParsedContent parsedContent) {
+        final String json = this.toJSON(parsedContent);
+        Document document = this.get(documentId);
+        this.addAttachment(documentId, document.getRev(), PARSED, json, APPLICATION_JSON);
+
+        // update state, at least until we kill it off
+        document = this.get(documentId);
+        document.setState(DocumentState.PARSED);
+        document.setTermCount(parsedContent.getDocumentTermCount());
+        document.setImportantNamedEntities(this.topNames(parsedContent));
+        document.setImportantTerms(this.topTerms(parsedContent));
+        this.update(document);
+    }
+
+    @Override
+    public ParsedContent getParsedContent(String documentId) {
+        final String json = this.getAttachment(documentId, PARSED);
+        return this.readParsedContent(json);
+    }
+
     private void addAttachment(String documentId, String rev, String attachmentName, String content, String mimeType) {
         final URL documentUrl;
         try {
@@ -190,12 +236,24 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     @Override
     public String getRawContent(String documentId) {
-        return this.getAttachment(documentId, RAW);
+        final Document document = this.get(documentId);
+
+        if (document.getType() == DocumentType.T) {
+            return document.getContent();
+        } else {
+            return this.getAttachment(documentId, RAW);
+        }
     }
 
     @Override
     public String getContent(String documentId) {
-        return this.getAttachment(documentId, CONTENT);
+        final Document document = this.get(documentId);
+
+        if (document.getType() == DocumentType.T) {
+            return document.getContent();
+        } else {
+            return this.getAttachment(documentId, CONTENT);
+        }
     }
 
     private String getAttachment(String documentId, String attachmentName) {
@@ -262,18 +320,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     @Override
-    public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(String documentId, int howMany) {
-        return Collections.emptyList();
-    }
-
-    @Override
     public List<ImportantTerm> getImportantTerms(Long userId, Date startDate, Date endDate, int count,
             boolean filterStopWords) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public List<ImportantTerm> getImportantTerms(String documentId, int howMany, boolean filterStopWords) {
         return Collections.emptyList();
     }
 
@@ -443,6 +491,18 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         }
     }
 
+    private String toJSON(final ParsedContent parsedContent) {
+        try {
+            return this.objectMapper.writer().writeValueAsString(parsedContent);
+        } catch (JsonGenerationException e) {
+            throw new RuntimeException(e);
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private String toJSON(final String text) {
         return new String(JsonStringEncoder.getInstance().quoteAsUTF8(text), Charset.forName(UTF8));
     }
@@ -505,6 +565,18 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     }
 
+    private ParsedContent readParsedContent(final String json) {
+        try {
+            return this.objectMapper.readValue(json, ParsedContent.class);
+        } catch (JsonParseException e) {
+            throw new RuntimeException(e);
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void requestNlpParse(String documentId, String content) {
         Connection connection = null;
         Session session = null;
@@ -539,7 +611,37 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
                 throw new RuntimeException(e);
             }
         }
+    }
 
+    private List<ImportantNamedEntity> topNames(ParsedContent parsedContent) {
+        final List<ImportantNamedEntity> topNames = new ArrayList<ImportantNamedEntity>();
+
+        final List<DocumentNamedEntity> namedEntities = new ArrayList<DocumentNamedEntity>(
+                parsedContent.getNamedEntities());
+        Collections.sort(namedEntities, NAMED_ENTITY_SORT_BY_COUNT_DESC_COMPARATOR);
+
+        for (int i = 0; i < namedEntities.size() && i < 10; i++) {
+            final DocumentNamedEntity namedEntity = namedEntities.get(i);
+            topNames.add(new ImportantNamedEntity(namedEntity.getName(), namedEntity.getCount()));
+        }
+
+        return topNames;
+    }
+
+    private List<ImportantTerm> topTerms(ParsedContent parsedContent) {
+        final List<ImportantTerm> topTerms = new ArrayList<ImportantTerm>();
+
+        final List<DocumentTerm> terms = new ArrayList<DocumentTerm>(parsedContent.getTerms());
+        Collections.sort(terms, TERM_SORT_BY_COUNT_DESC_COMPARATOR);
+
+        final float maxTfIdf = 1.0f; // FIXME - restore TF-IDF calculation
+        for (int i = 0; i < terms.size() && i < 10; i++) {
+            final DocumentTerm term = terms.get(i);
+            final float tfIdf = term.getTfIdf() == null ? 1.0f : term.getTfIdf();
+            topTerms.add(new ImportantTerm(term.getTerm().getValue(), term.getCount(), tfIdf, maxTfIdf));
+        }
+
+        return topTerms;
     }
 
 }

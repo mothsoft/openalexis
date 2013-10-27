@@ -20,11 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.mothsoft.alexis.domain.Document;
-import com.mothsoft.alexis.domain.DocumentAssociation;
-import com.mothsoft.alexis.domain.DocumentNamedEntity;
-import com.mothsoft.alexis.domain.DocumentTerm;
 
-public class OpenNLPMaxentContextBuilder {
+public class DocumentContextBuilder {
 
     private static final String HOUR_OF_DAY_FORMAT = "HOUR_OF_DAY=%d";
     private static final String QUARTER_OF_HOUR_FORMAT = "QTR_OF_HOUR=%d";
@@ -36,21 +33,29 @@ public class OpenNLPMaxentContextBuilder {
     public static Map<String, Integer> buildContext(final Document document) {
         final Map<String, Integer> contextMap = new LinkedHashMap<String, Integer>(512);
 
-        for (final DocumentTerm dt : document.getDocumentTerms()) {
-            final String value = dt.getTerm().getValueLowercase();
-            putAndIncrement(contextMap, value, dt.getCount());
-        }
-
-        for (final DocumentAssociation association : document.getDocumentAssociations()) {
-            final String value = String.format(ASSOC_FORMAT, association.getA().getValueLowercase(), association.getB()
-                    .getValueLowercase());
-            putAndIncrement(contextMap, value, association.getCount());
-        }
-
-        for (final DocumentNamedEntity name : document.getDocumentNamedEntities()) {
-            final String value = name.getName();
-            putAndIncrement(contextMap, value, name.getCount());
-        }
+        // FIXME - removed while refactoring NLP parse into separate
+        // ParsedContent object retrieved and manipulated independently.
+        // This needs to be updated to use
+        // DocumentDao.getParsedContent(documentId).
+        //
+        // for (final DocumentTerm dt : document.getDocumentTerms()) {
+        // final String value = dt.getTerm().getValueLowercase();
+        // putAndIncrement(contextMap, value, dt.getCount());
+        // }
+        //
+        // for (final DocumentAssociation association :
+        // document.getDocumentAssociations()) {
+        // final String value = String.format(ASSOC_FORMAT,
+        // association.getA().getValueLowercase(), association.getB()
+        // .getValueLowercase());
+        // putAndIncrement(contextMap, value, association.getCount());
+        // }
+        //
+        // for (final DocumentNamedEntity name :
+        // document.getDocumentNamedEntities()) {
+        // final String value = name.getName();
+        // putAndIncrement(contextMap, value, name.getCount());
+        // }
 
         // build time-oriented context features
         final GregorianCalendar calendar = new GregorianCalendar();

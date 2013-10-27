@@ -23,6 +23,7 @@ import com.mothsoft.alexis.domain.DocumentScore;
 import com.mothsoft.alexis.domain.Graph;
 import com.mothsoft.alexis.domain.ImportantNamedEntity;
 import com.mothsoft.alexis.domain.ImportantTerm;
+import com.mothsoft.alexis.domain.ParsedContent;
 import com.mothsoft.alexis.domain.SortOrder;
 import com.mothsoft.alexis.domain.TopicDocument;
 import com.mothsoft.alexis.domain.Tweet;
@@ -43,6 +44,10 @@ public interface DocumentDao {
     public void addContent(String documentId, String rev, String content, String mimeType);
 
     public String getContent(String documentId);
+
+    public void addParsedContent(String documentId, ParsedContent parsedContent);
+
+    public ParsedContent getParsedContent(String documentId);
 
     public Document findByUrl(String url);
 
@@ -68,12 +73,8 @@ public interface DocumentDao {
 
     public List<ImportantNamedEntity> getImportantNamedEntities(Long userId, Date startDate, Date endDate, int howMany);
 
-    public List<ImportantNamedEntity> getImportantNamedEntitiesForDocument(String documentId, int howMany);
-
     public List<ImportantTerm> getImportantTerms(Long userId, Date startDate, Date endDate, int count,
             boolean filterStopWords);
-
-    public List<ImportantTerm> getImportantTerms(String documentId, int howMany, boolean filterStopWords);
 
     public Graph getRelatedTerms(String query, Long userId, int howMany);
 

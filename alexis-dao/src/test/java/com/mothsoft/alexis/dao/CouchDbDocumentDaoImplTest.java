@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -46,9 +47,13 @@ import org.junit.Test;
 
 import com.mothsoft.alexis.domain.DataRange;
 import com.mothsoft.alexis.domain.Document;
+import com.mothsoft.alexis.domain.DocumentAssociation;
+import com.mothsoft.alexis.domain.DocumentNamedEntity;
 import com.mothsoft.alexis.domain.DocumentScore;
+import com.mothsoft.alexis.domain.DocumentTerm;
 import com.mothsoft.alexis.domain.DocumentType;
 import com.mothsoft.alexis.domain.DocumentUser;
+import com.mothsoft.alexis.domain.ParsedContent;
 import com.mothsoft.alexis.domain.SortOrder;
 import com.mothsoft.alexis.domain.Tweet;
 import com.mothsoft.alexis.domain.TweetHashtag;
@@ -64,6 +69,7 @@ public class CouchDbDocumentDaoImplTest {
     private ObjectMapper objectMapper;
 
     @Before
+    @SuppressWarnings("deprecation")
     public void setUp() throws MalformedURLException, JMSException {
         this.objectMapper = new ObjectMapper();
         this.objectMapper.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
@@ -260,12 +266,32 @@ public class CouchDbDocumentDaoImplTest {
         final List<TweetHashtag> hashtags = new ArrayList<TweetHashtag>();
         hashtags.add(new TweetHashtag((short) 14, (short) 18, "#fools"));
 
-        @SuppressWarnings("unchecked")
         final Tweet tweet = new Tweet(12345L, new Date(), "screen1", "abc 123", new URL("http://foo"), "text", links,
                 mentions, hashtags, true, "def789");
         this.documents.add(tweet);
         this.dao.add(tweet);
 
         assertNotNull(this.dao.findTweetByTweetId(12345L));
+    }
+
+    @Test
+    public void testParsedContent() throws MalformedURLException {
+        final String url = "http://foo/" + Math.random();
+        final Long userId = 12345L;
+
+        final Document document = new Document(DocumentType.W, new URL(url), "abc", "hufflepuffery");
+        document.getDocumentUsers().add(new DocumentUser(null, userId));
+        this.documents.add(document);
+        this.dao.add(document);
+
+        final List<DocumentAssociation> associations = Collections.emptyList();
+        final List<DocumentTerm> terms = Collections.emptyList();
+        final List<DocumentNamedEntity> names = Collections.emptyList();
+        final int count = 1;
+
+        final ParsedContent parsedContent = new ParsedContent(document.getId(), associations, terms, names, count);
+        this.dao.addParsedContent(document.getId(), parsedContent);
+        
+        assertEquals(parsedContent, this.dao.getParsedContent(document.getId()));
     }
 }

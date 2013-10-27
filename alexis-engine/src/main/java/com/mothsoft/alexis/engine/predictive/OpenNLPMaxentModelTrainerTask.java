@@ -282,12 +282,12 @@
 //                    logger.warn("Can't find document number " + documentNumber + "; index stale?");
 //                    contextMap = Collections.emptyMap();
 //                } else {
-//                    contextMap = OpenNLPMaxentContextBuilder.buildContext(doc);
+//                    contextMap = DocumentContextBuilder.buildContext(doc);
 //                }
 //
 //                context = new String[contextMap.size()];
 //                values = new float[contextMap.size()];
-//                OpenNLPMaxentContextBuilder.buildContextArrays(contextMap, context, values);
+//                DocumentContextBuilder.buildContextArrays(contextMap, context, values);
 //            }
 //
 //            if (doc == null) {

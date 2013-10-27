@@ -16,6 +16,13 @@ package com.mothsoft.alexis.domain;
 
 import java.util.Comparator;
 
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
+
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+        setterVisibility = Visibility.NONE)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ImportantNamedEntity {
 
     public static final Comparator<ImportantNamedEntity> NAME_COMPARATOR = new Comparator<ImportantNamedEntity>() {
@@ -31,6 +38,10 @@ public class ImportantNamedEntity {
     public ImportantNamedEntity(final String name, final Number count) {
         this.name = name;
         this.count = count.intValue();
+    }
+
+    protected ImportantNamedEntity() {
+        // support frameworks
     }
 
     public String getName() {

@@ -39,20 +39,21 @@ public class DocumentFeatures {
         this.associationVector = new OpenMapRealVector(Integer.MAX_VALUE);
         this.nameVector = new OpenMapRealVector(Integer.MAX_VALUE);
 
-        for (final DocumentAssociation association : document.getDocumentAssociations()) {
-            final Integer id = context.getContextId(association);
-            increment(associationVector, id, 1);
-        }
-
-        for (final DocumentTerm documentTerm : document.getDocumentTerms()) {
-            final Integer termId = context.getContextId(documentTerm.getTerm());
-            increment(termVector, termId, documentTerm.getCount());
-        }
-
-        for (final DocumentNamedEntity entity : document.getDocumentNamedEntities()) {
-            final Integer id = context.getContextId(entity);
-            increment(nameVector, id, 1);
-        }
+// FIXME - need to refactor to use ParsedContent directly.
+//        for (final DocumentAssociation association : document.getDocumentAssociations()) {
+//            final Integer id = context.getContextId(association);
+//            increment(associationVector, id, 1);
+//        }
+//
+//        for (final DocumentTerm documentTerm : document.getDocumentTerms()) {
+//            final Integer termId = context.getContextId(documentTerm.getTerm());
+//            increment(termVector, termId, documentTerm.getCount());
+//        }
+//
+//        for (final DocumentNamedEntity entity : document.getDocumentNamedEntities()) {
+//            final Integer id = context.getContextId(entity);
+//            increment(nameVector, id, 1);
+//        }
     }
 
     private void increment(RealVector vector, Integer id, int increment) {

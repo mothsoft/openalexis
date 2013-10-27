@@ -330,7 +330,7 @@
 //                    // caused by stale index
 //                    continue;
 //                } else {
-//                    OpenNLPMaxentContextBuilder.append(contextMap, document);
+//                    DocumentContextBuilder.append(contextMap, document);
 //                }
 //            }
 //        } finally {
@@ -341,7 +341,7 @@
 //        final float[] values = new float[contextMap.size()];
 //
 //        // copy map to arrays
-//        OpenNLPMaxentContextBuilder.buildContextArrays(contextMap, context, values);
+//        DocumentContextBuilder.buildContextArrays(contextMap, context, values);
 //
 //        // eval
 //        return maxentModel.eval(context, values);

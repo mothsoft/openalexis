@@ -16,6 +16,13 @@ package com.mothsoft.alexis.domain;
 
 import java.util.Comparator;
 
+import org.codehaus.jackson.annotate.JsonAutoDetect;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonAutoDetect.Visibility;
+
+@JsonAutoDetect(fieldVisibility = Visibility.ANY, getterVisibility = Visibility.NONE,
+        setterVisibility = Visibility.NONE)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ImportantTerm {
 
     public static final Comparator<ImportantTerm> NAME_COMPARATOR = new Comparator<ImportantTerm>() {
@@ -26,7 +33,6 @@ public class ImportantTerm {
     };
 
     private Long documentId;
-    private Long termId;
     private String termValue;
     private Float tfIdf;
     private Integer count;
@@ -39,23 +45,21 @@ public class ImportantTerm {
         this.percentageOfMaximum = (int) (100 * (tfIdf / maxTfIdfInSet));
     }
 
-    public ImportantTerm(Long documentId, Long termId, String termValue, Float tfIdf, Integer count,
-            Double maxTfIdfInSet) {
+    public ImportantTerm(Long documentId, String termValue, Float tfIdf, Integer count, Double maxTfIdfInSet) {
         super();
         this.documentId = documentId;
-        this.termId = termId;
         this.termValue = termValue;
         this.tfIdf = tfIdf;
         this.count = count;
         this.percentageOfMaximum = (int) (100 * (tfIdf / maxTfIdfInSet));
     }
 
-    public Long getDocumentId() {
-        return documentId;
+    protected ImportantTerm() {
+        // support frameworks
     }
 
-    public Long getTermId() {
-        return termId;
+    public Long getDocumentId() {
+        return documentId;
     }
 
     public String getTermValue() {
