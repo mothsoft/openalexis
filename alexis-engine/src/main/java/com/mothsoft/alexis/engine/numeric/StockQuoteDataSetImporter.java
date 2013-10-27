@@ -24,7 +24,7 @@ import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.tika.io.IOUtils;
 import org.springframework.transaction.PlatformTransactionManager;
