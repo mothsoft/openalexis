@@ -133,35 +133,6 @@
         <property name="userDao" ref="userDao" />
     </bean>
 
-<!--     <bean id="documentRetrievalTrigger"
-        class="org.springframework.scheduling.quartz.SimpleTriggerBean">
-        <property name="jobDetail" ref="documentRetrievalJobDetail" />
-        <property name="startDelay" value="30000" />
-        <property name="repeatInterval" value="7500" />
-        <property name="repeatCount" value="-1" />
-        <property name="misfireInstructionName"
-            value="MISFIRE_INSTRUCTION_RESCHEDULE_NEXT_WITH_REMAINING_COUNT" />
-    </bean>
-
-    <bean id="documentRetrievalJobDetail"
-        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-        <property name="targetObject" ref="documentRetrievalTask" />
-        <property name="targetMethod" value="retrieve" />
-        <property name="concurrent" value="false" />
-    </bean>
-
-    <bean id="documentRetrievalTask"
-        class="com.mothsoft.alexis.engine.retrieval.DocumentRetrievalTaskImpl">
-        <property name="connectionFactory" ref="jmsConnectionFactory" />
-        <property name="requestQueue" ref="stanfordRequestQueue" />
-        <property name="responseQueue" ref="stanfordResponseQueue" />
-        <property name="documentDao" ref="documentDao" />
-        <property name="webContentParser" ref="webContentParser" />
-        
-        <property name="transactionManager" ref="transactionManager" />
-        
-    </bean>
- -->
     <bean id="batchDocumentAnalysisTrigger"
         class="org.springframework.scheduling.quartz.CronTriggerBean">
         <property name="jobDetail" ref="batchDocumentAnalysisJobDetail" />
