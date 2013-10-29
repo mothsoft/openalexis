@@ -97,7 +97,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     private static final String FIND_BY_URL_VIEW = "_design/views/_view/find_by_url?key=%%22%s%%22&include_docs=true";
     private static final String FIND_BY_TWEET_ID_VIEW = "_design/views/_view/find_by_tweet_id?key=%d&include_docs=true";
 
-    private static final String SEARCH_BY_USER = "?q=userId%%3Clong%%3E:%d&include_docs=true&skip=%d&limit=%d&sort=%%5CcreationDate";
+    private static final String SEARCH_BY_USER = "?q=userId%%3Clong%%3E:%d&include_docs=true&skip=%d&limit=%d&sort=%%5CcreationDate%%3Clong%%3E";
 
     // ?q=+userId<long>:X +(X)&include_docs=true&skip=X&limit=X
     private static final String SEARCH_BY_USER_AND_EXPRESSION = "?q=%%2BuserId%%3Clong%%3E:%d%%20%%2B%%28%s%%29&include_docs=true&skip=%d&limit=%d";
@@ -159,8 +159,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     private void doAdd(Document document) {
         // RSS and Twitter can both provide their own date. If we can't
-        // determine
-        // the date of content, default it to NOW.
+        // determine the date of content, default it to NOW.
         if (document.getCreationDate() == null) {
             final Date now = new Date();
             document.setCreationDate(now);
