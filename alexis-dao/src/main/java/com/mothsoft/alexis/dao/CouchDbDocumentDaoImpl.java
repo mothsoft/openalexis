@@ -101,8 +101,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     // ?q=+userId<long>:X +(X)&include_docs=true&skip=X&limit=X
     private static final String SEARCH_BY_USER_AND_EXPRESSION = "?q=%%2BuserId%%3Clong%%3E:%d%%20%%2B%%28%s%%29&include_docs=true&skip=%d&limit=%d";
-    private static final String SORT_DATE_ASC = "&sort=creationDate";
-    private static final String SORT_DATE_DESC = "&sort=%5CcreationDate";
+    private static final String SORT_DATE_ASC = "&sort=creationDate%3Clong%3E";
+    private static final String SORT_DATE_DESC = "&sort=%5CcreationDate%3Clong%3E";
 
     /* content constants */
     private static final String DOCUMENT_ID = "DOCUMENT_ID";
