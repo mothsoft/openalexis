@@ -410,6 +410,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
                 urlString += SORT_DATE_DESC;
             }
 
+            logger.info("Executing search: " + urlString);
+
             final HttpClientResponse response = NetworkingUtil.get(new URL(urlString), null, null,
                     this.credentialsProvider);
             return buildScoredSearchResultsRange(response, start, count);

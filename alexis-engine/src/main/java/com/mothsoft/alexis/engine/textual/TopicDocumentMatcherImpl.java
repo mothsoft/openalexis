@@ -31,7 +31,7 @@ import com.mothsoft.alexis.domain.TopicRef;
 
 public class TopicDocumentMatcherImpl implements TopicDocumentMatcher {
 
-    private static final String QUERY_PATTERN = "+id:%s %s";
+    private static final String QUERY_PATTERN = "+id:%s +(%s)";
 
     private TopicDao topicDao;
     private DocumentDao documentDao;
