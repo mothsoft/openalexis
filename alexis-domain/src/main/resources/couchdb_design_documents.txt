@@ -5,7 +5,7 @@
    "_id": "_design/search",
    "fulltext": {
        "all": {
-           "index": "function(doc) { var ret = new Document(); ret.add(doc.title); ret.add(doc.description); ret.add(new Date(doc.creationDate).getTime(), {'field':'creationDate','type':'long','store':'yes','index':'not_analyzed'}); if(doc.users) { for(var i=0; i<doc.users.length; i++) {var user=doc.users[i]; ret.add(user.userId, {'field':'userId','type':'long'});}} if(doc._attachments && doc._attachments.content) {ret.attachment('content', 'content');} if(doc.tweetId) {ret.add(doc.content); ret.add(doc.screenName); ret.add(doc.fullName);} return ret;}",
+           "index": "function(doc) { var ret = new Document(); ret.add(doc._id, {'field':'id','store':'yes','index':'not_analyzed'}); ret.add(doc.title); ret.add(doc.description); ret.add(new Date(doc.creationDate).getTime(), {'field':'creationDate','type':'long','store':'yes','index':'not_analyzed'}); if(doc.users) { for(var i=0; i<doc.users.length; i++) {var user=doc.users[i]; ret.add(user.userId, {'field':'userId','type':'long'}); if(user.topics && user.topics.length > 0) { ret.add(user.userId, {'field':'topicUserId','type':'long'});} }} if(doc._attachments && doc._attachments.content) {ret.attachment('content', 'content');} if(doc.tweetId) {ret.add(doc.content); ret.add(doc.screenName); ret.add(doc.fullName);} return ret;}",
            "defaults": {
                "termvector": "yes"
            }

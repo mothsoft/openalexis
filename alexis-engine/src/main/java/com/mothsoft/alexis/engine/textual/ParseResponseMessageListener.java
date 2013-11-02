@@ -25,6 +25,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.jms.JMSException;
+import javax.jms.MessageProducer;
+import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 
@@ -55,11 +57,16 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
     private static final Pattern PUNCT_PATTERN = Pattern.compile("\\p{Punct}");
 
     private DocumentDao documentDao;
+    private Queue topicMatcherQueue;
 
-    public void setDocumentDao(final DocumentDao documentDao) {
+    public ParseResponseMessageListener(final DocumentDao documentDao, final Queue topicMatcherQueue) {
         this.documentDao = documentDao;
+        this.topicMatcherQueue = topicMatcherQueue;
     }
 
+    /**
+     * Capture NLP parse response and persist it. Request topic matching.
+     **/
     @Override
     public void onMessage(final TextMessage message, final Session session) throws JMSException {
 
@@ -71,6 +78,7 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
         try {
             final ParsedContent parsedContent = readResponse(xml, documentId);
             updateDocument(documentId, parsedContent);
+            requestTopicMatching(documentId, session);
         } catch (final IOException e) {
             final JMSException e2 = new JMSException(e.getMessage());
             e2.setLinkedException(e);
@@ -237,6 +245,29 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
 
         stopWatch.stop();
         logger.info("Document update for ID: " + documentId + " took: " + stopWatch.toString());
+    }
+
+    private void requestTopicMatching(final String documentId, final Session session) {
+
+        MessageProducer producer = null;
+        try {
+            producer = session.createProducer(this.topicMatcherQueue);
+            logger.info("Requesting topic matching: " + documentId);
+            final TextMessage textMessage = session.createTextMessage();
+            textMessage.setStringProperty(DOCUMENT_ID, documentId);
+            producer.send(textMessage);
+        } catch (JMSException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (producer != null) {
+                    producer.close();
+                }
+            } catch (JMSException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
     }
 
 }

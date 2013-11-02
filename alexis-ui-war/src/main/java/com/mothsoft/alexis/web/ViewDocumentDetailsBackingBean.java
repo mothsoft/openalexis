@@ -25,6 +25,7 @@ import com.mothsoft.alexis.domain.ImportantNamedEntity;
 import com.mothsoft.alexis.domain.ImportantTerm;
 import com.mothsoft.alexis.domain.TopicDocument;
 import com.mothsoft.alexis.domain.Tweet;
+import com.mothsoft.alexis.security.CurrentUserUtil;
 import com.mothsoft.alexis.service.DocumentService;
 
 public class ViewDocumentDetailsBackingBean {
@@ -74,7 +75,7 @@ public class ViewDocumentDetailsBackingBean {
             this.importantNamedEntities = this.document.getImportantNamedEntities();
 
             try {
-                this.topicDocuments = documentService.getTopicDocuments(id);
+                this.topicDocuments = documentService.getTopicDocuments(document, CurrentUserUtil.getCurrentUserId());
             } catch (EmptyResultDataAccessException e) {
                 this.topicDocuments = new ArrayList<TopicDocument>(0);
             }

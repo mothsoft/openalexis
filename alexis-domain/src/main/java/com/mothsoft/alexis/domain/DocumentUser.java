@@ -14,7 +14,11 @@
  */
 package com.mothsoft.alexis.domain;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class DocumentUser {
 
@@ -23,6 +27,9 @@ public class DocumentUser {
 
     private Long userId;
 
+    @JsonProperty("topics")
+    private List<TopicRef> topics;
+
     public DocumentUser() {
         // default constructor
     }
@@ -30,6 +37,7 @@ public class DocumentUser {
     public DocumentUser(final String documentId, final Long userId) {
         this.documentId = documentId;
         this.userId = userId;
+        this.topics = new ArrayList<TopicRef>();
     }
 
     public String getDocumentId() {
@@ -46,6 +54,14 @@ public class DocumentUser {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public List<TopicRef> getTopics() {
+        return topics;
+    }
+
+    public void setTopics(List<TopicRef> topics) {
+        this.topics = topics;
     }
 
     @Override

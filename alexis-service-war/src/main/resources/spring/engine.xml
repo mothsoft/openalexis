@@ -39,7 +39,8 @@
     
     <bean id="parseResponseMessageListener"
         class="com.mothsoft.alexis.engine.textual.ParseResponseMessageListener">
-        <property name="documentDao" ref="documentDao" />
+        <constructor-arg index="0" ref="documentDao" />
+        <constructor-arg index="1" ref="topicMatcherQueue" />
     </bean>
 
     <bean id="parseResponseMessageListenerContainer"
@@ -98,4 +99,28 @@
         <constructor-arg index="0" ref="documentDao" />
     </bean>
 
+    <!-- topic matcher queue  -->
+    <amq:queue id="topicMatcherQueue" physicalName="queue.alexis.topic.matcher"
+        name="queue.alexis.topic.matcher" />
+
+    <bean id="topicMatcherMessageListener"
+        class="com.mothsoft.alexis.engine.textual.TopicMatcherMessageListener">
+        <constructor-arg index="0" ref="documentDao" />
+        <constructor-arg index="1" ref="topicDocumentMatcher" />
+    </bean>
+
+    <bean id="topicMatcherMessageListenerContainer"
+        class="org.springframework.jms.listener.DefaultMessageListenerContainer"
+        destroy-method="destroy">
+        <property name="connectionFactory" ref="jmsConnectionFactory" />
+        <property name="destination" ref="topicMatcherQueue" />
+        <property name="messageListener" ref="topicMatcherMessageListener" />
+        <property name="sessionTransacted" value="true" />
+    </bean>
+    
+    <bean id="topicDocumentMatcher" class="com.mothsoft.alexis.engine.textual.TopicDocumentMatcherImpl">
+        <constructor-arg index="0" ref="topicDao" />
+        <constructor-arg index="1" ref="documentDao" />    
+    </bean> 
+        
 </beans>

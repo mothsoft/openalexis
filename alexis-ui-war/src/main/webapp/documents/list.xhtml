@@ -140,7 +140,7 @@
 	                       value="#{listDocumentsBackingBean.topicDocuments[document.id]}"
 	                       var="topicDocument"
 	                       varStatus="status">
-	                       #{topicDocument.topic.name}<ui:fragment rendered="#{!status.last}">#{", "}</ui:fragment>
+	                       #{topicDocument.topicName}<ui:fragment rendered="#{!status.last}">#{", "}</ui:fragment>
 	                    </ui:repeat>
 	                </span>
 	               </div>

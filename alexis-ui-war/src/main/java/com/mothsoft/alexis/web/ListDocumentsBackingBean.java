@@ -207,7 +207,8 @@ public class ListDocumentsBackingBean {
                 this.topicDocuments = new HashMap<String, List<TopicDocument>>();
 
                 for (final Document ith : this.dataRange.getRange()) {
-                    this.topicDocuments.put(ith.getId(), this.documentService.getTopicDocuments(ith.getId()));
+                    this.topicDocuments.put(ith.getId(),
+                            this.documentService.getTopicDocuments(ith, CurrentUserUtil.getCurrentUserId()));
                 }
             }
         }

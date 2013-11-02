@@ -38,7 +38,7 @@ public interface DocumentService {
 
     public Double getSimilarity(final String aId, final String bId);
 
-    public List<TopicDocument> getTopicDocuments(final String documentId);
+    public List<TopicDocument> getTopicDocuments(Document document, Long userId);
 
     public DataRange<Document> listDocumentsByOwner(Long userId, int firstRecord, int numberOfRecords);
 

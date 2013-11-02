@@ -58,8 +58,6 @@ public class Document {
 
     private Integer termCount;
 
-    private List<TopicDocument> topicDocuments;
-
     @JsonProperty("users")
     private Set<DocumentUser> documentUsers;
 
@@ -85,7 +83,6 @@ public class Document {
     }
 
     protected Document() {
-        this.topicDocuments = new ArrayList<TopicDocument>();
         this.importantNamedEntities = new ArrayList<ImportantNamedEntity>();
         this.importantTerms = new ArrayList<ImportantTerm>();
     }
@@ -192,14 +189,6 @@ public class Document {
 
     public void setTermCount(Integer termCount) {
         this.termCount = termCount;
-    }
-
-    public List<TopicDocument> getTopicDocuments() {
-        return topicDocuments;
-    }
-
-    public void setTopicDocuments(List<TopicDocument> topicDocuments) {
-        this.topicDocuments = topicDocuments;
     }
 
     public Set<DocumentUser> getDocumentUsers() {

@@ -18,9 +18,11 @@ import java.util.Date;
 
 public class TopicDocument {
 
+    private String documentId;
+
     private Long topicId;
 
-    private String documentId;
+    private String topicName;
 
     private Float score;
 
@@ -30,11 +32,21 @@ public class TopicDocument {
         // default constructor
     }
 
-    public TopicDocument(final Long topicId, final String documentId, final Float score, final Date creationDate) {
-        this.topicId = topicId;
+    public TopicDocument(final String documentId, final Long topicId, String topicName, final Float score,
+            final Date creationDate) {
         this.documentId = documentId;
+        this.topicId = topicId;
+        this.topicName = topicName;
         this.score = score;
         this.creationDate = creationDate;
+    }
+
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
     public Long getTopicId() {
@@ -45,12 +57,12 @@ public class TopicDocument {
         this.topicId = topicId;
     }
 
-    public String getDocumentId() {
-        return documentId;
+    public String getTopicName() {
+        return topicName;
     }
 
-    public void setDocumentId(String documentId) {
-        this.documentId = documentId;
+    public void setTopicName(String topicName) {
+        this.topicName = topicName;
     }
 
     public Float getScore() {

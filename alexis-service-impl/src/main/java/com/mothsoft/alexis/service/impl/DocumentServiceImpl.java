@@ -15,12 +15,14 @@
 package com.mothsoft.alexis.service.impl;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mothsoft.alexis.dao.DocumentDao;
+import com.mothsoft.alexis.dao.TopicDao;
 import com.mothsoft.alexis.domain.DataRange;
 import com.mothsoft.alexis.domain.Document;
 import com.mothsoft.alexis.domain.DocumentScore;
@@ -28,7 +30,9 @@ import com.mothsoft.alexis.domain.Graph;
 import com.mothsoft.alexis.domain.ImportantNamedEntity;
 import com.mothsoft.alexis.domain.ImportantTerm;
 import com.mothsoft.alexis.domain.SortOrder;
+import com.mothsoft.alexis.domain.Topic;
 import com.mothsoft.alexis.domain.TopicDocument;
+import com.mothsoft.alexis.domain.TopicRef;
 import com.mothsoft.alexis.engine.textual.DocumentFeatureContext;
 import com.mothsoft.alexis.engine.textual.DocumentFeatures;
 import com.mothsoft.alexis.security.CurrentUserUtil;
@@ -39,13 +43,11 @@ public class DocumentServiceImpl implements DocumentService {
 
     // dependencies
     private DocumentDao documentDao;
+    private TopicDao topicDao;
 
-    public DocumentServiceImpl() {
-        // default constructor
-    }
-
-    public final void setDocumentDao(final DocumentDao documentDao) {
+    public DocumentServiceImpl(final DocumentDao documentDao, final TopicDao topicDao) {
         this.documentDao = documentDao;
+        this.topicDao = topicDao;
     }
 
     public Document getDocument(String id) {
@@ -64,8 +66,20 @@ public class DocumentServiceImpl implements DocumentService {
         return this.documentDao.getImportantTerms(userId, startDate, endDate, count, filterStopWords);
     }
 
-    public List<TopicDocument> getTopicDocuments(String documentId) {
-        return this.documentDao.getTopicDocuments(documentId);
+    public List<TopicDocument> getTopicDocuments(Document document, Long userId) {
+        final List<TopicRef> topicRefs = this.documentDao.getTopics(document, userId);
+        final List<TopicDocument> topicDocuments = new ArrayList<TopicDocument>(topicRefs.size());
+
+        for (final TopicRef topicRef : topicRefs) {
+            final Topic topic = this.topicDao.get(topicRef.getId());
+            if (topic != null) {
+                final TopicDocument topicDocument = new TopicDocument(document.getId(), topicRef.getId(),
+                        topic.getName(), topicRef.getScore(), topicRef.getCreationDate());
+                topicDocuments.add(topicDocument);
+            }
+        }
+
+        return topicDocuments;
     }
 
     public DataRange<Document> listDocumentsInTopicsByOwner(Long userId, int firstRecord, int numberOfRecords) {

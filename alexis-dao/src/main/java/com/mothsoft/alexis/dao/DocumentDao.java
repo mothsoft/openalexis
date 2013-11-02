@@ -25,7 +25,7 @@ import com.mothsoft.alexis.domain.ImportantNamedEntity;
 import com.mothsoft.alexis.domain.ImportantTerm;
 import com.mothsoft.alexis.domain.ParsedContent;
 import com.mothsoft.alexis.domain.SortOrder;
-import com.mothsoft.alexis.domain.TopicDocument;
+import com.mothsoft.alexis.domain.TopicRef;
 import com.mothsoft.alexis.domain.Tweet;
 
 public interface DocumentDao {
@@ -78,6 +78,6 @@ public interface DocumentDao {
 
     public Graph getRelatedTerms(String query, Long userId, int howMany);
 
-    public List<TopicDocument> getTopicDocuments(String documentId);
+    public List<TopicRef> getTopics(Document document, Long userId);
 
 }

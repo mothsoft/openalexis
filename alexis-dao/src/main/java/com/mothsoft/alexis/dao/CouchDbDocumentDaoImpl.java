@@ -61,12 +61,13 @@ import com.mothsoft.alexis.domain.DocumentScore;
 import com.mothsoft.alexis.domain.DocumentState;
 import com.mothsoft.alexis.domain.DocumentTerm;
 import com.mothsoft.alexis.domain.DocumentType;
+import com.mothsoft.alexis.domain.DocumentUser;
 import com.mothsoft.alexis.domain.Graph;
 import com.mothsoft.alexis.domain.ImportantNamedEntity;
 import com.mothsoft.alexis.domain.ImportantTerm;
 import com.mothsoft.alexis.domain.ParsedContent;
 import com.mothsoft.alexis.domain.SortOrder;
-import com.mothsoft.alexis.domain.TopicDocument;
+import com.mothsoft.alexis.domain.TopicRef;
 import com.mothsoft.alexis.domain.Tweet;
 import com.mothsoft.alexis.util.HttpClientResponse;
 import com.mothsoft.alexis.util.NetworkingUtil;
@@ -98,6 +99,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     private static final String FIND_BY_TWEET_ID_VIEW = "_design/views/_view/find_by_tweet_id?key=%d&include_docs=true";
 
     private static final String SEARCH_BY_USER = "?q=userId%%3Clong%%3E:%d&include_docs=true&skip=%d&limit=%d&sort=%%5CcreationDate%%3Clong%%3E";
+
+    private static final String SEARCH_BY_USER_IN_TOPIC = "?q=topicUserId%%3Clong%%3E:%d&include_docs=true&skip=%d&limit=%d&sort=%%5CcreationDate%%3Clong%%3E";
 
     // ?q=+userId<long>:X +(X)&include_docs=true&skip=X&limit=X
     private static final String SEARCH_BY_USER_AND_EXPRESSION = "?q=%%2BuserId%%3Clong%%3E:%d%%20%%2B%%28%s%%29&include_docs=true&skip=%d&limit=%d";
@@ -330,8 +333,19 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     @Override
-    public List<TopicDocument> getTopicDocuments(String documentId) {
-        return Collections.emptyList();
+    public List<TopicRef> getTopics(Document document, Long userId) {
+        for (final DocumentUser documentUser : document.getDocumentUsers()) {
+            if (documentUser.getUserId().equals(userId)) {
+                List<TopicRef> topics = documentUser.getTopics();
+
+                if (topics == null) {
+                    topics = new ArrayList<TopicRef>(0);
+                }
+                return topics;
+            }
+        }
+
+        return new ArrayList<TopicRef>(0);
     }
 
     @Override
@@ -350,8 +364,18 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     @Override
-    public DataRange<Document> listDocumentsInTopicsByOwner(Long userId, int firstRecord, int numberOfRecords) {
-        return new DataRange<Document>(Collections.EMPTY_LIST, 0, 0);
+    public DataRange<Document> listDocumentsInTopicsByOwner(Long userId, int start, int count) {
+        int skip = Math.max(start - 1, 0);
+        URL searchUrl;
+
+        try {
+            searchUrl = new URL(this.couchDbLuceneBaseUrl.toExternalForm()
+                    + String.format(SEARCH_BY_USER_IN_TOPIC, userId, skip, count, userId));
+            final HttpClientResponse response = NetworkingUtil.get(searchUrl, null, null, this.credentialsProvider);
+            return buildSearchResultsRange(response, start, count);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -452,20 +476,24 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     private DataRange<Document> buildSearchResultsRange(HttpClientResponse response, int start, int count) {
-        final int totalRows;
+        int totalRows = 0;
         final List<Document> documents = new ArrayList<Document>(count);
         try {
             final JsonNode node = this.objectMapper.readTree(response.getInputStream());
-            totalRows = node.findValue(TOTAL_ROWS).getIntValue();
 
-            final JsonNode rowsNode = node.findValue(ROWS);
-            final List<JsonNode> documentNodes = rowsNode.findValues(DOC);
+            final JsonNode totalRowsNode = node.findValue(TOTAL_ROWS);
 
-            for (final JsonNode documentNode : documentNodes) {
-                final Document document = this.readDocument(documentNode);
-                documents.add(document);
+            if (totalRowsNode != null) {
+                totalRows = node.findValue(TOTAL_ROWS).getIntValue();
+
+                final JsonNode rowsNode = node.findValue(ROWS);
+                final List<JsonNode> documentNodes = rowsNode.findValues(DOC);
+
+                for (final JsonNode documentNode : documentNodes) {
+                    final Document document = this.readDocument(documentNode);
+                    documents.add(document);
+                }
             }
-
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {

@@ -155,13 +155,7 @@
                 <bean
                     class="com.mothsoft.alexis.engine.textual.TFIDFCalculatorImpl" />
                  -->
-<!--                 <bean
-                    class="com.mothsoft.alexis.engine.textual.TopicDocumentMatcherImpl">
-                    <property name="topicDao" ref="topicDao" />
-                    <property name="documentDao" ref="documentDao" />
-                    <property name="transactionManager" ref="transactionManager" />
-                </bean>
- -->                <!-- 
+                <!-- 
                 <bean
                     class="com.mothsoft.alexis.engine.predictive.OpenNLPMaxentModelExecutorTask">
                     <property name="baseDirectory" value="${alexis.models.directory}" />

@@ -8,7 +8,8 @@
            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
 
   <bean id="documentService" class="com.mothsoft.alexis.service.impl.DocumentServiceImpl">
-    <property name="documentDao" ref="documentDao" />
+    <constructor-arg index="0" ref="documentDao" />
+    <constructor-arg index="1" ref="topicDao" />
   </bean>
 
   <bean id="sourceService" class="com.mothsoft.alexis.service.impl.SourceServiceImpl">
