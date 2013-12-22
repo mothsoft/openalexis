@@ -74,6 +74,12 @@ public class ViewDocumentDetailsBackingBean {
             this.importantTerms = this.document.getImportantTerms();
             this.importantNamedEntities = this.document.getImportantNamedEntities();
 
+            for (final ImportantNamedEntity namedEntity : this.importantNamedEntities) {
+                if (namedEntity.getCount() > this.importantNamedEntitiesMaxCount) {
+                    this.importantNamedEntitiesMaxCount = namedEntity.getCount();
+                }
+            }
+
             try {
                 this.topicDocuments = documentService.getTopicDocuments(document, CurrentUserUtil.getCurrentUserId());
             } catch (EmptyResultDataAccessException e) {
