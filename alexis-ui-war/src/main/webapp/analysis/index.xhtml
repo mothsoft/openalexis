@@ -37,17 +37,19 @@
             </span>
         </div>
 
-        <div class="analysisListItem">
-            <span class="header">
-                <a href="#{request.contextPath}/analysis/models/">Predictive Models</a>
-            </span>
-            <a href="#{request.contextPath}/analysis/models/">
-                <img width="96" height="96" src="#{request.contextPath}/images/models.png" />
-            </a>
-            <span class="caption">
-                Train models on historical data and produce predictions
-            </span>
-        </div>
+        <ui:remove>
+            <div class="analysisListItem">
+                <span class="header">
+                    <a href="#{request.contextPath}/analysis/models/">Predictive Models</a>
+                </span>
+                <a href="#{request.contextPath}/analysis/models/">
+                    <img width="96" height="96" src="#{request.contextPath}/images/models.png" />
+                </a>
+                <span class="caption">
+                    Train models on historical data and produce predictions
+                </span>
+            </div>
+        </ui:remove>
 
         <div class="analysisListItem">
             <span class="header">

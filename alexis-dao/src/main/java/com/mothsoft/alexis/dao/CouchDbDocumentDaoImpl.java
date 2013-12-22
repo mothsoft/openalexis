@@ -77,7 +77,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     private static final Logger logger = Logger.getLogger(CouchDbDocumentDaoImpl.class);
 
     private static final Comparator<DocumentNamedEntity> NAMED_ENTITY_SORT_BY_COUNT_DESC_COMPARATOR;
-    private static final Comparator<DocumentTerm> TERM_SORT_BY_COUNT_DESC_COMPARATOR;
+    private static final Comparator<DocumentTerm> TERM_SORT_BY_TFIDF_DESC_COMPARATOR;
 
     static {
         NAMED_ENTITY_SORT_BY_COUNT_DESC_COMPARATOR = new Comparator<DocumentNamedEntity>() {
@@ -86,10 +86,10 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
                 return -1 * o1.getCount().compareTo(o2.getCount());
             }
         };
-        TERM_SORT_BY_COUNT_DESC_COMPARATOR = new Comparator<DocumentTerm>() {
+        TERM_SORT_BY_TFIDF_DESC_COMPARATOR = new Comparator<DocumentTerm>() {
             @Override
             public int compare(DocumentTerm o1, DocumentTerm o2) {
-                return -1 * o1.getCount().compareTo(o2.getCount());
+                return -1 * o1.getTfIdf().compareTo(o2.getTfIdf());
             }
         };
     }
@@ -665,7 +665,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         final List<ImportantTerm> topTerms = new ArrayList<ImportantTerm>();
 
         final List<DocumentTerm> terms = new ArrayList<DocumentTerm>(parsedContent.getTerms());
-        Collections.sort(terms, TERM_SORT_BY_COUNT_DESC_COMPARATOR);
+        Collections.sort(terms, TERM_SORT_BY_TFIDF_DESC_COMPARATOR);
 
         float maxTfIdf = 0.01f;
 
@@ -677,9 +677,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
             }
         }
 
-        // grab 10 highest term counts
-        // FIXME - should instead be 10 highest weighted TF-IDF?? TF-IDF of term
-        // count?
+        // grab 10 highest TF-IDF terms
         for (int i = 0; i < terms.size() && i < 10; i++) {
             final DocumentTerm term = terms.get(i);
             final float tfIdf = term.getTfIdf() == null ? 1.0f : term.getTfIdf();
@@ -693,11 +691,12 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     @Override
     public int getDocumentCount() {
         final String urlString = this.couchDbLuceneBaseUrl.toExternalForm() + COUCHDB_LUCENE_METADATA_URL;
-        Map<String, Object> map;
         try {
             final HttpClientResponse response = NetworkingUtil.get(new URL(urlString), null, null,
                     this.credentialsProvider);
-            map = this.objectMapper.readValue(response.getInputStream(), Map.class);
+            final JsonNode node = this.objectMapper.readTree(response.getInputStream());
+            final int count = node.findValue(DOC_COUNT).getIntValue();
+            return count;
         } catch (JsonParseException e) {
             throw new RuntimeException(e);
         } catch (JsonMappingException e) {
@@ -707,9 +706,6 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        final Integer count = Integer.valueOf((Integer) map.get(DOC_COUNT));
-        return count;
     }
 
     @Override
