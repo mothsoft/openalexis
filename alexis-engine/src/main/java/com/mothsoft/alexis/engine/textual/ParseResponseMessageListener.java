@@ -45,6 +45,7 @@ import com.mothsoft.alexis.domain.DocumentNamedEntity;
 import com.mothsoft.alexis.domain.DocumentTerm;
 import com.mothsoft.alexis.domain.ParsedContent;
 import com.mothsoft.alexis.domain.PartOfSpeech;
+import com.mothsoft.alexis.domain.TFIDF;
 import com.mothsoft.alexis.domain.Term;
 import com.mothsoft.alexis.security.CurrentUserUtil;
 
@@ -131,11 +132,16 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
             documentTermCount += (termCountMap.get(ith));
         }
 
+        final int totalNumberOfDocuments = this.documentDao.getDocumentCount();
+
         // individual term count
         final List<DocumentTerm> documentTerms = new ArrayList<DocumentTerm>();
         for (final Term term : termCountMap.keySet()) {
             final Integer count = termCountMap.get(term);
-            documentTerms.add(new DocumentTerm(documentId, term, count));
+            final int numberOfDocumentsContainingTerm = this.documentDao.termCount(term.getValueLowercase());
+            Float tfIdf = TFIDF.score(term.getValueLowercase(), count, documentTermCount, totalNumberOfDocuments,
+                    numberOfDocumentsContainingTerm);
+            documentTerms.add(new DocumentTerm(documentId, term, count, tfIdf));
         }
 
         // sort the named entities by count

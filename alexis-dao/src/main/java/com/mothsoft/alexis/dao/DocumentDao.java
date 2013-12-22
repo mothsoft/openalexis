@@ -80,4 +80,7 @@ public interface DocumentDao {
 
     public List<TopicRef> getTopics(Document document, Long userId);
 
+    public int getDocumentCount();
+    
+    public int termCount(String term);
 }

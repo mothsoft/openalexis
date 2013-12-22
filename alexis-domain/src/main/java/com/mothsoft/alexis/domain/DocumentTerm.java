@@ -27,10 +27,11 @@ public class DocumentTerm implements Comparable<DocumentTerm> {
 
     private Float tfIdf;
 
-    public DocumentTerm(final String documentId, final Term term, final Integer count) {
+    public DocumentTerm(final String documentId, final Term term, final Integer count, final Float tfIdf) {
         this.documentId = documentId;
         this.term = term;
         this.count = count;
+        this.tfIdf = tfIdf;
     }
 
     protected DocumentTerm() {

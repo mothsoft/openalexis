@@ -102,10 +102,13 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     private static final String SEARCH_BY_USER_IN_TOPIC = "?q=topicUserId%%3Clong%%3E:%d&include_docs=true&skip=%d&limit=%d&sort=%%5CcreationDate%%3Clong%%3E";
 
+    private static final String SEARCH_FOR_TERM_COUNT = "?q=%%22%s%%22&limit=1";
+
     // ?q=+userId<long>:X +(X)&include_docs=true&skip=X&limit=X
     private static final String SEARCH_BY_USER_AND_EXPRESSION = "?q=%%2BuserId%%3Clong%%3E:%d%%20%%2B%%28%s%%29&include_docs=true&skip=%d&limit=%d";
     private static final String SORT_DATE_ASC = "&sort=creationDate%3Clong%3E";
     private static final String SORT_DATE_DESC = "&sort=%5CcreationDate%3Clong%3E";
+    private static final String COUCHDB_LUCENE_METADATA_URL = "?limit=0";
 
     /* content constants */
     private static final String DOCUMENT_ID = "DOCUMENT_ID";
@@ -117,6 +120,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     private static final String SCORE = "score";
     private static final String GMT = "GMT";
     private static final String TYPE = "type";
+    private static final String DOC_COUNT = "doc_count";
 
     private static final String RAW = "raw";
     private static final String CONTENT = "content";
@@ -400,7 +404,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         String urlString;
 
         try {
-            query = URLEncoder.encode(query, "UTF-8");
+            query = URLEncoder.encode(query, UTF8);
             urlString = this.couchDbLuceneBaseUrl.toExternalForm()
                     + String.format(SEARCH_BY_USER_AND_EXPRESSION, userId, query, skip, count);
 
@@ -663,7 +667,19 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         final List<DocumentTerm> terms = new ArrayList<DocumentTerm>(parsedContent.getTerms());
         Collections.sort(terms, TERM_SORT_BY_COUNT_DESC_COMPARATOR);
 
-        final float maxTfIdf = 1.0f; // FIXME - restore TF-IDF calculation
+        float maxTfIdf = 0.01f;
+
+        // find max TF-IDF for document
+        for (final DocumentTerm term : terms) {
+            final Float termTfIdf = term.getTfIdf();
+            if (termTfIdf != null && termTfIdf > maxTfIdf) {
+                maxTfIdf = term.getTfIdf();
+            }
+        }
+
+        // grab 10 highest term counts
+        // FIXME - should instead be 10 highest weighted TF-IDF?? TF-IDF of term
+        // count?
         for (int i = 0; i < terms.size() && i < 10; i++) {
             final DocumentTerm term = terms.get(i);
             final float tfIdf = term.getTfIdf() == null ? 1.0f : term.getTfIdf();
@@ -671,6 +687,56 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         }
 
         return topTerms;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public int getDocumentCount() {
+        final String urlString = this.couchDbLuceneBaseUrl.toExternalForm() + COUCHDB_LUCENE_METADATA_URL;
+        Map<String, Object> map;
+        try {
+            final HttpClientResponse response = NetworkingUtil.get(new URL(urlString), null, null,
+                    this.credentialsProvider);
+            map = this.objectMapper.readValue(response.getInputStream(), Map.class);
+        } catch (JsonParseException e) {
+            throw new RuntimeException(e);
+        } catch (JsonMappingException e) {
+            throw new RuntimeException(e);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        final Integer count = Integer.valueOf((Integer) map.get(DOC_COUNT));
+        return count;
+    }
+
+    @Override
+    public int termCount(String term) {
+
+        final String query;
+        final String urlString;
+
+        try {
+            query = URLEncoder.encode(term, UTF8);
+            urlString = this.couchDbLuceneBaseUrl.toExternalForm() + String.format(SEARCH_FOR_TERM_COUNT, query);
+
+            final HttpClientResponse response = NetworkingUtil.get(new URL(urlString), null, null,
+                    this.credentialsProvider);
+
+            if (response.getStatusCode() != 200) {
+                logger.warn("unexpected network status: " + response.getStatusCode() + " for GET of " + urlString);
+                return 0;
+            }
+
+            final JsonNode node = this.objectMapper.readTree(response.getInputStream());
+            final int count = node.findValue(TOTAL_ROWS).getIntValue();
+            return count;
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

@@ -153,10 +153,6 @@
             <list>
                 <!-- 
                 <bean
-                    class="com.mothsoft.alexis.engine.textual.TFIDFCalculatorImpl" />
-                 -->
-                <!-- 
-                <bean
                     class="com.mothsoft.alexis.engine.predictive.OpenNLPMaxentModelExecutorTask">
                     <property name="baseDirectory" value="${alexis.models.directory}" />
                     <property name="dataSetPointDao" ref="dataSetPointDao" />
