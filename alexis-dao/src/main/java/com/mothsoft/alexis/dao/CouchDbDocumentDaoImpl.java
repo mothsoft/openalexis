@@ -405,8 +405,9 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
         try {
             query = URLEncoder.encode(query, UTF8);
-            urlString = this.couchDbLuceneBaseUrl.toExternalForm()
-                    + String.format(SEARCH_BY_USER_AND_EXPRESSION, userId, query, skip, count);
+
+            final String urlQuerySuffix = String.format(SEARCH_BY_USER_AND_EXPRESSION, userId, query, skip, count);
+            urlString = this.couchDbLuceneBaseUrl.toExternalForm() + urlQuerySuffix;
 
             if (sortOrder == SortOrder.DATE_ASC) {
                 urlString += SORT_DATE_ASC;
