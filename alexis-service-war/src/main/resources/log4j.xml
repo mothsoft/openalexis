@@ -21,25 +21,10 @@
   </appender>
 
   <logger name="com.mothsoft" additivity="false">
-    <level value="INFO" />
+    <level value="WARN" />
     <appender-ref ref="STDOUT" />
   </logger>
 
-  <logger name="com.mothsoft.alexis.engine.predictive" additivity="false">
-    <level value="INFO" />
-    <appender-ref ref="STDOUT" />
-  </logger>
-
-  <logger name="com.mothsoft.alexis.engine.textual" additivity="false">
-    <level value="INFO" />
-    <appender-ref ref="STDOUT" />
-  </logger>
-
-  <logger name="com.mothsoft.alexis.engine.numeric" additivity="false">
-    <level value="INFO" />
-    <appender-ref ref="STDOUT" />
-  </logger>
-  
   <root>
     <level value="WARN" />
     <appender-ref ref="STDOUT" />
