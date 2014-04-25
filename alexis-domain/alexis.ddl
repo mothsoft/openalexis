@@ -179,7 +179,7 @@ CREATE TABLE topic(
     name varchar(32),
     description varchar(255),
     user_id BIGINT NOT NULL,
-    last_document_match_date TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:00',
+    last_document_match_date TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:01',
     search_expression varchar(255) BINARY DEFAULT NULL,
     version smallint unsigned NOT NULL DEFAULT 1,
     FOREIGN KEY(user_id) REFERENCES user(id),
