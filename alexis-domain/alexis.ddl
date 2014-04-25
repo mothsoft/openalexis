@@ -1,8 +1,6 @@
-CREATE DATABASE alexis CHARACTER SET 'utf8mb4' COLLATE utf8mb4_unicode_ci;
-
-GRANT ALL PRIVILEGES on alexis.* to alexis@'localhost' identified by 'alexis';
-
-USE alexis;
+--CREATE DATABASE alexis CHARACTER SET 'utf8mb4' COLLATE utf8mb4_unicode_ci;
+--GRANT ALL PRIVILEGES on alexis.* to alexis@'localhost' identified by 'alexis';
+--USE alexis;
 
 CREATE TABLE user(
     id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
