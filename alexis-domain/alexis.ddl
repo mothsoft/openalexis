@@ -1,6 +1,6 @@
---CREATE DATABASE alexis CHARACTER SET 'utf8mb4' COLLATE utf8mb4_unicode_ci;
---GRANT ALL PRIVILEGES on alexis.* to alexis@'localhost' identified by 'alexis';
---USE alexis;
+/*CREATE DATABASE alexis CHARACTER SET 'utf8mb4' COLLATE utf8mb4_unicode_ci;
+GRANT ALL PRIVILEGES on alexis.* to alexis@'localhost' identified by 'alexis';
+USE alexis;*/
 
 CREATE TABLE user(
     id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -15,9 +15,11 @@ CREATE TABLE user(
 
 ALTER TABLE user ADD UNIQUE KEY(username);
 
+/*
 --example of creating an admin-level user
 --INSERT INTO user(username, salt, is_admin) VALUES('admin', MD5(rand()), 1);
 --UPDATE user set hashed_password = sha2(CONCAT('adm1N!', '{', salt, '}'), 256) where username = 'admin';
+*/
 
 CREATE TABLE user_api_token (
     id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -27,9 +29,11 @@ CREATE TABLE user_api_token (
     FOREIGN KEY(user_id) REFERENCES user(id) ON DELETE CASCADE
 );
 
+/*
 --example of creating a persistent system-level credential for encrypted system-to-system-communication
 --INSERT INTO user_api_token(user_id, token, last_used) 
 --    VALUES( (SELECT id FROM user WHERE username = 'admin'), UUID(), '2037-12-31 23:59:59');
+*/
 
 CREATE TABLE social_connection(
     id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
