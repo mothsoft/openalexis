@@ -21,20 +21,30 @@ import java.nio.charset.Charset;
 import java.util.Date;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.AbortableHttpRequest;
+import org.apache.http.client.utils.HttpClientUtils;
+import org.apache.log4j.Logger;
 
 public final class HttpClientResponse implements Closeable {
 
+    private static final Logger logger = Logger.getLogger(HttpClientResponse.class);
+    
+    private final HttpClient client;
     private final AbortableHttpRequest request;
+    private final HttpResponse response;
     private final int statusCode;
     private final String etag;
     private final Date lastModifiedDate;
     private final InputStream inputStream;
     private final Charset charset;
 
-    public HttpClientResponse(final AbortableHttpRequest request, final int statusCode, final String etag,
+    public HttpClientResponse(final HttpClient client, final AbortableHttpRequest request, HttpResponse response, final int statusCode, final String etag,
             final Date lastModifiedDate, final InputStream inputStream, final Charset charset) {
+        this.client = client;
         this.request = request;
+        this.response = response;
         this.statusCode = statusCode;
         this.etag = etag;
         this.lastModifiedDate = lastModifiedDate;
@@ -63,10 +73,16 @@ public final class HttpClientResponse implements Closeable {
     }
 
     public void abort() {
+        logger.warn("Aborting request!");
         this.request.abort();
+        IOUtils.closeQuietly(this.inputStream);
+        HttpClientUtils.closeQuietly(this.response);
+        HttpClientUtils.closeQuietly(this.client);
     }
 
     public void close() {
         IOUtils.closeQuietly(inputStream);
+        HttpClientUtils.closeQuietly(this.response);
+        HttpClientUtils.closeQuietly(this.client);
     }
 }

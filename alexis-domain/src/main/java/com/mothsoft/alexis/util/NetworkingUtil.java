@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -30,6 +31,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.AbortableHttpRequest;
 import org.apache.http.client.methods.HttpDelete;
@@ -37,10 +39,10 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.config.SocketConfig;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
@@ -48,11 +50,14 @@ import org.apache.log4j.Logger;
 
 public class NetworkingUtil {
 
-    public static final long MAX_CONTENT_LENGTH = 1024 * 1024 * 2;
-
     private static final Logger logger = Logger.getLogger(NetworkingUtil.class);
 
+    public static final long MAX_CONTENT_LENGTH = 1024 * 1024 * 2;
+
     private static final Charset UTF8 = Charset.forName("UTF-8");
+
+    private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom().setConnectionRequestTimeout(30 * 1000)
+            .setConnectTimeout(60 * 1000).setSocketTimeout(300 * 1000).build();
 
     public static int delete(final URL url, final CredentialsProvider credentialsProvider) {
         final HttpDelete delete = new HttpDelete(url.toExternalForm());
@@ -68,13 +73,16 @@ public class NetworkingUtil {
         localContext.setCredentialsProvider(credentialsProvider);
         localContext.setTargetHost(targetHost);
 
-        final HttpClient client = getClient();
+        final CloseableHttpClient client = getClient();
         HttpResponse response;
         try {
             response = client.execute(targetHost, delete, localContext);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(client);
         }
+
         int statusCode = response.getStatusLine().getStatusCode();
 
         return statusCode;
@@ -159,7 +167,8 @@ public class NetworkingUtil {
             is = entity.getContent();
             charset = getCharset(entity);
         }
-        return new HttpClientResponse(get, statusCode, responseEtag, responseLastModifiedDate, is, charset);
+        return new HttpClientResponse(client, get, response, statusCode, responseEtag, responseLastModifiedDate, is,
+                charset);
     }
 
     public static HttpClientResponse post(final URL url, final List<NameValuePair> params) throws IOException {
@@ -182,7 +191,7 @@ public class NetworkingUtil {
         final InputStream is = entity.getContent();
         final Charset charset = getCharset(entity);
 
-        return new HttpClientResponse(post, status, null, null, is, charset);
+        return new HttpClientResponse(client, post, response, status, null, null, is, charset);
     }
 
     public static HttpClientResponse post(final URL url, final String content, final String mimeType,
@@ -228,15 +237,11 @@ public class NetworkingUtil {
         final InputStream is = entity.getContent();
         final Charset charset = getCharset(entity);
 
-        return new HttpClientResponse((AbortableHttpRequest) method, status, null, null, is, charset);
+        return new HttpClientResponse(client, (AbortableHttpRequest) method, response, status, null, null, is, charset);
     }
 
-    private static HttpClient getClient() {
-        final HttpClientBuilder builder = HttpClientBuilder.create();
-
-        final SocketConfig.Builder socketConfigBuilder = SocketConfig.copy(SocketConfig.DEFAULT);
-        builder.setDefaultSocketConfig(socketConfigBuilder.build());
-
+    private static CloseableHttpClient getClient() {
+        HttpClientBuilder builder = HttpClientBuilder.create().setDefaultRequestConfig(REQUEST_CONFIG);
         return builder.build();
     }
 

@@ -80,9 +80,15 @@ public class RetrieveDocumentMessageListener implements SessionAwareMessageListe
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        final HttpClientResponse response = NetworkingUtil.get(new URL(document.getUrl()), document.getEtag(),
-                document.getLastModifiedDate());
-        final String result = IOUtils.toString(response.getInputStream());
+        HttpClientResponse response = null;
+        String result;
+        try {
+            response = NetworkingUtil.get(new URL(document.getUrl()), document.getEtag(),
+                    document.getLastModifiedDate());
+            result = IOUtils.toString(response.getInputStream());
+        } finally {
+            IOUtils.closeQuietly(response);
+        }
 
         stopWatch.stop();
         logger.info("Fetching document ID: " + document.getId() + " took " + stopWatch.getTotalTimeSeconds()

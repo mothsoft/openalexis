@@ -217,6 +217,9 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
                 is = response.getInputStream();
 
                 final SyndFeed feed = input.build(new com.sun.syndication.io.XmlReader(is));
+                IOUtils.closeQuietly(is);
+                IOUtils.closeQuietly(response);
+                
                 rssFeed.setEtag(response.getEtag());
                 rssFeed.setLastModifiedDate(response.getLastModifiedDate());
 
@@ -246,6 +249,7 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
             logger.error("Error retrieving/parsing RSS feed at: " + url + ", will wait to try again.");
             logger.error("RSS Feed Error was: " + e, e);
         } finally {
+            IOUtils.closeQuietly(is);
             IOUtils.closeQuietly(response);
         }
 

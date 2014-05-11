@@ -175,12 +175,15 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         final String content = this.toJSON(document);
         final Map<String, Object> map;
 
+        HttpClientResponse response = null;
         try {
-            final HttpClientResponse response = NetworkingUtil.post(this.couchDbDatabaseUrl, content, APPLICATION_JSON,
+            response = NetworkingUtil.post(this.couchDbDatabaseUrl, content, APPLICATION_JSON,
                     this.credentialsProvider);
             map = this.objectMapper.readValue(response.getInputStream(), Map.class);
         } catch (IOException e) {
             throw new RuntimeException("Failed to save JSON; " + content, e);
+        } finally {
+            IOUtils.closeQuietly(response);
         }
 
         final String id = (String) map.get("id");
@@ -228,10 +231,15 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
+        
+        HttpClientResponse response = null;
         try {
-            NetworkingUtil.put(documentUrl, content, mimeType, this.credentialsProvider);
+            response = NetworkingUtil.put(documentUrl, content, mimeType, this.credentialsProvider);
         } catch (IOException e) {
+            IOUtils.closeQuietly(response);
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(response);
         }
 
         final Document document = this.get(documentId);
@@ -269,11 +277,15 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
+
+        HttpClientResponse response = null;
         try {
-            HttpClientResponse response = NetworkingUtil.get(documentUrl, null, null, this.credentialsProvider);
+            response = NetworkingUtil.get(documentUrl, null, null, this.credentialsProvider);
             return IOUtils.toString(response.getInputStream());
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(response);
         }
     }
 
@@ -301,10 +313,11 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
             throw new RuntimeException(e);
         }
 
-        final HttpClientResponse response;
+        HttpClientResponse response = null;
         try {
             response = NetworkingUtil.get(documentUrl, null, null, this.credentialsProvider);
-        } catch (IOException e) {
+        } catch (Exception e) {
+            IOUtils.closeQuietly(response);
             throw new RuntimeException(e);
         }
 
@@ -317,6 +330,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(response);
         }
     }
 
@@ -357,13 +372,16 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         int skip = Math.max(start - 1, 0);
         URL searchUrl;
 
+        HttpClientResponse response = null;
         try {
             searchUrl = new URL(this.couchDbLuceneBaseUrl.toExternalForm()
                     + String.format(SEARCH_BY_USER, userId, skip, count));
-            final HttpClientResponse response = NetworkingUtil.get(searchUrl, null, null, this.credentialsProvider);
+            response = NetworkingUtil.get(searchUrl, null, null, this.credentialsProvider);
             return buildSearchResultsRange(response, start, count);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(response);
         }
     }
 
@@ -372,13 +390,16 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         int skip = Math.max(start - 1, 0);
         URL searchUrl;
 
+        HttpClientResponse response = null;
         try {
             searchUrl = new URL(this.couchDbLuceneBaseUrl.toExternalForm()
                     + String.format(SEARCH_BY_USER_IN_TOPIC, userId, skip, count, userId));
-            final HttpClientResponse response = NetworkingUtil.get(searchUrl, null, null, this.credentialsProvider);
+            response = NetworkingUtil.get(searchUrl, null, null, this.credentialsProvider);
             return buildSearchResultsRange(response, start, count);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(response);
         }
     }
 
@@ -394,6 +415,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
+        
         NetworkingUtil.delete(documentUrl, this.credentialsProvider);
     }
 
@@ -403,6 +425,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         int skip = Math.max(start - 1, 0);
         String urlString;
 
+        HttpClientResponse response = null;
         try {
             query = URLEncoder.encode(query, UTF8);
 
@@ -417,11 +440,12 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
             logger.info("Executing search: " + urlString);
 
-            final HttpClientResponse response = NetworkingUtil.get(new URL(urlString), null, null,
-                    this.credentialsProvider);
+            response = NetworkingUtil.get(new URL(urlString), null, null, this.credentialsProvider);
             return buildScoredSearchResultsRange(response, start, count);
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(response);
         }
     }
 
@@ -435,8 +459,10 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         } catch (MalformedURLException e1) {
             throw new RuntimeException(e1);
         }
+        
+        HttpClientResponse response = null;
         try {
-            final HttpClientResponse response = NetworkingUtil.put(url, content, APPLICATION_JSON,
+            response = NetworkingUtil.put(url, content, APPLICATION_JSON,
                     this.credentialsProvider);
             final Map<String, Object> map = this.objectMapper.readValue(response.getInputStream(), Map.class);
             final String id = (String) map.get("id");
@@ -444,7 +470,10 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
             document.setId(id);
             document.setRev(rev);
         } catch (IOException e) {
+            IOUtils.closeQuietly(response);
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(response);
         }
     }
 
@@ -543,13 +572,16 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     private Document findOneWithView(String viewPath, Object... args) {
         final URL requestUrl;
-        final HttpClientResponse response;
+        HttpClientResponse response = null;
+
         try {
             requestUrl = new URL(this.couchDbDatabaseUrl.toExternalForm() + this.toJSON(String.format(viewPath, args)));
             response = NetworkingUtil.get(requestUrl, null, null, this.credentialsProvider);
         } catch (MalformedURLException e) {
+            IOUtils.closeQuietly(response);
             throw new RuntimeException(e);
         } catch (IOException e) {
+            IOUtils.closeQuietly(response);
             throw new RuntimeException(e);
         }
 
@@ -557,6 +589,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         final Document document;
         try {
             node = this.objectMapper.readTree(response.getInputStream());
+            IOUtils.closeQuietly(response);
+            
             final JsonNode totalRowsNode = node.findValue(TOTAL_ROWS);
             int totalRows = 0;
 
@@ -579,6 +613,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(response);
         }
 
         return document;
@@ -692,9 +728,10 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     @Override
     public int getDocumentCount() {
         final String urlString = this.couchDbLuceneBaseUrl.toExternalForm() + COUCHDB_LUCENE_METADATA_URL;
+
+        HttpClientResponse response = null;
         try {
-            final HttpClientResponse response = NetworkingUtil.get(new URL(urlString), null, null,
-                    this.credentialsProvider);
+            response = NetworkingUtil.get(new URL(urlString), null, null, this.credentialsProvider);
             final JsonNode node = this.objectMapper.readTree(response.getInputStream());
             final int count = node.findValue(DOC_COUNT).getIntValue();
             return count;
@@ -706,6 +743,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(response);
         }
     }
 
@@ -715,12 +754,12 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         final String query;
         final String urlString;
 
+        HttpClientResponse response = null;
         try {
             query = URLEncoder.encode(term, UTF8);
             urlString = this.couchDbLuceneBaseUrl.toExternalForm() + String.format(SEARCH_FOR_TERM_COUNT, query);
 
-            final HttpClientResponse response = NetworkingUtil.get(new URL(urlString), null, null,
-                    this.credentialsProvider);
+            response = NetworkingUtil.get(new URL(urlString), null, null, this.credentialsProvider);
 
             if (response.getStatusCode() != 200) {
                 logger.warn("unexpected network status: " + response.getStatusCode() + " for GET of " + urlString);
@@ -728,11 +767,14 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
             }
 
             final JsonNode node = this.objectMapper.readTree(response.getInputStream());
+            IOUtils.closeQuietly(response);
             final int count = node.findValue(TOTAL_ROWS).getIntValue();
             return count;
 
         } catch (Exception e) {
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(response);
         }
     }
 

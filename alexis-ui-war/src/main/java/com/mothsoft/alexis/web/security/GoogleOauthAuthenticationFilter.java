@@ -12,6 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -59,14 +60,24 @@ public class GoogleOauthAuthenticationFilter extends AbstractAuthenticationProce
         params.add(new BasicNameValuePair("redirect_uri", this.properties.getProperty("google.oauth.redirect")));
         params.add(new BasicNameValuePair("grant_type", "authorization_code"));
 
-        final HttpClientResponse tokenResponse = NetworkingUtil.post(url, params);
-        final Map<String, Object> tokenDetails = OBJECT_MAPPER.readValue(tokenResponse.getInputStream(), Map.class);
-        final String accessToken = (String) tokenDetails.get("access_token");
-        final String refreshToken = (String) tokenDetails.get("refresh_token");
+        HttpClientResponse tokenResponse = null;
+        String accessToken;
+        String refreshToken;
+        String username;
+        String email;
 
-        final Map<String, Object> userDetails = getUserDetails(accessToken);
-        final String username = (String) userDetails.get("id");
-        final String email = (String) userDetails.get("email");
+        try {
+            tokenResponse = NetworkingUtil.post(url, params);
+            final Map<String, Object> tokenDetails = OBJECT_MAPPER.readValue(tokenResponse.getInputStream(), Map.class);
+            accessToken = (String) tokenDetails.get("access_token");
+            refreshToken = (String) tokenDetails.get("refresh_token");
+
+            final Map<String, Object> userDetails = getUserDetails(accessToken);
+            username = (String) userDetails.get("id");
+            email = (String) userDetails.get("email");
+        } finally {
+            tokenResponse.close();
+        }
 
         return new OauthAuthenticationToken(username, email, accessToken, refreshToken);
     }
@@ -74,8 +85,15 @@ public class GoogleOauthAuthenticationFilter extends AbstractAuthenticationProce
     @SuppressWarnings("unchecked")
     private Map<String, Object> getUserDetails(String accessToken) throws IOException {
         final URL url = new URL(String.format(USER_INFO_URL, accessToken));
-        final HttpClientResponse clientResponse = NetworkingUtil.get(url, null, null);
-        final Map<String, Object> userDetails = OBJECT_MAPPER.readValue(clientResponse.getInputStream(), Map.class);
+        Map<String, Object> userDetails;
+        
+        HttpClientResponse clientResponse = null;
+        try {
+            clientResponse = NetworkingUtil.get(url, null, null);
+            userDetails = OBJECT_MAPPER.readValue(clientResponse.getInputStream(), Map.class);
+        } finally {
+            IOUtils.closeQuietly(clientResponse);
+        }
         return userDetails;
     }
 

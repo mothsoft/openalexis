@@ -24,9 +24,9 @@ import java.net.URLEncoder;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.tika.io.IOUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -99,13 +99,16 @@ public class StockQuoteDataSetImporter implements DataSetImporter {
 
         logger.info("Importing stock quote activity from web service URL: " + url);
 
+        HttpClientResponse response = null;
         try {
-            final HttpClientResponse response = NetworkingUtil.get(new URL(url), null, null);
+            response = NetworkingUtil.get(new URL(url), null, null);
             importStockQuotes(response);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(response);
         }
     }
 

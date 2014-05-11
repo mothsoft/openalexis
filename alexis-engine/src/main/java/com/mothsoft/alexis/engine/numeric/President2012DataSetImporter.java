@@ -32,6 +32,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
+import org.apache.commons.io.IOUtils;
 import org.dom4j.DocumentException;
 import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
@@ -261,7 +262,7 @@ public class President2012DataSetImporter implements DataSetImporter {
             } catch (DocumentException e) {
                 throw new IOException(e);
             } finally {
-                httpResponse.close();
+                IOUtils.closeQuietly(httpResponse);
             }
 
             final SimpleDateFormat format = new SimpleDateFormat(YYYY_MM_DD);
