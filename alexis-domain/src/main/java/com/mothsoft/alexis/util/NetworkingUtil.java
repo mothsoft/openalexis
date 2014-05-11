@@ -26,7 +26,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.AuthCache;
 import org.apache.http.client.CredentialsProvider;
@@ -38,10 +37,11 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.auth.BasicScheme;
 import org.apache.http.impl.client.BasicAuthCache;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.cookie.DateParseException;
 import org.apache.http.impl.cookie.DateUtils;
 import org.apache.log4j.Logger;
@@ -232,11 +232,12 @@ public class NetworkingUtil {
     }
 
     private static HttpClient getClient() {
-        final HttpClient client = new DefaultHttpClient();
-        client.getParams().setParameter("http.protocol.version", HttpVersion.HTTP_1_1);
-        client.getParams().setParameter("http.socket.timeout", new Integer(300000));
-        client.getParams().setParameter("http.protocol.content-charset", UTF8);
-        return client;
+        final HttpClientBuilder builder = HttpClientBuilder.create();
+
+        final SocketConfig.Builder socketConfigBuilder = SocketConfig.copy(SocketConfig.DEFAULT);
+        builder.setDefaultSocketConfig(socketConfigBuilder.build());
+
+        return builder.build();
     }
 
     private static Charset getCharset(final HttpEntity entity) {
