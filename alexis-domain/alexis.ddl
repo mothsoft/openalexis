@@ -5,7 +5,7 @@ USE alexis;*/
 CREATE TABLE user(
     id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     username varchar(32),
-    hashed_password char(64),
+    hashed_password char(128),
     salt char(64),
     is_admin tinyint(1) DEFAULT 0,
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
