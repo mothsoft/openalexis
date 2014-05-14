@@ -15,7 +15,6 @@ public class TwitterServiceImplTest {
     @Before
     public void setUp() {
         this.properties = new Properties();
-        // TODO - bootstrap Twitter keys into properties
         this.service = new TwitterServiceImpl(properties);
     }
 
