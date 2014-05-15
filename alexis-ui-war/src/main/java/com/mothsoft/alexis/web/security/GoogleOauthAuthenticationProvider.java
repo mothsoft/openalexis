@@ -54,6 +54,7 @@ public class GoogleOauthAuthenticationProvider implements AuthenticationProvider
             user.setHashedPassword(oauthToken.getAccessToken());
             user.setPasswordSalt(null);
             user.setUsername(email);
+            user.setAnalysisRole(true);
 
             socialConnection = new SocialConnection(user, username, oauthToken.getAccessToken(),
                     oauthToken.getRefreshToken(), SocialNetworkType.G);

@@ -66,6 +66,7 @@
                 <ref bean="rssRetrievalTrigger" />
                 <ref bean="twitterRetrievalTrigger" />
                 <ref bean="batchDocumentAnalysisTrigger" />
+                <ref bean="topicActivityDataSetImporterTrigger" />
                 <ref bean="stockQuoteDataSetImporterTrigger" />
                 <!--<ref bean="modelTrainerTrigger" />-->
             </list>
@@ -164,6 +165,29 @@
         </constructor-arg>
     </bean>
 
+    <!-- topic activity -->
+    <bean id="topicActivityDataSetImporterTrigger"
+        class="org.springframework.scheduling.quartz.CronTriggerBean">
+        <property name="jobDetail" ref="topicActivityDataSetImporterJobDetail" />
+        <property name="cronExpression" value="0 0,15,30,45 * * * ? *" />
+    </bean>
+
+    <bean id="topicActivityDataSetImporterJobDetail"
+        class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject" ref="topicActivityDataSetImporterTask" />
+        <property name="targetMethod" value="importData" />
+        <property name="concurrent" value="false" />
+    </bean>
+
+    <bean id="topicActivityDataSetImporterTask"
+        class="com.mothsoft.alexis.engine.numeric.TopicActivityDataSetImporter">
+        <property name="transactionManager" ref="transactionManager" />
+        <property name="dataSetDao" ref="dataSetDao" />
+        <property name="dataSetPointDao" ref="dataSetPointDao" />
+        <property name="dataSetTypeDao" ref="dataSetTypeDao" />
+        <property name="topicDao" ref="topicDao" />
+    </bean>
+
     <!-- stock quotes -->
     <bean id="stockQuoteDataSetImporterTrigger"
         class="org.springframework.scheduling.quartz.CronTriggerBean">
@@ -186,13 +210,14 @@
         <property name="dataSetTypeDao" ref="dataSetTypeDao" />
         <property name="stockSymbols">
             <list>
+                <value>AAPL</value>
                 <value>DIA</value>
+                <value>GOOG</value>
+                <value>GRMN</value>
+                <value>YHOO</value>
                 <value>^IXIC</value>
                 <value>^GSPC</value>
                 <value>^FTSE</value>
-                <value>YHOO</value>
-                <value>GOOG</value>
-                <value>AAPL</value>
             </list>
         </property>
     </bean>

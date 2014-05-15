@@ -27,6 +27,7 @@ import com.mothsoft.alexis.domain.Document;
 import com.mothsoft.alexis.domain.DocumentScore;
 import com.mothsoft.alexis.domain.SortOrder;
 import com.mothsoft.alexis.domain.Topic;
+import com.mothsoft.alexis.domain.TopicDocument;
 import com.mothsoft.alexis.domain.TopicRef;
 
 public class TopicDocumentMatcherImpl implements TopicDocumentMatcher {
@@ -52,6 +53,13 @@ public class TopicDocumentMatcherImpl implements TopicDocumentMatcher {
 
             if (topicRef != null && topicRef.getScore() > 0.0f) {
                 topicRefs.add(topicRef);
+
+                final TopicDocument topicDocument = new TopicDocument();
+                topicDocument.setTopic(topic);
+                topicDocument.setDocumentId(document.getId());
+                topicDocument.setScore(topicRef.getScore());
+                topicDocument.setCreationDate(new Date());
+                this.topicDao.add(topicDocument);
             }
         }
 

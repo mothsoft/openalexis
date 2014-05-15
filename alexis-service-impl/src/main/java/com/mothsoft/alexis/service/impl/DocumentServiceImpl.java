@@ -73,8 +73,8 @@ public class DocumentServiceImpl implements DocumentService {
         for (final TopicRef topicRef : topicRefs) {
             final Topic topic = this.topicDao.get(topicRef.getId());
             if (topic != null) {
-                final TopicDocument topicDocument = new TopicDocument(document.getId(), topicRef.getId(),
-                        topic.getName(), topicRef.getScore(), topicRef.getCreationDate());
+                final TopicDocument topicDocument = new TopicDocument(topic, document.getId(), topicRef.getScore(),
+                        topicRef.getCreationDate());
                 topicDocuments.add(topicDocument);
             }
         }

@@ -16,27 +16,45 @@ package com.mothsoft.alexis.domain;
 
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
+@Entity(name = "TopicDocument")
+@Table(name = "topic_document")
 public class TopicDocument {
 
+    @Id
+    @GeneratedValue
+    private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "topic_id")
+    private Topic topic;
+
+    @Column(name = "document_id", length = 32, columnDefinition = "char(32)")
     private String documentId;
 
-    private Long topicId;
+    private transient String topicName;
 
-    private String topicName;
-
+    @Column(name = "score")
     private Float score;
 
+    @Column(name = "creation_date")
     private Date creationDate;
 
     public TopicDocument() {
         // default constructor
     }
 
-    public TopicDocument(final String documentId, final Long topicId, String topicName, final Float score,
-            final Date creationDate) {
+    public TopicDocument(final Topic topic, final String documentId, final Float score, final Date creationDate) {
+        this.topic = topic;
+        this.topicName = topic.getName();
         this.documentId = documentId;
-        this.topicId = topicId;
-        this.topicName = topicName;
         this.score = score;
         this.creationDate = creationDate;
     }
@@ -49,12 +67,12 @@ public class TopicDocument {
         this.documentId = documentId;
     }
 
-    public Long getTopicId() {
-        return topicId;
+    public Topic getTopic() {
+        return topic;
     }
 
-    public void setTopicId(Long topicId) {
-        this.topicId = topicId;
+    public void setTopic(Topic topic) {
+        this.topic = topic;
     }
 
     public String getTopicName() {

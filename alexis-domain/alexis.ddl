@@ -84,96 +84,6 @@ CREATE TABLE facebook_source(
     FOREIGN KEY(social_connection_id) REFERENCES social_connection(id)
 );
 
-CREATE TABLE document(
-    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    state TINYINT NOT NULL DEFAULT 1,
-    content_length INTEGER NOT NULL DEFAULT -1,
-    term_count INTEGER NOT NULL DEFAULT -1,
-    md5sum CHAR(32) NOT NULL DEFAULT '',
-    creation_date TIMESTAMP DEFAULT '0000-00-00 00:00:00',
-    retrieval_date TIMESTAMP NULL DEFAULT NULL,
-    last_modified_date TIMESTAMP NULL DEFAULT NULL,
-    type CHAR(1) NOT NULL DEFAULT 'W',
-    url VARCHAR(4096) NOT NULL DEFAULT '',
-    title TEXT,
-    description TEXT,
-    etag TEXT NULL DEFAULT NULL,
-    version SMALLINT UNSIGNED NOT NULL DEFAULT 1,
-    indexed BIT NOT NULL DEFAULT 1
-);
-
-CREATE INDEX idx_document_url ON document(url(64)) ;
-CREATE INDEX idx_document_state ON document(state);
-CREATE INDEX idx_document_creation_date ON document(creation_date);
-
-CREATE TABLE document_content(
-    document_id BIGINT NOT NULL PRIMARY KEY,
-    text mediumblob NOT NULL,
-    FOREIGN KEY(document_id) REFERENCES document(id) ON DELETE CASCADE
-);
-
-CREATE TABLE document_named_entity(
-    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    document_id BIGINT NOT NULL,
-    name VARCHAR(255),
-    count SMALLINT UNSIGNED,
-    FOREIGN KEY(document_id) REFERENCES document(id) ON DELETE CASCADE
-);
-
-CREATE TABLE tweet(
-    id BIGINT NOT NULL PRIMARY KEY,
-    remote_tweet_id BIGINT NOT NULL,
-    screen_name VARCHAR(255) BINARY NOT NULL,
-    full_name VARCHAR(255) BINARY NOT NULL,
-    profile_image_url VARCHAR(4096) NOT NULL,
-    is_retweet TINYINT(1) DEFAULT 0,
-    retweet_user_name VARCHAR(255) DEFAULT NULL,
-    FOREIGN KEY(id) REFERENCES document(id),
-    UNIQUE KEY(remote_tweet_id)
-);
-
-CREATE TABLE tweet_link(
-    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    tweet_id BIGINT NOT NULL,
-    start SMALLINT NOT NULL,
-    end SMALLINT NOT NULL,
-    display_url VARCHAR(2048),
-    expanded_url VARCHAR(2048),
-    url VARCHAR(2048),
-    FOREIGN KEY(tweet_id) REFERENCES tweet(id)
-);
-
-CREATE TABLE tweet_mention(
-    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    tweet_id BIGINT NOT NULL,
-    start SMALLINT NOT NULL,
-    end SMALLINT NOT NULL,
-    user_id BIGINT NOT NULL,
-    name VARCHAR(128) BINARY NOT NULL,
-    screen_name VARCHAR(64) BINARY NOT NULL,
-    FOREIGN KEY(tweet_id) REFERENCES tweet(id)
-);
-
-CREATE TABLE tweet_hashtag(
-    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    tweet_id BIGINT NOT NULL,
-    start SMALLINT NOT NULL,
-    end SMALLINT NOT NULL,
-    hashtag VARCHAR(140) NOT NULL,
-    FOREIGN KEY(tweet_id) REFERENCES tweet(id)
-);
-
-CREATE TABLE document_user(
-    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    document_id BIGINT NOT NULL,
-    user_id BIGINT NOT NULL,
-    FOREIGN KEY(document_id) REFERENCES document(id),
-    FOREIGN KEY(user_id) REFERENCES user(id),
-    UNIQUE KEY(document_id, user_id)
-);
-
-CREATE INDEX idx_document_user_all ON document_user(document_id DESC, user_id);
-
 CREATE TABLE topic(
     id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     name varchar(32),
@@ -191,55 +101,15 @@ CREATE INDEX idx_topic_user_id ON topic(user_id);
 CREATE TABLE topic_document(
    id BIGINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
    topic_id BIGINT,
-   document_id BIGINT NOT NULL,
+   document_id CHAR(32) NOT NULL,
    score FLOAT DEFAULT NULL,
    creation_date TIMESTAMP NOT NULL DEFAULT NOW(),
    version SMALLINT UNSIGNED NOT NULL DEFAULT 1,
    FOREIGN KEY(topic_id) REFERENCES topic(id) ON DELETE CASCADE,
-   FOREIGN KEY(document_id) REFERENCES document(id),
    UNIQUE KEY(topic_id, document_id)
 );
 
 CREATE INDEX idx_td_creationdate_score ON topic_document(creation_date, score);
-
-CREATE TABLE term(
-    id BIGINT NOT NULL AUTO_INCREMENT,
-    part_of_speech TINYINT DEFAULT NULL,
-    term_value varchar(184) BINARY DEFAULT NULL,
-    term_value_lowercase varchar(184) BINARY DEFAULT NULL,
-    version TINYINT UNSIGNED NOT NULL DEFAULT 1,
-    PRIMARY KEY(id),
-    UNIQUE (part_of_speech, term_value)
-);
-
-CREATE INDEX idx_term_term_value_lowercase ON term(term_value_lowercase(8));
-
-CREATE TABLE document_term(
-    document_id BIGINT NOT NULL,
-    term_id BIGINT NOT NULL,
-    term_count INTEGER NOT NULL,
-    tf_idf FLOAT,
-    PRIMARY KEY(document_id, term_id),
-    FOREIGN KEY(document_id) REFERENCES document(id),
-    FOREIGN KEY(term_id) REFERENCES term(id)
-);
-
-CREATE INDEX idx_dt_tf_idf ON document_term(tf_idf);
-
-CREATE TABLE document_association (
-    id BIGINT NOT NULL AUTO_INCREMENT,
-    document_id BIGINT NOT NULL,
-    term_a_id BIGINT NOT NULL,
-    term_b_id BIGINT NOT NULL,
-    association_type TINYINT NOT NULL DEFAULT -1,
-    association_count INTEGER NOT NULL DEFAULT 1,
-    association_weight FLOAT NOT NULL DEFAULT -1.0,
-    PRIMARY KEY(id),
-    UNIQUE KEY(document_id, term_a_id, term_b_id, association_type),
-    FOREIGN KEY(document_id) REFERENCES document(id),
-    FOREIGN KEY(term_a_id) REFERENCES term(id),
-    FOREIGN KEY(term_b_id) REFERENCES term(id)
-);
 
 CREATE TABLE data_set_type(
     id BIGINT NOT NULL AUTO_INCREMENT,
