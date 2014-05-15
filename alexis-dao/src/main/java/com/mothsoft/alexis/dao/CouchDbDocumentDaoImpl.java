@@ -37,6 +37,8 @@ import javax.jms.MessageProducer;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.auth.AuthScope;
@@ -53,6 +55,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializationConfig;
 import org.codehaus.jackson.node.ArrayNode;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.mothsoft.alexis.domain.DataRange;
 import com.mothsoft.alexis.domain.Document;
@@ -126,6 +129,11 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     private static final String CONTENT = "content";
     private static final String PARSED = "parsed";
 
+    // facilitate a hybrid retrieval where optimized metadata is in relational
+    // but contents are in CouchDB...
+    @PersistenceContext
+    private EntityManager em;
+
     private ConnectionFactory jmsConnectionFactory;
     private Queue parseRequestQueue;
     private Queue parseResponseQueue;
@@ -177,8 +185,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
         HttpClientResponse response = null;
         try {
-            response = NetworkingUtil.post(this.couchDbDatabaseUrl, content, APPLICATION_JSON,
-                    this.credentialsProvider);
+            response = NetworkingUtil
+                    .post(this.couchDbDatabaseUrl, content, APPLICATION_JSON, this.credentialsProvider);
             map = this.objectMapper.readValue(response.getInputStream(), Map.class);
         } catch (IOException e) {
             throw new RuntimeException("Failed to save JSON; " + content, e);
@@ -231,7 +239,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
-        
+
         HttpClientResponse response = null;
         try {
             response = NetworkingUtil.put(documentUrl, content, mimeType, this.credentialsProvider);
@@ -404,8 +412,31 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     @Override
+    @Transactional
     public List<Document> listTopDocuments(Long userId, Date startDate, Date endDate, int count) {
-        return Collections.emptyList();
+        // TODO: greate candidate for caching with short to medium-length TTL
+        @SuppressWarnings("unchecked")
+        final List<String> documentIds = this.em
+                .createQuery(
+                        "select td.documentId from TopicDocument td "
+                                + "where td.topic.userId = :userId and td.creationDate >= :startDate "
+                                + "    and td.creationDate <= :endDate order by td.score desc")
+                .setParameter("userId", userId).setParameter("startDate", startDate).setParameter("endDate", endDate)
+                .setMaxResults(count).getResultList();
+
+        // TODO: also look at thinning this down to a slim data object with the
+        // fewest contents possible...
+        final List<Document> documents = new ArrayList<Document>(documentIds.size());
+        for (final String documentId : documentIds) {
+            try {
+                documents.add(this.get(documentId));
+            } catch (Exception e) {
+                logger.warn("Problem retrieving doc ID " + documentId + e, e);
+            }
+        }
+
+        return documents;
+
     }
 
     public void remove(final Document document) {
@@ -415,7 +446,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }
-        
+
         NetworkingUtil.delete(documentUrl, this.credentialsProvider);
     }
 
@@ -459,11 +490,10 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         } catch (MalformedURLException e1) {
             throw new RuntimeException(e1);
         }
-        
+
         HttpClientResponse response = null;
         try {
-            response = NetworkingUtil.put(url, content, APPLICATION_JSON,
-                    this.credentialsProvider);
+            response = NetworkingUtil.put(url, content, APPLICATION_JSON, this.credentialsProvider);
             final Map<String, Object> map = this.objectMapper.readValue(response.getInputStream(), Map.class);
             final String id = (String) map.get("id");
             final String rev = (String) map.get("rev");
@@ -590,7 +620,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         try {
             node = this.objectMapper.readTree(response.getInputStream());
             IOUtils.closeQuietly(response);
-            
+
             final JsonNode totalRowsNode = node.findValue(TOTAL_ROWS);
             int totalRows = 0;
 
