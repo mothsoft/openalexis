@@ -58,7 +58,7 @@ public class TopicDocumentMatcherImpl implements TopicDocumentMatcher {
                 topicDocument.setTopic(topic);
                 topicDocument.setDocumentId(document.getId());
                 topicDocument.setScore(topicRef.getScore());
-                topicDocument.setCreationDate(new Date());
+                topicDocument.setCreationDate(document.getCreationDate());
                 this.topicDao.add(topicDocument);
             }
         }
