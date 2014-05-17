@@ -32,25 +32,35 @@ public class ImportantTerm {
         }
     };
 
+    public static final Comparator<ImportantTerm> TFIDF_DESC_COMPARATOR = new Comparator<ImportantTerm>() {
+        @Override
+        public int compare(ImportantTerm arg0, ImportantTerm arg1) {
+            return -1 * arg0.getTfIdf().compareTo(arg1.getTfIdf());
+        }
+    };
+
     private Long documentId;
     private String termValue;
-    private Float tfIdf;
     private Integer count;
+    private Float tfIdf;
+    private Float maxTfIdfInSet;
     private Integer percentageOfMaximum;
 
     public ImportantTerm(String termValue, Integer count, Float tfIdf, Float maxTfIdfInSet) {
         this.termValue = termValue;
         this.count = count;
         this.tfIdf = tfIdf;
+        this.maxTfIdfInSet = maxTfIdfInSet;
         this.percentageOfMaximum = (int) (100 * (tfIdf / maxTfIdfInSet));
     }
 
-    public ImportantTerm(Long documentId, String termValue, Float tfIdf, Integer count, Double maxTfIdfInSet) {
+    public ImportantTerm(Long documentId, String termValue, Integer count, Float tfIdf, Double maxTfIdfInSet) {
         super();
         this.documentId = documentId;
         this.termValue = termValue;
-        this.tfIdf = tfIdf;
         this.count = count;
+        this.tfIdf = tfIdf;
+        this.maxTfIdfInSet = maxTfIdfInSet == null ? null : this.maxTfIdfInSet.floatValue();
         this.percentageOfMaximum = (int) (100 * (tfIdf / maxTfIdfInSet));
     }
 
@@ -68,6 +78,10 @@ public class ImportantTerm {
 
     public Float getTfIdf() {
         return tfIdf;
+    }
+
+    public Float getMaxTfIdfInSet() {
+        return maxTfIdfInSet;
     }
 
     public Integer getCount() {

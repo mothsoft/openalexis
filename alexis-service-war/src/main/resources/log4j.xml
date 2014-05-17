@@ -21,12 +21,12 @@
   </appender>
 
   <logger name="com.mothsoft" additivity="false">
-    <level value="WARN" />
+    <level value="INFO" />
     <appender-ref ref="STDOUT" />
   </logger>
 
   <root>
-    <level value="WARN" />
+    <level value="INFO" />
     <appender-ref ref="STDOUT" />
   </root>
 

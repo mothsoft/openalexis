@@ -32,6 +32,13 @@ public class ImportantNamedEntity {
         }
     };
 
+    public static final Comparator<ImportantNamedEntity> COUNT_DESC_COMPARATOR = new Comparator<ImportantNamedEntity>() {
+        @Override
+        public int compare(ImportantNamedEntity arg0, ImportantNamedEntity arg1) {
+            return -1 * arg0.getCount().compareTo(arg1.getCount());
+        }
+    };
+
     private String name;
     private Integer count;
 

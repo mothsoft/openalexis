@@ -81,9 +81,8 @@ public class ParseResponseMessageListener implements SessionAwareMessageListener
             updateDocument(documentId, parsedContent);
             requestTopicMatching(documentId, session);
         } catch (final IOException e) {
-            final JMSException e2 = new JMSException(e.getMessage());
-            e2.setLinkedException(e);
-            throw e2;
+            logger.warn(e, e);
+            throw new RuntimeException(e);
         }
     }
 

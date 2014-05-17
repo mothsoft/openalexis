@@ -60,7 +60,7 @@ public class DocumentExtractionMessageListener implements SessionAwareMessageLis
             this.documentDao.addContent(document.getId(), document.getRev(), extracted, TEXT_PLAIN);
         } catch (Exception e) {
             logger.warn("Exception extracting: " + documentId + " rev " + document.getRev() + ": " + e, e);
-            throw new JMSException(e.getLocalizedMessage());
+            throw new RuntimeException(e.getLocalizedMessage(), e);
         }
 
     }

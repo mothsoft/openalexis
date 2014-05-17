@@ -219,7 +219,7 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
                 final SyndFeed feed = input.build(new com.sun.syndication.io.XmlReader(is));
                 IOUtils.closeQuietly(is);
                 IOUtils.closeQuietly(response);
-                
+
                 rssFeed.setEtag(response.getEtag());
                 rssFeed.setLastModifiedDate(response.getLastModifiedDate());
 
@@ -272,7 +272,7 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
             try {
                 url = new URL(entry.getLink());
             } catch (MalformedURLException e1) {
-                logger.error("    Bad link: " + entry.getLink() + ", skipping");
+                logger.error("Bad link: " + entry.getLink() + ", skipping");
                 return;
             }
 
@@ -283,15 +283,12 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
                 final String description = readDescription(entry);
                 document = new Document(DocumentType.W, url, title, description);
                 document.setCreationDate(this.firstNotNull(entry.getPublishedDate(), entry.getUpdatedDate(), new Date()));
-
-                this.documentDao.add(document);
-                this.queueForRetrieval(document);
-
             } else {
                 logger.info("Document already exists, will not queue again.");
             }
 
-            // FIXME - optimize, perhaps with an intelligent query
+            // keep users in sync every time a document is encountered
+            // FIXME - optimize, perhaps with an intelligent query?
             for (final RssSource ithRssSource : rssFeed.getRssSources()) {
                 final Long userId = ithRssSource.getUserId();
                 final User user = this.userDao.get(userId);
@@ -300,9 +297,15 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
                 if (!document.getDocumentUsers().contains(documentUser)) {
                     document.getDocumentUsers().add(documentUser);
                 }
-                this.documentDao.update(document);
             }
 
+            // defer saving/updating until all necessary changes have been made
+            if (document.getId() == null) {
+                this.documentDao.add(document);
+                this.queueForRetrieval(document);
+            } else {
+                this.documentDao.update(document);
+            }
         }
     }
 

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -103,12 +104,16 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     private static final String SEARCH_BY_USER = "?q=userId%%3Clong%%3E:%d&include_docs=true&skip=%d&limit=%d&sort=%%5CcreationDate%%3Clong%%3E";
 
+    private static final String SEARCH_BY_DATE_EXPR = "creationDate<long>:[%d TO %d]";
+
     private static final String SEARCH_BY_USER_IN_TOPIC = "?q=topicUserId%%3Clong%%3E:%d&include_docs=true&skip=%d&limit=%d&sort=%%5CcreationDate%%3Clong%%3E";
 
     private static final String SEARCH_FOR_TERM_COUNT = "?q=%%22%s%%22&limit=1";
 
     // ?q=+userId<long>:X +(X)&include_docs=true&skip=X&limit=X
-    private static final String SEARCH_BY_USER_AND_EXPRESSION = "?q=%%2BuserId%%3Clong%%3E:%d%%20%%2B%%28%s%%29&include_docs=true&skip=%d&limit=%d";
+    private static final String SEARCH_BY_USER_AND_EXPRESSION = "?q=%%2BuserId%%3Clong%%3E:%d%%20%%2B%%28%s%%29&include_docs=true";
+    private static final String SEARCH_PAGINATION = "&skip=%d&limit=%d";
+
     private static final String SORT_DATE_ASC = "&sort=creationDate%3Clong%3E";
     private static final String SORT_DATE_DESC = "&sort=%5CcreationDate%3Clong%3E";
     private static final String COUCHDB_LUCENE_METADATA_URL = "?limit=0";
@@ -345,13 +350,67 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     @Override
     public List<ImportantNamedEntity> getImportantNamedEntities(Long userId, Date startDate, Date endDate, int howMany) {
-        return Collections.emptyList();
+        final DataRange<DocumentScore> documentRange = this.searchByOwnerAndDateRange(userId, startDate, endDate);
+
+        final Map<String, ImportantNamedEntity> entityMap = new HashMap<String, ImportantNamedEntity>(
+                2 * documentRange.getTotalRowsAvailable() * 10);
+
+        for (Iterator<DocumentScore> it = documentRange.getRange().iterator(); it.hasNext();) {
+            final Document document = it.next().getDocument();
+            for (final ImportantNamedEntity entity : document.getImportantNamedEntities()) {
+                final String name = entity.getName();
+
+                if (entityMap.containsKey(name)) {
+                    final ImportantNamedEntity existing = entityMap.get(name);
+                    entityMap.put(name, new ImportantNamedEntity(name, entity.getCount() + existing.getCount()));
+                } else {
+                    entityMap.put(name, entity);
+                }
+            }
+
+            // try to help the garbage collector out
+            it.remove();
+        }
+
+        final List<ImportantNamedEntity> namedEntities = new ArrayList<ImportantNamedEntity>(entityMap.values());
+        Collections.sort(namedEntities, ImportantNamedEntity.COUNT_DESC_COMPARATOR);
+
+        return namedEntities;
     }
 
     @Override
     public List<ImportantTerm> getImportantTerms(Long userId, Date startDate, Date endDate, int count,
             boolean filterStopWords) {
-        return Collections.emptyList();
+        final DataRange<DocumentScore> documentRange = this.searchByOwnerAndDateRange(userId, startDate, endDate);
+
+        final Map<String, ImportantTerm> termMap = new HashMap<String, ImportantTerm>(
+                2 * documentRange.getTotalRowsAvailable() * 10);
+
+        for (Iterator<DocumentScore> it = documentRange.getRange().iterator(); it.hasNext();) {
+            final Document document = it.next().getDocument();
+            for (final ImportantTerm term : document.getImportantTerms()) {
+                final String termValue = term.getTermValue();
+
+                if (termMap.containsKey(termValue)) {
+                    final ImportantTerm existing = termMap.get(termValue);
+                    final int sumCount = term.getCount() + existing.getCount();
+                    final float weightedAverageTfIdf = (((float) term.getCount() * term.getTfIdf()) + ((float) existing
+                            .getCount() * term.getTfIdf())) / ((float) sumCount);
+                    final float maxTfIdf = Math.max(existing.getMaxTfIdfInSet(), weightedAverageTfIdf);
+                    termMap.put(termValue, new ImportantTerm(termValue, sumCount, weightedAverageTfIdf, maxTfIdf));
+                } else {
+                    termMap.put(termValue, term);
+                }
+            }
+
+            // try to help the garbage collector out
+            it.remove();
+        }
+
+        final List<ImportantTerm> terms = new ArrayList<ImportantTerm>(termMap.values());
+        Collections.sort(terms, ImportantTerm.TFIDF_DESC_COMPARATOR);
+
+        return terms;
     }
 
     @Override
@@ -453,14 +512,23 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     @Override
     public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
             int start, int count) {
-        int skip = Math.max(start - 1, 0);
         String urlString;
 
         HttpClientResponse response = null;
         try {
             query = URLEncoder.encode(query, UTF8);
 
-            final String urlQuerySuffix = String.format(SEARCH_BY_USER_AND_EXPRESSION, userId, query, skip, count);
+            String urlQuerySuffix = String.format(SEARCH_BY_USER_AND_EXPRESSION, userId, query);
+
+            if (start >= 0 || count > 0) {
+                int skip = Math.max(start - 1, 0);
+                urlQuerySuffix += String.format(SEARCH_PAGINATION, skip, count);
+            } else {
+                // to keep the downstream functions happy
+                start = 1;
+                count = Integer.MAX_VALUE;
+            }
+
             urlString = this.couchDbLuceneBaseUrl.toExternalForm() + urlQuerySuffix;
 
             if (sortOrder == SortOrder.DATE_ASC) {
@@ -478,6 +546,13 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         } finally {
             IOUtils.closeQuietly(response);
         }
+    }
+
+    private DataRange<DocumentScore> searchByOwnerAndDateRange(Long userId, Date startDate, Date endDate) {
+        final String query = String.format(SEARCH_BY_DATE_EXPR, startDate.getTime(), endDate.getTime());
+        // for operations that need to process all the documents in a range,
+        // skip sorting and pagination for raw speed...
+        return this.searchByOwnerAndExpression(userId, query, null, -1, -1);
     }
 
     @Override
@@ -509,7 +584,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     private DataRange<DocumentScore> buildScoredSearchResultsRange(HttpClientResponse response, int start, int count) {
         final int totalRows;
-        final List<DocumentScore> documentScores = new ArrayList<DocumentScore>(count);
+        final List<DocumentScore> documentScores = new ArrayList<DocumentScore>(Math.min(count, 8096));
         try {
             final JsonNode node = this.objectMapper.readTree(response.getInputStream());
             totalRows = node.findValue(TOTAL_ROWS).getIntValue();

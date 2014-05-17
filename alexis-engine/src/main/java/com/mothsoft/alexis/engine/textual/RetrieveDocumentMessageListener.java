@@ -70,8 +70,8 @@ public class RetrieveDocumentMessageListener implements SessionAwareMessageListe
             this.queueForExtraction(documentId);
 
         } catch (Exception e) {
-            logger.warn("Exception retrieving: " + documentId + " rev " + document.getRev() + ": " + e, e);
-            throw new JMSException(e.getLocalizedMessage());
+            logger.error("Exception retrieving: " + documentId + " rev " + document.getRev() + ": " + e, e);
+            throw new RuntimeException(e);
         }
 
     }
