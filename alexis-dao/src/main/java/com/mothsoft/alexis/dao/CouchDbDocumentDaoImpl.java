@@ -375,7 +375,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         final List<ImportantNamedEntity> namedEntities = new ArrayList<ImportantNamedEntity>(entityMap.values());
         Collections.sort(namedEntities, ImportantNamedEntity.COUNT_DESC_COMPARATOR);
 
-        return namedEntities;
+        return namedEntities.subList(0, Math.min(namedEntities.size(), howMany));
     }
 
     @Override
@@ -410,7 +410,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         final List<ImportantTerm> terms = new ArrayList<ImportantTerm>(termMap.values());
         Collections.sort(terms, ImportantTerm.TFIDF_DESC_COMPARATOR);
 
-        return terms;
+        return terms.subList(0, Math.min(terms.size(), count));
     }
 
     @Override
