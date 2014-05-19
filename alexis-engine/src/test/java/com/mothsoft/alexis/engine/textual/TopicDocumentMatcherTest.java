@@ -23,18 +23,21 @@ import com.mothsoft.alexis.domain.DocumentType;
 import com.mothsoft.alexis.domain.SortOrder;
 import com.mothsoft.alexis.domain.Topic;
 import com.mothsoft.alexis.domain.TopicRef;
+import com.mothsoft.alexis.engine.numeric.TopicActivityDataSetImporterImpl;
 
 public class TopicDocumentMatcherTest {
 
     private TopicDocumentMatcher matcher;
     private TopicDao topicDao;
     private DocumentDao documentDao;
+    private TopicActivityDataSetImporterImpl topicActivityDataSetImporterImpl;
 
     @Before
     public void setUp() {
         topicDao = mock(TopicDao.class);
         documentDao = mock(DocumentDao.class);
-        this.matcher = new TopicDocumentMatcherImpl(topicDao, documentDao);
+        this.topicActivityDataSetImporterImpl = mock(TopicActivityDataSetImporterImpl.class);
+        this.matcher = new TopicDocumentMatcherImpl(topicDao, documentDao, topicActivityDataSetImporterImpl);
     }
 
     @Test
@@ -57,7 +60,8 @@ public class TopicDocumentMatcherTest {
         final List<DocumentScore> range = new ArrayList<DocumentScore>(1);
         range.add(new DocumentScore(document, 2.3f));
         final DataRange<DocumentScore> documentScores = new DataRange<DocumentScore>(range, 1, 1);
-        when(this.documentDao.searchByOwnerAndExpression(1L, "+id:" + document.getId() + " lorem ipsum dolor",
+        when(
+                this.documentDao.searchByOwnerAndExpression(1L, "+id:" + document.getId() + " lorem ipsum dolor",
                         SortOrder.RELEVANCE, 1, 1)).thenReturn(documentScores);
 
         final List<TopicRef> topicRefs = this.matcher.match(document, 1L);

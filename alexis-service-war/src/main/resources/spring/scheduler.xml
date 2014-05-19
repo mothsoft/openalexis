@@ -180,7 +180,7 @@
     </bean>
 
     <bean id="topicActivityDataSetImporterTask"
-        class="com.mothsoft.alexis.engine.numeric.TopicActivityDataSetImporter">
+        class="com.mothsoft.alexis.engine.numeric.TopicActivityDataSetImporterImpl">
         <property name="transactionManager" ref="transactionManager" />
         <property name="dataSetDao" ref="dataSetDao" />
         <property name="dataSetPointDao" ref="dataSetPointDao" />

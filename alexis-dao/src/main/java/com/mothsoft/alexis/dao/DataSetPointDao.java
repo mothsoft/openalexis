@@ -24,6 +24,8 @@ import com.mothsoft.alexis.domain.TimeUnits;
 public interface DataSetPointDao {
 
     public void add(final DataSetPoint point);
+    
+    public void update(final DataSetPoint point);
 
     public DataSetPoint findLastPointBefore(DataSet dataSet, Timestamp timestamp);
 

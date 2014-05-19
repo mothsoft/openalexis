@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ibm.icu.util.Calendar;
 import com.mothsoft.alexis.dao.DocumentDao;
 import com.mothsoft.alexis.dao.TopicDao;
 import com.mothsoft.alexis.domain.DataRange;
@@ -29,6 +30,8 @@ import com.mothsoft.alexis.domain.SortOrder;
 import com.mothsoft.alexis.domain.Topic;
 import com.mothsoft.alexis.domain.TopicDocument;
 import com.mothsoft.alexis.domain.TopicRef;
+import com.mothsoft.alexis.engine.numeric.TopicActivityDataSetImporter;
+import com.mothsoft.alexis.engine.util.TimeUtil;
 
 public class TopicDocumentMatcherImpl implements TopicDocumentMatcher {
 
@@ -36,10 +39,13 @@ public class TopicDocumentMatcherImpl implements TopicDocumentMatcher {
 
     private TopicDao topicDao;
     private DocumentDao documentDao;
+    private TopicActivityDataSetImporter topicActivityDataSetImporter;
 
-    public TopicDocumentMatcherImpl(final TopicDao topicDao, final DocumentDao documentDao) {
+    public TopicDocumentMatcherImpl(final TopicDao topicDao, final DocumentDao documentDao,
+            final TopicActivityDataSetImporter topicActivityDataSetImporter) {
         this.topicDao = topicDao;
         this.documentDao = documentDao;
+        this.topicActivityDataSetImporter = topicActivityDataSetImporter;
     }
 
     @Transactional
@@ -60,6 +66,20 @@ public class TopicDocumentMatcherImpl implements TopicDocumentMatcher {
                 topicDocument.setScore(topicRef.getScore());
                 topicDocument.setCreationDate(document.getCreationDate());
                 this.topicDao.add(topicDocument);
+
+                // evaluate whether older topic document matches should be
+                // updated for inclusion into topic activity data set. This
+                // should improve data quality but is somewhat expensive while
+                // topic matching, particularly if most of the documents fit
+                // this scenario that was anticipated to be an exceptional
+                // flow...
+                final Date floor = TimeUtil.floor(new Date());
+                if (document.getCreationDate().before(floor)) {
+                    final Date startDate = TimeUtil.floor(document.getCreationDate());
+                    final Date endDate = TimeUtil.add(startDate, Calendar.MINUTE, 15);
+                    this.topicActivityDataSetImporter
+                            .importTopicDataForTopic(userId, topic.getId(), startDate, endDate);
+                }
             }
         }
 

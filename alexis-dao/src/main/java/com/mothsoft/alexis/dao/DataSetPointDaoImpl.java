@@ -43,6 +43,11 @@ public class DataSetPointDaoImpl implements DataSetPointDao {
     }
 
     @Override
+    public void update(DataSetPoint point) {
+        this.em.merge(point);
+    }
+
+    @Override
     public DataSetPoint findByTimestamp(DataSet dataSet, Timestamp timestamp) {
         final Query query = this.em
                 .createQuery("SELECT p FROM DataSetPoint p WHERE p.dataSet.id = :dataSetId AND p.x = :timestamp");

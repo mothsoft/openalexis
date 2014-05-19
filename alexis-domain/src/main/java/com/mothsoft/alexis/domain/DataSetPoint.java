@@ -25,6 +25,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 @Entity(name = "DataSetPoint")
 @Table(name = "data_set_point")
@@ -44,6 +45,10 @@ public class DataSetPoint {
     @ManyToOne
     @JoinColumn(name = "data_set_id")
     private DataSet dataSet;
+
+    @Version
+    @Column(name = "version", columnDefinition = "smallint unsigned")
+    protected Integer version;
 
     public DataSetPoint(final Date x, final Double y) {
         this.x = new Timestamp(x.getTime());

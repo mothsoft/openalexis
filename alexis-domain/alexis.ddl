@@ -156,6 +156,7 @@ CREATE TABLE data_set_point(
     data_set_id BIGINT,
     x TIMESTAMP NOT NULL,
     y DOUBLE NOT NULL,
+    version SMALLINT UNSIGNED,
     PRIMARY KEY(id),
     FOREIGN KEY(data_set_id) REFERENCES data_set(id) ON DELETE CASCADE
 );

@@ -120,7 +120,8 @@
     
     <bean id="topicDocumentMatcher" class="com.mothsoft.alexis.engine.textual.TopicDocumentMatcherImpl">
         <constructor-arg index="0" ref="topicDao" />
-        <constructor-arg index="1" ref="documentDao" />    
+        <constructor-arg index="1" ref="documentDao" />  
+        <constructor-arg index="2" ref="topicActivityDataSetImporterTask" />  
     </bean> 
         
 </beans>
