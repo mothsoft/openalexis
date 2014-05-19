@@ -18,6 +18,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ibm.icu.util.Calendar;
@@ -36,6 +39,9 @@ import com.mothsoft.alexis.engine.util.TimeUtil;
 public class TopicDocumentMatcherImpl implements TopicDocumentMatcher {
 
     private static final String QUERY_PATTERN = "+id:%s +(%s)";
+
+    @PersistenceContext
+    private EntityManager em;
 
     private TopicDao topicDao;
     private DocumentDao documentDao;
@@ -73,10 +79,14 @@ public class TopicDocumentMatcherImpl implements TopicDocumentMatcher {
                 // topic matching, particularly if most of the documents fit
                 // this scenario that was anticipated to be an exceptional
                 // flow...
-                final Date floor = TimeUtil.floor(new Date());
-                if (document.getCreationDate().before(floor)) {
-                    final Date startDate = TimeUtil.floor(document.getCreationDate());
-                    final Date endDate = TimeUtil.add(startDate, Calendar.MINUTE, 15);
+                final Date startOfLastPeriod = TimeUtil.add(TimeUtil.floor(new Date()), Calendar.MINUTE, -15);
+                if (document.getCreationDate().before(startOfLastPeriod)) {
+                    // have to make sure topic-document is visible to data set
+                    // importer
+                    this.em.flush();
+
+                    final Date endDate = startOfLastPeriod;
+                    final Date startDate = TimeUtil.add(endDate, Calendar.MINUTE, -15);
                     this.topicActivityDataSetImporter
                             .importTopicDataForTopic(userId, topic.getId(), startDate, endDate);
                 }

@@ -18,14 +18,13 @@ public class TimeUtil {
         int minute = calendar.get(Calendar.MINUTE);
 
         if (minute >= 45) {
-            calendar.set(Calendar.MINUTE, 30);
-        } else if (minute >= 30) {
-            calendar.set(Calendar.MINUTE, 15);
-        } else if (minute >= 15) {
-            calendar.set(Calendar.MINUTE, 0);
-        } else if (minute >= 0) {
             calendar.set(Calendar.MINUTE, 45);
-            calendar.add(Calendar.HOUR_OF_DAY, -1);
+        } else if (minute >= 30) {
+            calendar.set(Calendar.MINUTE, 30);
+        } else if (minute >= 15) {
+            calendar.set(Calendar.MINUTE, 15);
+        } else if (minute >= 0) {
+            calendar.set(Calendar.MINUTE, 0);
         }
 
         return calendar.getTime();

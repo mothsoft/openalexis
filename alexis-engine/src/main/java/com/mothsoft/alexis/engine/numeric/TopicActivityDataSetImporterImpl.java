@@ -25,13 +25,8 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.mothsoft.alexis.dao.DataSetDao;
 import com.mothsoft.alexis.dao.DataSetPointDao;
@@ -51,9 +46,6 @@ public class TopicActivityDataSetImporterImpl implements TopicActivityDataSetImp
     @PersistenceContext
     private EntityManager em;
 
-    private PlatformTransactionManager transactionManager;
-    private TransactionTemplate transactionTemplate;
-
     private DataSetDao dataSetDao;
     private DataSetPointDao dataSetPointDao;
     private DataSetTypeDao dataSetTypeDao;
@@ -61,11 +53,6 @@ public class TopicActivityDataSetImporterImpl implements TopicActivityDataSetImp
 
     public TopicActivityDataSetImporterImpl() {
         super();
-    }
-
-    public void setTransactionManager(PlatformTransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
-        this.transactionTemplate = new TransactionTemplate(this.transactionManager);
     }
 
     public void setDataSetDao(DataSetDao dataSetDao) {
@@ -85,30 +72,24 @@ public class TopicActivityDataSetImporterImpl implements TopicActivityDataSetImp
     }
 
     @Override
+    @Transactional
     public void importData() {
 
         final List<Long> userIds = listUserIds();
 
         final Date now = new Date();
-        final Date startDate = TimeUtil.floor(now);
-        final Date endDate = TimeUtil.add(startDate, Calendar.MINUTE, 15);
+        final Date endDate = TimeUtil.floor(now);
+        final Date startDate = TimeUtil.add(endDate, Calendar.MINUTE, -15);
 
         for (final Long userId : userIds) {
             importTopicDataForUser(userId, startDate, endDate);
         }
     }
 
+    @SuppressWarnings("unchecked")
     private List<Long> listUserIds() {
-        final List<Long> userIds = this.transactionTemplate.execute(new TransactionCallback<List<Long>>() {
-
-            @SuppressWarnings("unchecked")
-            @Override
-            public List<Long> doInTransaction(TransactionStatus txStatus) {
-                final Query query = TopicActivityDataSetImporterImpl.this.em
-                        .createQuery("SELECT id FROM User ORDER BY id ASC");
-                return query.getResultList();
-            }
-        });
+        final Query query = TopicActivityDataSetImporterImpl.this.em.createQuery("SELECT id FROM User ORDER BY id ASC");
+        final List<Long> userIds = query.getResultList();
         return userIds;
     }
 
@@ -116,16 +97,11 @@ public class TopicActivityDataSetImporterImpl implements TopicActivityDataSetImp
         logger.debug(String.format("Importing topic activity for user: %d between %s and %s", userId,
                 startDate.toString(), endDate.toString()));
 
-        final List<Long> topicIds = this.transactionTemplate.execute(new TransactionCallback<List<Long>>() {
-            @SuppressWarnings("unchecked")
-            @Override
-            public List<Long> doInTransaction(TransactionStatus txStatus) {
-                final Query query = TopicActivityDataSetImporterImpl.this.em
-                        .createQuery("SELECT id FROM Topic WHERE userId = :userId ORDER BY id ASC");
-                query.setParameter("userId", userId);
-                return query.getResultList();
-            }
-        });
+        final Query query = TopicActivityDataSetImporterImpl.this.em
+                .createQuery("SELECT id FROM Topic WHERE userId = :userId ORDER BY id ASC");
+        query.setParameter("userId", userId);
+
+        final List<Long> topicIds = query.getResultList();
 
         BigInteger total = BigInteger.ZERO;
 
@@ -154,70 +130,62 @@ public class TopicActivityDataSetImporterImpl implements TopicActivityDataSetImp
                 + " WHERE td.creation_date >= ? AND td.creation_date < ? AND td.topic_id = ? "
                 + " GROUP BY the_hour ORDER BY td.creation_date";
 
-        final BigInteger count = this.transactionTemplate.execute(new TransactionCallback<BigInteger>() {
-            @Override
-            public BigInteger doInTransaction(TransactionStatus txStatus) {
-                final Query query = TopicActivityDataSetImporterImpl.this.em.createNativeQuery(queryString);
-                query.setParameter(1, startDate);
-                query.setParameter(2, endDate);
-                query.setParameter(3, topicId);
+        final Query query = TopicActivityDataSetImporterImpl.this.em.createNativeQuery(queryString);
+        query.setParameter(1, startDate);
+        query.setParameter(2, endDate);
+        query.setParameter(3, topicId);
 
-                final List<?> results = query.getResultList();
+        final List<?> results = query.getResultList();
 
-                if (results == null || results.isEmpty()) {
-                    return BigInteger.ZERO;
-                } else {
-                    final Object[] array = (Object[]) results.get(0);
-                    return (BigInteger) array[1];
-                }
-            }
-        });
+        final BigInteger count;
+        if (results == null || results.isEmpty()) {
+            count = BigInteger.ZERO;
+        } else {
+            final Object[] array = (Object[]) results.get(0);
+            count = (BigInteger) array[1];
+        }
 
         logger.debug("Data set point: (" + startDate + ", " + count + ")");
 
-        this.transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+        final Topic topic = TopicActivityDataSetImporterImpl.this.topicDao.get(topicId);
 
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                TopicActivityDataSet dataSet = TopicActivityDataSetImporterImpl.this.dataSetDao
-                        .findTopicActivityDataSet(topicId);
+        TopicActivityDataSet dataSet = TopicActivityDataSetImporterImpl.this.dataSetDao
+                .findTopicActivityDataSet(topicId);
 
-                if (dataSet == null) {
-                    final DataSetType type = TopicActivityDataSetImporterImpl.this.dataSetTypeDao
-                            .findSystemDataSetType(DataSetType.TOPIC_ACTIVITY);
-                    final Topic topic = TopicActivityDataSetImporterImpl.this.topicDao.get(topicId);
-                    dataSet = new TopicActivityDataSet(topic, type);
-                    TopicActivityDataSetImporterImpl.this.em.persist(dataSet);
-                }
+        if (dataSet == null) {
+            final DataSetType type = TopicActivityDataSetImporterImpl.this.dataSetTypeDao
+                    .findSystemDataSetType(DataSetType.TOPIC_ACTIVITY);
+            dataSet = new TopicActivityDataSet(topic, type);
+            TopicActivityDataSetImporterImpl.this.em.persist(dataSet);
+        }
 
-                DataSetPoint existing = TopicActivityDataSetImporterImpl.this.dataSetPointDao.findByTimestamp(dataSet,
-                        new Timestamp(startDate.getTime()));
+        // keep names in sync with topic...
+        dataSet.setName(topic.getName());
 
-                if (existing != null) {
-                    final double existingCount = existing.getY();
-                    existing.setY(existingCount + count.doubleValue());
-                    TopicActivityDataSetImporterImpl.this.dataSetPointDao.update(existing);
+        DataSetPoint existing = TopicActivityDataSetImporterImpl.this.dataSetPointDao.findByTimestamp(dataSet,
+                new Timestamp(startDate.getTime()));
 
-                    if (incrementTotals) {
-                        // we assume that the aggregate already includes
-                        // existing count and only increment by the difference
-                        final BigInteger diffCount = BigInteger.valueOf(count.longValue() - (long) existingCount);
-                        TopicActivityDataSetImporterImpl.this.recordAggregateTopicActivity(userId, existing.getX(),
-                                diffCount);
-                    }
+        if (existing != null) {
+            final double existingCount = existing.getY();
+            existing.setY(existingCount + count.doubleValue());
+            TopicActivityDataSetImporterImpl.this.dataSetPointDao.update(existing);
 
-                } else {
-                    final DataSetPoint point = new DataSetPoint(dataSet, startDate, count.doubleValue());
-                    TopicActivityDataSetImporterImpl.this.dataSetPointDao.add(point);
-
-                    if (incrementTotals) {
-                        TopicActivityDataSetImporterImpl.this.recordAggregateTopicActivity(userId, point.getX(), count);
-                    }
-
-                }
-
+            if (incrementTotals) {
+                // we assume that the aggregate already includes
+                // existing count and only increment by the difference
+                final BigInteger diffCount = BigInteger.valueOf(count.longValue() - (long) existingCount);
+                TopicActivityDataSetImporterImpl.this.recordAggregateTopicActivity(userId, existing.getX(), diffCount);
             }
-        });
+
+        } else {
+            final DataSetPoint point = new DataSetPoint(dataSet, startDate, count.doubleValue());
+            TopicActivityDataSetImporterImpl.this.dataSetPointDao.add(point);
+
+            if (incrementTotals) {
+                TopicActivityDataSetImporterImpl.this.recordAggregateTopicActivity(userId, point.getX(), count);
+            }
+
+        }
 
         return count;
     }
@@ -227,31 +195,25 @@ public class TopicActivityDataSetImporterImpl implements TopicActivityDataSetImp
         logger.debug("Recording aggregate topic activity for user: " + userId + "; (" + startDate.toString() + ", "
                 + total + ")");
 
-        this.transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus txStatus) {
-                DataSet dataSet = TopicActivityDataSetImporterImpl.this.dataSetDao
-                        .findAggregateTopicActivityDataSet(userId);
+        DataSet dataSet = TopicActivityDataSetImporterImpl.this.dataSetDao.findAggregateTopicActivityDataSet(userId);
 
-                if (dataSet == null) {
-                    final DataSetType type = TopicActivityDataSetImporterImpl.this.dataSetTypeDao
-                            .findSystemDataSetType(DataSetType.TOPIC_ACTIVITY);
-                    dataSet = new DataSet(userId, "*All Topics*", type, true);
-                    TopicActivityDataSetImporterImpl.this.dataSetDao.add(dataSet);
-                }
+        if (dataSet == null) {
+            final DataSetType type = TopicActivityDataSetImporterImpl.this.dataSetTypeDao
+                    .findSystemDataSetType(DataSetType.TOPIC_ACTIVITY);
+            dataSet = new DataSet(userId, "*All Topics*", type, true);
+            TopicActivityDataSetImporterImpl.this.dataSetDao.add(dataSet);
+        }
 
-                final DataSetPoint existing = TopicActivityDataSetImporterImpl.this.dataSetPointDao.findByTimestamp(
-                        dataSet, new Timestamp(startDate.getTime()));
+        final DataSetPoint existing = TopicActivityDataSetImporterImpl.this.dataSetPointDao.findByTimestamp(dataSet,
+                new Timestamp(startDate.getTime()));
 
-                if (existing != null) {
-                    existing.setY(existing.getY() + total.doubleValue());
-                    TopicActivityDataSetImporterImpl.this.dataSetPointDao.update(existing);
-                } else {
-                    final DataSetPoint totalPoint = new DataSetPoint(dataSet, startDate, total.doubleValue());
-                    TopicActivityDataSetImporterImpl.this.dataSetPointDao.add(totalPoint);
-                }
+        if (existing != null) {
+            existing.setY(existing.getY() + total.doubleValue());
+            TopicActivityDataSetImporterImpl.this.dataSetPointDao.update(existing);
+        } else {
+            final DataSetPoint totalPoint = new DataSetPoint(dataSet, startDate, total.doubleValue());
+            TopicActivityDataSetImporterImpl.this.dataSetPointDao.add(totalPoint);
+        }
 
-            }
-        });
     }
 }
