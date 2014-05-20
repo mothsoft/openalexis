@@ -23,6 +23,7 @@ import com.mothsoft.alexis.domain.DocumentType;
 import com.mothsoft.alexis.domain.SortOrder;
 import com.mothsoft.alexis.domain.Topic;
 import com.mothsoft.alexis.domain.TopicRef;
+import com.mothsoft.alexis.engine.numeric.TopicActivityDataSetImporter;
 import com.mothsoft.alexis.engine.numeric.TopicActivityDataSetImporterImpl;
 
 public class TopicDocumentMatcherTest {
@@ -30,7 +31,7 @@ public class TopicDocumentMatcherTest {
     private TopicDocumentMatcher matcher;
     private TopicDao topicDao;
     private DocumentDao documentDao;
-    private TopicActivityDataSetImporterImpl topicActivityDataSetImporterImpl;
+    private TopicActivityDataSetImporter topicActivityDataSetImporterImpl;
 
     @Before
     public void setUp() {

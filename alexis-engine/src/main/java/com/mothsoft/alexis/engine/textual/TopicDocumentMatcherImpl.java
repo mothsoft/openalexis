@@ -87,8 +87,11 @@ public class TopicDocumentMatcherImpl implements TopicDocumentMatcher {
 
                     final Date endDate = startOfLastPeriod;
                     final Date startDate = TimeUtil.add(endDate, Calendar.MINUTE, -15);
-                    this.topicActivityDataSetImporter
-                            .importTopicDataForTopic(userId, topic.getId(), startDate, endDate);
+
+                    // NOTE: this recomputes all topics which helps keep the
+                    // stats cleaner, especially aggregate data. Is EXPENSIVE
+                    // though because it hits all topics for the period
+                    this.topicActivityDataSetImporter.importTopicDataForUser(userId, startDate, endDate);
                 }
             }
         }

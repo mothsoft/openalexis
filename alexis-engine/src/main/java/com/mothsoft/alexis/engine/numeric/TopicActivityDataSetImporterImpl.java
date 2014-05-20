@@ -25,7 +25,6 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mothsoft.alexis.dao.DataSetDao;
@@ -93,7 +92,9 @@ public class TopicActivityDataSetImporterImpl implements TopicActivityDataSetImp
         return userIds;
     }
 
-    private void importTopicDataForUser(final Long userId, final Date startDate, final Date endDate) {
+    @Override
+    @Transactional
+    public void importTopicDataForUser(final Long userId, final Date startDate, final Date endDate) {
         logger.debug(String.format("Importing topic activity for user: %d between %s and %s", userId,
                 startDate.toString(), endDate.toString()));
 
@@ -106,22 +107,19 @@ public class TopicActivityDataSetImporterImpl implements TopicActivityDataSetImp
         BigInteger total = BigInteger.ZERO;
 
         for (final Long topicId : topicIds) {
-            BigInteger count = importTopicDataForTopic(userId, topicId, startDate, endDate, false);
+            BigInteger count = importTopicDataForTopic(userId, topicId, startDate, endDate);
             total = total.add(count);
         }
+
+        // make sure aggregator can see most recent changes
+        this.em.flush();
 
         recordAggregateTopicActivity(userId, startDate, total);
 
     }
 
-    @Transactional(propagation = Propagation.SUPPORTS)
-    public BigInteger importTopicDataForTopic(final Long userId, final Long topicId, final Date startDate,
-            final Date endDate) {
-        return this.importTopicDataForTopic(userId, topicId, startDate, endDate, true);
-    }
-
     private BigInteger importTopicDataForTopic(final Long userId, final Long topicId, final Date startDate,
-            final Date endDate, final boolean incrementTotals) {
+            final Date endDate) {
         logger.debug(String.format("Importing topic activity for topic: %d between %s and %s", topicId,
                 startDate.toString(), endDate.toString()));
 
@@ -162,35 +160,21 @@ public class TopicActivityDataSetImporterImpl implements TopicActivityDataSetImp
         // keep names in sync with topic...
         dataSet.setName(topic.getName());
 
-        DataSetPoint existing = TopicActivityDataSetImporterImpl.this.dataSetPointDao.findByTimestamp(dataSet,
+        DataSetPoint point = TopicActivityDataSetImporterImpl.this.dataSetPointDao.findByTimestamp(dataSet,
                 new Timestamp(startDate.getTime()));
 
-        if (existing != null) {
-            final double existingCount = existing.getY();
-            existing.setY(existingCount + count.doubleValue());
-            TopicActivityDataSetImporterImpl.this.dataSetPointDao.update(existing);
-
-            if (incrementTotals) {
-                // we assume that the aggregate already includes
-                // existing count and only increment by the difference
-                final BigInteger diffCount = BigInteger.valueOf(count.longValue() - (long) existingCount);
-                TopicActivityDataSetImporterImpl.this.recordAggregateTopicActivity(userId, existing.getX(), diffCount);
-            }
-
+        if (point != null) {
+            point.setY(count.doubleValue());
+            TopicActivityDataSetImporterImpl.this.dataSetPointDao.update(point);
         } else {
-            final DataSetPoint point = new DataSetPoint(dataSet, startDate, count.doubleValue());
+            point = new DataSetPoint(dataSet, startDate, count.doubleValue());
             TopicActivityDataSetImporterImpl.this.dataSetPointDao.add(point);
-
-            if (incrementTotals) {
-                TopicActivityDataSetImporterImpl.this.recordAggregateTopicActivity(userId, point.getX(), count);
-            }
-
         }
 
         return count;
     }
 
-    public void recordAggregateTopicActivity(final Long userId, final Date startDate, final BigInteger total) {
+    private void recordAggregateTopicActivity(final Long userId, final Date startDate, final BigInteger total) {
 
         logger.debug("Recording aggregate topic activity for user: " + userId + "; (" + startDate.toString() + ", "
                 + total + ")");
@@ -204,15 +188,15 @@ public class TopicActivityDataSetImporterImpl implements TopicActivityDataSetImp
             TopicActivityDataSetImporterImpl.this.dataSetDao.add(dataSet);
         }
 
-        final DataSetPoint existing = TopicActivityDataSetImporterImpl.this.dataSetPointDao.findByTimestamp(dataSet,
+        DataSetPoint point = TopicActivityDataSetImporterImpl.this.dataSetPointDao.findByTimestamp(dataSet,
                 new Timestamp(startDate.getTime()));
 
-        if (existing != null) {
-            existing.setY(existing.getY() + total.doubleValue());
-            TopicActivityDataSetImporterImpl.this.dataSetPointDao.update(existing);
+        if (point != null) {
+            point.setY(total.doubleValue());
+            TopicActivityDataSetImporterImpl.this.dataSetPointDao.update(point);
         } else {
-            final DataSetPoint totalPoint = new DataSetPoint(dataSet, startDate, total.doubleValue());
-            TopicActivityDataSetImporterImpl.this.dataSetPointDao.add(totalPoint);
+            point = new DataSetPoint(dataSet, startDate, total.doubleValue());
+            TopicActivityDataSetImporterImpl.this.dataSetPointDao.add(point);
         }
 
     }
