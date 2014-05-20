@@ -85,8 +85,8 @@ public class TopicDocumentMatcherImpl implements TopicDocumentMatcher {
                     // importer
                     this.em.flush();
 
-                    final Date endDate = startOfLastPeriod;
-                    final Date startDate = TimeUtil.add(endDate, Calendar.MINUTE, -15);
+                    final Date startDate = TimeUtil.floor(document.getCreationDate());
+                    final Date endDate = TimeUtil.add(startDate, Calendar.MINUTE, 15);
 
                     // NOTE: this recomputes all topics which helps keep the
                     // stats cleaner, especially aggregate data. Is EXPENSIVE
