@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.GrantedAuthorityImpl;
@@ -46,6 +47,7 @@ public final class UserAuthenticationDetails extends org.springframework.securit
     private boolean admin;
     private boolean system;
     private String apiToken;
+    private TimeZone timeZone;
 
     public UserAuthenticationDetails(final User user) {
         super(user.getUsername(), user.getHashedPassword(), true, true, true, true, getAuthorities(user));
@@ -53,6 +55,7 @@ public final class UserAuthenticationDetails extends org.springframework.securit
         this.userId = user.getId();
         this.admin = user.isAdmin();
         this.system = false;
+        this.timeZone = user.getTimeZone();
 
         final List<UserApiToken> tokens = user.getApiTokens();
         if (tokens != null && tokens.size() > 0) {
@@ -115,6 +118,14 @@ public final class UserAuthenticationDetails extends org.springframework.securit
 
     public String getApiToken() {
         return this.apiToken;
+    }
+
+    public TimeZone getTimeZone() {
+        return this.timeZone;
+    }
+
+    public void setTimeZone(TimeZone timeZone) {
+        this.timeZone = timeZone;
     }
 
 }

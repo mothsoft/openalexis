@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core">
+
+    <ui:composition template="/WEB-INF/layout/base.xhtml">
+        <ui:define name="title">Settings</ui:define>
+        <ui:define name="content">
+        
+            <h1>Settings</h1>
+            
+            <h:form>
+
+                <div class="labelAndInput">        
+                    <h:outputLabel for="timeZone">
+                        Time Zone
+                    </h:outputLabel>
+                    <h:selectOneListbox id="timeZone" size="1" class="single"
+                        value="#{settingsBackingBean.timeZone}" label="Time Zone" required="true">
+                        <f:selectItems value="#{settingsBackingBean.availableTimeZones}" />
+                    </h:selectOneListbox>
+                    <h:message for="timeZone" styleClass="validationError" />
+                </div>
+
+                <h:commandButton value="Save" styleClass="save"
+                   actionListener="#{settingsBackingBean.save}" action="/settings/?faces-redirect=true" />
+            
+            </h:form>
+            
+        </ui:define>
+    </ui:composition>
+
+</html>

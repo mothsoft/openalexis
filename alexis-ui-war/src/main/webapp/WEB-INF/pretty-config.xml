@@ -122,5 +122,10 @@
         <pattern value="/terms-of-service/" />
         <view-id value="/terms-of-service.jsf" />
     </url-mapping>
+    
+    <url-mapping id="settings">
+        <pattern value="/settings/" />
+        <view-id value="/settings/settings.jsf" />
+    </url-mapping>
 
 </pretty-config>

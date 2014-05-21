@@ -17,6 +17,7 @@ package com.mothsoft.alexis.domain;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -57,6 +58,9 @@ public class User {
 
     @Column(name = "is_analysis_role", columnDefinition = "bit")
     private boolean analysisRole;
+
+    @Column(name = "time_zone", columnDefinition = "varchar(128)")
+    private String timeZoneId;
 
     @OneToMany(cascade = { CascadeType.ALL }, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -151,6 +155,14 @@ public class User {
         }
 
         return this.apiTokens;
+    }
+
+    public TimeZone getTimeZone() {
+        return TimeZone.getTimeZone(this.timeZoneId);
+    }
+
+    public void setTimeZone(TimeZone timeZone) {
+        this.timeZoneId = timeZone.getID();
     }
 
 }

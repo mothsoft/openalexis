@@ -64,8 +64,12 @@
 
            <ui:fragment rendered="#{currentUser.authenticated and request.servletPath != '/login.jsf'}">
                <span class="logout">
+                   Logged in as:
+                   #{currentUser.username}
+                   &#160;&#160;&#160;
+                   <a href="#{request.contextPath}/settings/" title="Settings">Settings</a>
+                   &#160;&#160;&#160;
                    <a href="#{request.contextPath}/logout" title="Logout" class="logout">Logout</a>
-                       #{currentUser.username}
                </span> 
            </ui:fragment>
 

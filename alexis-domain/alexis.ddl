@@ -10,7 +10,8 @@ CREATE TABLE user(
     is_admin tinyint(1) DEFAULT 0,
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     tos_accept_date DATETIME DEFAULT NULL,
-    is_analysis_role tinyint(1) DEFAULT 1
+    is_analysis_role tinyint(1) DEFAULT 1,
+    time_zone varchar(128) NOT NULL DEFAULT 'America/Chicago'
 );
 
 ALTER TABLE user ADD UNIQUE KEY(username);

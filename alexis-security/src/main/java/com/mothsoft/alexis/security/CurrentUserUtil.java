@@ -56,8 +56,7 @@ public final class CurrentUserUtil {
     }
 
     public static TimeZone getTimeZone() {
-        // FIXME - make configurable somewhere
-        return TimeZone.getDefault();
+        return getCurrentUser().getTimeZone();
     }
 
     public static boolean isAdmin() {

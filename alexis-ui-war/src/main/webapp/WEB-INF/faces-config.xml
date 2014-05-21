@@ -233,6 +233,16 @@
             <value>#{userService}</value>
         </managed-property>
     </managed-bean>
+    
+    <managed-bean>
+        <managed-bean-name>settingsBackingBean</managed-bean-name>
+        <managed-bean-class>com.mothsoft.alexis.web.SettingsBackingBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+            <property-name>userService</property-name>
+            <value>#{userService}</value>
+        </managed-property>
+    </managed-bean>
 
     <converter>
         <converter-id>humanReadableBytesConverter</converter-id>
