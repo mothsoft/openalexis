@@ -50,6 +50,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
 import com.mothsoft.alexis.domain.DataSet;
 import com.mothsoft.alexis.domain.DataSetPoint;
 import com.mothsoft.alexis.domain.TimeUnits;
+import com.mothsoft.alexis.security.CurrentUserUtil;
 import com.mothsoft.alexis.service.DataSetService;
 
 /**
@@ -134,7 +135,7 @@ public class ChartServlet extends HttpServlet {
 
         final XYSeriesCollection seriesCollection = new XYSeriesCollection();
 
-        final DateAxis dateAxis = new DateAxis(title != null ? title : "Time");
+        final DateAxis dateAxis = new DateAxis(title != null ? title : "Time", CurrentUserUtil.getTimeZone());
         final DateTickUnit unit = new DateTickUnit(DateTickUnit.HOUR, 1);
         final DateFormat chartFormatter = new SimpleDateFormat("ha");
         dateAxis.setDateFormatOverride(chartFormatter);

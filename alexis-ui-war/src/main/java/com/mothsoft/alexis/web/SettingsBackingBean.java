@@ -1,6 +1,7 @@
 package com.mothsoft.alexis.web;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
@@ -14,6 +15,8 @@ import com.mothsoft.alexis.service.UserService;
 public class SettingsBackingBean {
 
     private UserService userService;
+
+    private List<String> availableTimeZones;
     private String timeZone;
 
     public void setUserService(UserService userService) {
@@ -24,10 +27,14 @@ public class SettingsBackingBean {
     public void initialize() {
         final User user = this.userService.getUser(CurrentUserUtil.getCurrentUserId());
         this.timeZone = user.getTimeZone().getID();
+
+        final String[] timeZones = TimeZone.getAvailableIDs();
+        this.availableTimeZones = Arrays.asList(timeZones);
+        Collections.sort(this.availableTimeZones);
     }
 
     public List<String> getAvailableTimeZones() {
-        return Arrays.asList(TimeZone.getAvailableIDs());
+        return this.availableTimeZones;
     }
 
     public String getTimeZone() {
