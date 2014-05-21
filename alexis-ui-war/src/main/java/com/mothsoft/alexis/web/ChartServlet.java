@@ -28,6 +28,7 @@ import java.util.GregorianCalendar;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -135,13 +136,18 @@ public class ChartServlet extends HttpServlet {
 
         final XYSeriesCollection seriesCollection = new XYSeriesCollection();
 
-        final DateAxis dateAxis = new DateAxis(title != null ? title : "Time", CurrentUserUtil.getTimeZone());
-        final DateTickUnit unit = new DateTickUnit(DateTickUnit.HOUR, 1);
-        final DateFormat chartFormatter = new SimpleDateFormat("ha");
-        dateAxis.setDateFormatOverride(chartFormatter);
-        dateAxis.setTickUnit(unit);
+        final TimeZone timeZone = CurrentUserUtil.getTimeZone();
+        final DateAxis dateAxis = new DateAxis(title != null ? title : "Time", timeZone);
         dateAxis.setLabelFont(DEFAULT_FONT);
         dateAxis.setTickLabelFont(DEFAULT_FONT);
+
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("ha");
+        dateFormat.setTimeZone(timeZone);
+        final DateFormat chartFormatter = dateFormat;
+        dateAxis.setDateFormatOverride(chartFormatter);
+
+        final DateTickUnit unit = new DateTickUnit(DateTickUnit.HOUR, 1);
+        dateAxis.setTickUnit(unit);
 
         if (numberOfSamples > 12) {
             dateAxis.setTickLabelFont(new Font(DEFAULT_FONT.getFamily(), Font.PLAIN,
@@ -161,6 +167,7 @@ public class ChartServlet extends HttpServlet {
 
                 // go back for numberOfSamples, but include current hour
                 final Calendar calendar = new GregorianCalendar();
+                calendar.setTimeZone(timeZone);
                 calendar.add(Calendar.HOUR_OF_DAY, -1 * (numberOfSamples - 1));
                 calendar.set(Calendar.MINUTE, 0);
                 calendar.set(Calendar.SECOND, 0);

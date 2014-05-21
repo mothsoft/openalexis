@@ -19,6 +19,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.faces.model.SelectItem;
 
@@ -38,7 +39,11 @@ public class SelectSeriesBackingBean {
     public SelectSeriesBackingBean() {
         super();
 
+        final TimeZone timeZone = CurrentUserUtil.getTimeZone();
+
         final GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTimeZone(timeZone);
+
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
@@ -52,7 +57,6 @@ public class SelectSeriesBackingBean {
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        calendar.setTimeZone(CurrentUserUtil.getTimeZone());
         this.startDate = calendar.getTime();
     }
 
