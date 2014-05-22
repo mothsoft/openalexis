@@ -23,11 +23,15 @@ import java.util.TimeZone;
 
 import javax.faces.model.SelectItem;
 
+import twitter4j.internal.logging.Logger;
+
 import com.mothsoft.alexis.domain.DataSet;
 import com.mothsoft.alexis.security.CurrentUserUtil;
 import com.mothsoft.alexis.service.DataSetService;
 
 public class SelectSeriesBackingBean {
+
+    private static final Logger logger = Logger.getLogger(SelectSeriesBackingBean.class);
 
     private DataSetService dataSetService;
 
@@ -40,6 +44,7 @@ public class SelectSeriesBackingBean {
         super();
 
         final TimeZone timeZone = CurrentUserUtil.getTimeZone();
+        logger.info("User time zone: " + timeZone.getID());
 
         final GregorianCalendar calendar = new GregorianCalendar(timeZone);
 
