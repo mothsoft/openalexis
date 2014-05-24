@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.regex.Pattern;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
@@ -82,6 +83,9 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     private static final Comparator<DocumentNamedEntity> NAMED_ENTITY_SORT_BY_COUNT_DESC_COMPARATOR;
     private static final Comparator<DocumentTerm> TERM_SORT_BY_TFIDF_DESC_COMPARATOR;
+
+    private static final String URL_REGEX = "^http[s]{0,1}://.*";
+    private static final Pattern URL_PATTERN = Pattern.compile(URL_REGEX);
 
     static {
         NAMED_ENTITY_SORT_BY_COUNT_DESC_COMPARATOR = new Comparator<DocumentNamedEntity>() {
@@ -811,11 +815,18 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
         float maxTfIdf = 0.01f;
 
-        // find max TF-IDF for document
-        for (final DocumentTerm term : terms) {
-            final Float termTfIdf = term.getTfIdf();
-            if (termTfIdf != null && termTfIdf > maxTfIdf) {
-                maxTfIdf = term.getTfIdf();
+        // find max TF-IDF for document and strip out obvious non-terms like
+        // URLs
+        for (final Iterator<DocumentTerm> it = terms.iterator(); it.hasNext();) {
+            final DocumentTerm term = it.next();
+
+            if (URL_PATTERN.matcher(term.getTerm().getValueLowercase()).matches()) {
+                it.remove();
+            } else {
+                final Float termTfIdf = term.getTfIdf();
+                if (termTfIdf != null && termTfIdf > maxTfIdf) {
+                    maxTfIdf = term.getTfIdf();
+                }
             }
         }
 
