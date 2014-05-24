@@ -21,8 +21,8 @@ function switchSeries(authorization) {
 		return;
 	}
 
-	startDate = formatDate(startDate);
-	endDate = formatDate(endDate);
+	startDate = formatDateUTC(startDate);
+	endDate = formatDateUTC(endDate);
 
 	$.ajax({
 		url : "/api/data-sets/v1/" + seriesId + "/points.json?startDate="

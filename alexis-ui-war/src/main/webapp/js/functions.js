@@ -2,10 +2,10 @@ function validateRequired(object) {
 	return object.val().trim().length > 0;
 }
 
-function formatDate(dt) {
-	return dt.getFullYear() + "-" + pad2(1 + dt.getMonth()) + "-"
-			+ pad2(dt.getDate()) + "+" + pad2(dt.getHours()) + ":"
-			+ pad2(dt.getMinutes()) + ":" + pad2(dt.getSeconds());
+function formatDateUTC(dt) {
+	return dt.getUTCFullYear() + "-" + pad2(1 + dt.getUTCMonth()) + "-"
+			+ pad2(dt.getUTCDate()) + "+" + pad2(dt.getUTCHours()) + ":"
+			+ pad2(dt.getUTCMinutes()) + ":" + pad2(dt.getUTCSeconds());
 }
 
 function pad2(number) {

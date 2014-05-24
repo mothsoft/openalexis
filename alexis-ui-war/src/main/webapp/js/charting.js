@@ -29,8 +29,8 @@ function switchSeries() {
 		return;
 	}
 	
-	startDate = formatDate(startDate);
-	endDate = formatDate(endDate);
+	startDate = formatDateUTC(startDate);
+	endDate = formatDateUTC(endDate);
 
 	var seriesArray = new Array();
 	var ajaxes = new Array();
