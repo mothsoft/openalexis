@@ -813,20 +813,19 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         final List<DocumentTerm> terms = new ArrayList<DocumentTerm>(parsedContent.getTerms());
         Collections.sort(terms, TERM_SORT_BY_TFIDF_DESC_COMPARATOR);
 
-        float maxTfIdf = 0.01f;
+        float maxTfIdf = 0f;
 
-        // find max TF-IDF for document and strip out obvious non-terms like
-        // URLs
+        if (terms.size() > 0) {
+            // sorting descending, so first is max
+            maxTfIdf = terms.get(0).getTfIdf();
+        }
+
+        // strip out obvious non-terms like URLs
         for (final Iterator<DocumentTerm> it = terms.iterator(); it.hasNext();) {
             final DocumentTerm term = it.next();
 
             if (URL_PATTERN.matcher(term.getTerm().getValueLowercase()).matches()) {
                 it.remove();
-            } else {
-                final Float termTfIdf = term.getTfIdf();
-                if (termTfIdf != null && termTfIdf > maxTfIdf) {
-                    maxTfIdf = term.getTfIdf();
-                }
             }
         }
 
