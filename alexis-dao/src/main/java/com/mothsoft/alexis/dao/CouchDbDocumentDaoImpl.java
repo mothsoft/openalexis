@@ -555,8 +555,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     private DataRange<DocumentScore> searchByOwnerAndDateRange(Long userId, Date startDate, Date endDate) {
         final String query = String.format(SEARCH_BY_DATE_EXPR, startDate.getTime(), endDate.getTime());
         // for operations that need to process all the documents in a range,
-        // skip sorting and pagination for raw speed...
-        return this.searchByOwnerAndExpression(userId, query, null, -1, -1);
+        // skip sorting
+        return this.searchByOwnerAndExpression(userId, query, null, 1, Integer.MAX_VALUE);
     }
 
     @Override
