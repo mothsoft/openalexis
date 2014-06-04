@@ -52,7 +52,7 @@ public class NetworkingUtil {
 
     private static final Logger logger = Logger.getLogger(NetworkingUtil.class);
 
-    public static final long MAX_CONTENT_LENGTH = 1024 * 1024 * 2;
+    public static final long MAX_CONTENT_LENGTH = 1024 * 1024 * 10;
 
     private static final Charset UTF8 = Charset.forName("UTF-8");
 
