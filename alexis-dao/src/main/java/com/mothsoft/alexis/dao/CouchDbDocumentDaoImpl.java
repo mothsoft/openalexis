@@ -556,7 +556,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         final String query = String.format(SEARCH_BY_DATE_EXPR, startDate.getTime(), endDate.getTime());
         // for operations that need to process all the documents in a range,
         // skip sorting
-        return this.searchByOwnerAndExpression(userId, query, null, 1, Integer.MAX_VALUE);
+        return this.searchByOwnerAndExpression(userId, query, null, 1, 1000);
     }
 
     @Override
