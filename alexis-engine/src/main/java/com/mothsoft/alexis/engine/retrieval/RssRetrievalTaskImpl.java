@@ -21,7 +21,9 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.jms.JMSException;
 import javax.jms.Message;
@@ -287,23 +289,36 @@ public class RssRetrievalTaskImpl implements RetrievalTask {
                 logger.info("Document already exists, will not queue again.");
             }
 
+            // track modification to avoid no-op saves
+            boolean modified = false; 
+            
             // keep users in sync every time a document is encountered
             // FIXME - optimize, perhaps with an intelligent query?
             for (final RssSource ithRssSource : rssFeed.getRssSources()) {
-                final Long userId = ithRssSource.getUserId();
-                final User user = this.userDao.get(userId);
-                final DocumentUser documentUser = new DocumentUser(document.getId(), user.getId());
-
-                if (!document.getDocumentUsers().contains(documentUser)) {
-                    document.getDocumentUsers().add(documentUser);
+                
+                // the set contains operation with raw DocumentUser objects is awkward because it
+                // brings in a bit of identity crisis with which objects are the "same" vs which 
+                // should be treated the same for some purposes. Using a set of user IDs instead
+                final Set<Long> userIdSet = new HashSet<Long>(3 * document.getDocumentUsers().size());
+                for(final DocumentUser ith: document.getDocumentUsers()) {
+                    userIdSet.add(ith.getUserId());
                 }
+                
+                final Long userId = ithRssSource.getUserId();
+                
+                if(! userIdSet.contains(userId)) {
+                    final DocumentUser documentUser = new DocumentUser(document.getId(), userId);
+                    document.getDocumentUsers().add(documentUser);
+                    modified = true;
+                }
+                
             }
 
             // defer saving/updating until all necessary changes have been made
             if (document.getId() == null) {
                 this.documentDao.add(document);
                 this.queueForRetrieval(document);
-            } else {
+            } else if(modified) {
                 this.documentDao.update(document);
             }
         }

@@ -15,6 +15,7 @@
 package com.mothsoft.alexis.dao;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -308,13 +309,21 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     @Override
     public Document findByUrl(String url) {
-
-        return this.findOneWithView(FIND_BY_URL_VIEW, url);
+        
+        final String key;
+        
+        try {
+            key = URLEncoder.encode(url, UTF8);
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("UTF-8 should be a default encoding for the JVM.");
+        }
+        
+        return this.findOneWithView(FIND_BY_URL_VIEW, key);
     }
 
     @Override
     public Tweet findTweetByTweetId(Long tweetId) {
-        return (Tweet) this.findOneWithView(FIND_BY_TWEET_ID_VIEW, tweetId);
+        return (Tweet) this.findOneWithView(FIND_BY_TWEET_ID_VIEW, String.valueOf(tweetId));
     }
 
     @Override
@@ -679,12 +688,12 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         return new String(JsonStringEncoder.getInstance().quoteAsUTF8(text), Charset.forName(UTF8));
     }
 
-    private Document findOneWithView(String viewPath, Object... args) {
+    private Document findOneWithView(String viewPath, String key) {
         final URL requestUrl;
         HttpClientResponse response = null;
 
         try {
-            requestUrl = new URL(this.couchDbDatabaseUrl.toExternalForm() + this.toJSON(String.format(viewPath, args)));
+            requestUrl = new URL(this.couchDbDatabaseUrl.toExternalForm() + String.format(viewPath, key));
             response = NetworkingUtil.get(requestUrl, null, null, this.credentialsProvider);
         } catch (MalformedURLException e) {
             IOUtils.closeQuietly(response);
