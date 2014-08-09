@@ -105,7 +105,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     private static final String APPLICATION_JSON = "application/json";
     private static final String FIND_BY_URL_VIEW = "_design/views/_view/find_by_url?key=%%22%s%%22&include_docs=true";
-    private static final String FIND_BY_TWEET_ID_VIEW = "_design/views/_view/find_by_tweet_id?key=%d&include_docs=true";
+    private static final String FIND_BY_TWEET_ID_VIEW = "_design/views/_view/find_by_tweet_id?key=%s&include_docs=true";
 
     private static final String SEARCH_BY_USER = "?q=userId%%3Clong%%3E:%d&include_docs=true&skip=%d&limit=%d&sort=%%5CcreationDate%%3Clong%%3E";
 
