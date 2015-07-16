@@ -596,28 +596,31 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     private DataRange<DocumentScore> buildScoredSearchResultsRange(HttpClientResponse response, int start, int count) {
-        final int totalRows;
+        int totalRows = 0;
         final List<DocumentScore> documentScores = new ArrayList<DocumentScore>(Math.min(count, 8096));
         try {
             final JsonNode node = this.objectMapper.readTree(response.getInputStream());
-            totalRows = node.findValue(TOTAL_ROWS).getIntValue();
 
-            final ArrayNode rowsNode = (ArrayNode) node.findValue(ROWS);
+            if(node != null && node.findValue(TOTAL_ROWS) != null) {
+                totalRows = node.findValue(TOTAL_ROWS).getIntValue();
 
-            for (final Iterator<JsonNode> it = rowsNode.getElements(); it.hasNext();) {
-                final JsonNode rowNode = it.next();
+                final ArrayNode rowsNode = (ArrayNode) node.findValue(ROWS);
 
-                final Document document = this.readDocument(rowNode.findValue(DOC));
+                for (final Iterator<JsonNode> it = rowsNode.getElements(); it.hasNext();) {
+                    final JsonNode rowNode = it.next();
 
-                final float score;
-                final JsonNode scoreNode = rowNode.findValue(SCORE);
+                    final Document document = this.readDocument(rowNode.findValue(DOC));
 
-                if (scoreNode == null) {
-                    score = 0.0f;
-                } else {
-                    score = (float) scoreNode.getDoubleValue();
+                    final float score;
+                    final JsonNode scoreNode = rowNode.findValue(SCORE);
+
+                    if (scoreNode == null) {
+                        score = 0.0f;
+                    } else {
+                        score = (float) scoreNode.getDoubleValue();
+                    }
+                    documentScores.add(new DocumentScore(document, score));
                 }
-                documentScores.add(new DocumentScore(document, score));
             }
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
