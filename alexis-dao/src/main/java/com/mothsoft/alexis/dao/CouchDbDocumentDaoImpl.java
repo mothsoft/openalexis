@@ -384,7 +384,6 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
                 
                 // API doesn't include a way to configure this, but we are getting junk... 
                 if(this.stopWords.contains(name)) {
-                	it.remove();
                 	continue;
                 }
                 if (entityMap.containsKey(name)) {
