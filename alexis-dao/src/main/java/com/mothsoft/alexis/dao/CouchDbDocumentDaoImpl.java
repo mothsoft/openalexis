@@ -23,13 +23,16 @@ import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Pattern;
 
@@ -153,6 +156,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     private CredentialsProvider credentialsProvider;
     private ObjectMapper objectMapper;
 
+    private Set<String> stopWords = Collections.emptySet();
+    
     public CouchDbDocumentDaoImpl(final ConnectionFactory jmsConnectionFactory, final Queue parseRequestQueue,
             final Queue parseResponseQueue, final URL couchDbDatabaseUrl, final URL couchDbLuceneBaseUrl,
             final String username, final String password) {
@@ -171,6 +176,10 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         this.objectMapper.configure(SerializationConfig.Feature.WRITE_NULL_PROPERTIES, false);
     }
 
+    public void setStopWords(final Collection<String> stopWordsCollection) {
+    	this.stopWords = new HashSet<String>(stopWordsCollection);
+    }
+    
     @Override
     public void add(Document document) {
         this.doAdd(document);
@@ -372,7 +381,12 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
             final Document document = it.next().getDocument();
             for (final ImportantNamedEntity entity : document.getImportantNamedEntities()) {
                 final String name = entity.getName();
-
+                
+                // API doesn't include a way to configure this, but we are getting junk... 
+                if(this.stopWords.contains(name)) {
+                	it.remove();
+                	continue;
+                }
                 if (entityMap.containsKey(name)) {
                     final ImportantNamedEntity existing = entityMap.get(name);
                     entityMap.put(name, new ImportantNamedEntity(name, entity.getCount() + existing.getCount()));
@@ -404,6 +418,10 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
             for (final ImportantTerm term : document.getImportantTerms()) {
                 final String termValue = term.getTermValue();
 
+                if(filterStopWords && this.stopWords.contains(termValue)) {
+                	continue;
+                }
+                
                 if (termMap.containsKey(termValue)) {
                     final ImportantTerm existing = termMap.get(termValue);
                     final int sumCount = term.getCount() + existing.getCount();
