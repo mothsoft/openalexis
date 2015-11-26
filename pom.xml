@@ -293,6 +293,11 @@
                 <version>${activemq.version}</version>
             </dependency>
             <dependency>
+                <groupId>commons-pool</groupId>
+                <artifactId>commons-pool</artifactId>
+                <version>1.6</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.xbean</groupId>
                 <artifactId>xbean-spring</artifactId>
                 <version>3.9</version>
