@@ -48,7 +48,7 @@ http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
   </bean>
 
   <bean id="topicResourceV1"
-    class="com.mothsoft.alexis.rest.source.v1.impl.TopicResourceImpl">
+    class="com.mothsoft.alexis.rest.topic.v1.impl.TopicResourceImpl">
     <constructor-arg index="0" ref="dataSetService" />
   </bean>
   
