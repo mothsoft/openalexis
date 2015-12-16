@@ -25,21 +25,31 @@ import javax.persistence.Table;
 @PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id")
 public class TopicActivityDataSet extends DataSet {
 
-    @ManyToOne
-    @JoinColumn(name = "topic_id")
-    private Topic topic;
+	@ManyToOne
+	@JoinColumn(name = "topic_id")
+	private Topic topic;
 
-    public TopicActivityDataSet(final Topic topic, final DataSetType type) {
-        super(topic.getUserId(), topic.getName(), type, false);
-        this.topic = topic;
-    }
+	private transient Double pointSum;
 
-    protected TopicActivityDataSet() {
-        super();
-    }
+	public TopicActivityDataSet(final Topic topic, final DataSetType type) {
+		super(topic.getUserId(), topic.getName(), type, false);
+		this.topic = topic;
+	}
 
-    public Topic getTopic() {
-        return topic;
-    }
+	protected TopicActivityDataSet() {
+		super();
+	}
+
+	public Topic getTopic() {
+		return topic;
+	}
+
+	public Double getPointSum() {
+		return this.pointSum;
+	}
+
+	public void setPointSum(Double pointSum) {
+		this.pointSum = pointSum;
+	}
 
 }

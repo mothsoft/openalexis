@@ -19,15 +19,16 @@ http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
       <entry key="xml" value="application/xml" />
     </jaxrs:extensionMappings>
     <jaxrs:serviceBeans>
-      <ref bean="documentResourceV1" />
-      <ref bean="dataSetResourceV1" />
       <ref bean="analysisResourceV1" />
+      <ref bean="dataSetResourceV1" />
+      <ref bean="documentResourceV1" />
       <ref bean="sourceResourceV1" />
+      <ref bean="topicResourceV1" />      
     </jaxrs:serviceBeans>
   </jaxrs:server>
 
-  <bean id="documentResourceV1"
-    class="com.mothsoft.alexis.rest.document.v1.impl.DocumentResourceImpl">
+  <bean id="analysisResourceV1"
+    class="com.mothsoft.alexis.rest.analysis.v1.impl.AnalysisResourceImpl">
     <constructor-arg index="0" ref="documentService" />
   </bean>
 
@@ -36,8 +37,8 @@ http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
     <constructor-arg index="0" ref="dataSetService" />
   </bean>
 
-  <bean id="analysisResourceV1"
-    class="com.mothsoft.alexis.rest.analysis.v1.impl.AnalysisResourceImpl">
+  <bean id="documentResourceV1"
+    class="com.mothsoft.alexis.rest.document.v1.impl.DocumentResourceImpl">
     <constructor-arg index="0" ref="documentService" />
   </bean>
 
@@ -46,4 +47,9 @@ http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd">
     <constructor-arg index="0" ref="sourceService" />
   </bean>
 
+  <bean id="topicResourceV1"
+    class="com.mothsoft.alexis.rest.source.v1.impl.TopicResourceImpl">
+    <constructor-arg index="0" ref="dataSetService" />
+  </bean>
+  
 </beans>
