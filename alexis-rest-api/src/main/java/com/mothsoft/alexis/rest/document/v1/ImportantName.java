@@ -1,4 +1,4 @@
-/*   Copyright 2012 Tim Garrett, Mothsoft LLC
+/*   Copyright 2015 Tim Garrett, Mothsoft LLC
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,37 +14,40 @@
  */
 package com.mothsoft.alexis.rest.document.v1;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
-@XmlRootElement(name = "ImportantTerms")
+@XmlRootElement(name = "ImportantName")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ImportantTerms {
+public class ImportantName {
 
-    @XmlTransient
-    private ArrayList<ImportantTerm> collection;
+	private String name;
+	private Integer count;
 
-    public ImportantTerms() {
-        super();
-    }
+	public ImportantName(final String name, final Integer count) {
+		this.name = name;
+		this.count = count;
+	}
 
-    public ImportantTerms(Collection<ImportantTerm> collection) {
-        this.collection = new ArrayList<ImportantTerm>(collection);
-    }
+	public ImportantName() {
+		super();
+	}
 
-    @XmlElement(name = "ImportantTerm")
-    public ArrayList<ImportantTerm> getCollection() {
-        return collection;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setCollection(ArrayList<ImportantTerm> collection) {
-        this.collection = collection;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public Integer getCount() {
+		return count;
+	}
+
+	public void setCount(Integer count) {
+		this.count = count;
+	}
 
 }

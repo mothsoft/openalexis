@@ -50,4 +50,10 @@ public interface DocumentResource {
 	        @QueryParam("count") @DefaultValue("20") int count,
 	        @QueryParam("filterStopWords") @DefaultValue("true") boolean filterStopWords);
 
+	@GET
+	@Path("/important-names")
+	public List<ImportantName> getImportantNames(
+	        @QueryParam("startDate") @DefaultValue("1970-01-01 00:00:00") Timestamp startDate,
+	        @QueryParam("endDate") @DefaultValue("2100-12-31 23:59:59") Timestamp endDate,
+	        @QueryParam("count") @DefaultValue("20") int count);
 }
