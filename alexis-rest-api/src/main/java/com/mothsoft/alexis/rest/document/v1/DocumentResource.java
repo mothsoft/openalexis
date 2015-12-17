@@ -15,6 +15,7 @@
 package com.mothsoft.alexis.rest.document.v1;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -28,25 +29,25 @@ import javax.ws.rs.core.MediaType;
 @Produces({ "application/json", "application/xml" })
 public interface DocumentResource {
 
-    @Path("/{id}")
-    @GET
-    public Document getDocument(@PathParam("id") String id);
+	@Path("/{id}")
+	@GET
+	public Document getDocument(@PathParam("id") String id);
 
-    @Path("/{a}/similarity/{b}")
-    @GET
-    public Double getSimilarity(@PathParam("a") String aId, @PathParam("b") String bId);
+	@Path("/{a}/similarity/{b}")
+	@GET
+	public Double getSimilarity(@PathParam("a") String aId, @PathParam("b") String bId);
 
-    @Path("/{id}/text")
-    @GET
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getDocumentText(@PathParam("id") String id);
+	@Path("/{id}/text")
+	@GET
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getDocumentText(@PathParam("id") String id);
 
-    @GET
-    @Path("/important-terms")
-    public ImportantTerms getImportantTerms(
-            @QueryParam("startDate") @DefaultValue("1970-01-01 00:00:00") Timestamp startDate,
-            @QueryParam("endDate") @DefaultValue("2100-12-31 23:59:59") Timestamp endDate,
-            @QueryParam("count") @DefaultValue("20") int count,
-            @QueryParam("filterStopWords") @DefaultValue("true") boolean filterStopWords);
+	@GET
+	@Path("/important-terms")
+	public List<ImportantTerm> getImportantTerms(
+	        @QueryParam("startDate") @DefaultValue("1970-01-01 00:00:00") Timestamp startDate,
+	        @QueryParam("endDate") @DefaultValue("2100-12-31 23:59:59") Timestamp endDate,
+	        @QueryParam("count") @DefaultValue("20") int count,
+	        @QueryParam("filterStopWords") @DefaultValue("true") boolean filterStopWords);
 
 }

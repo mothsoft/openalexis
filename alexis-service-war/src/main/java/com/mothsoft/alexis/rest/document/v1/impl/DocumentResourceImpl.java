@@ -25,7 +25,6 @@ import com.mothsoft.alexis.domain.TweetFormatter;
 import com.mothsoft.alexis.rest.document.v1.Document;
 import com.mothsoft.alexis.rest.document.v1.DocumentResource;
 import com.mothsoft.alexis.rest.document.v1.ImportantTerm;
-import com.mothsoft.alexis.rest.document.v1.ImportantTerms;
 import com.mothsoft.alexis.security.CurrentUserUtil;
 import com.mothsoft.alexis.service.DocumentService;
 
@@ -55,7 +54,7 @@ public class DocumentResourceImpl implements DocumentResource {
     }
 
     @Override
-    public ImportantTerms getImportantTerms(Timestamp startDate, Timestamp endDate, int count, boolean filterStopWords) {
+    public List<ImportantTerm> getImportantTerms(Timestamp startDate, Timestamp endDate, int count, boolean filterStopWords) {
         final Long userId = CurrentUserUtil.getCurrentUserId();
         final List<com.mothsoft.alexis.domain.ImportantTerm> terms = this.service.getImportantTerms(userId, startDate,
                 endDate, count, filterStopWords);
@@ -65,7 +64,7 @@ public class DocumentResourceImpl implements DocumentResource {
             dtos.add(new ImportantTerm(term.getTermValue(), term.getCount(), term.getTfIdf()));
         }
 
-        return new ImportantTerms(dtos);
+        return dtos;
     }
 
     private Document toDto(com.mothsoft.alexis.domain.Document domain) {

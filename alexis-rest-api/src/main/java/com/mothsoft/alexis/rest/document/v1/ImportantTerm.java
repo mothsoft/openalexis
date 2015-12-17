@@ -14,6 +14,12 @@
  */
 package com.mothsoft.alexis.rest.document.v1;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "ImportantTerm")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ImportantTerm {
 
     private String termValue;
