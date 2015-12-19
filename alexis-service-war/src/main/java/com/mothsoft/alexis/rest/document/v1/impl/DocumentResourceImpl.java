@@ -84,6 +84,20 @@ public class DocumentResourceImpl implements DocumentResource {
 		return importantNames;
 	}
 
+	@Override
+	public List<Document> getTopDocuments(Timestamp startDate, Timestamp endDate, int count) {
+		Long userId = CurrentUserUtil.getCurrentUserId();
+		List<com.mothsoft.alexis.domain.Document> domainDocs = this.service.listTopDocuments(userId, startDate, endDate,
+		        count);
+		List<Document> dtoDocs = new ArrayList<Document>(domainDocs.size());
+
+		for (final com.mothsoft.alexis.domain.Document doc : domainDocs) {
+			dtoDocs.add(toDto(doc));
+		}
+
+		return dtoDocs;
+	}
+
 	private Document toDto(com.mothsoft.alexis.domain.Document domain) {
 		final com.mothsoft.alexis.rest.document.v1.Document document;
 
