@@ -16,101 +16,98 @@ package com.mothsoft.alexis.rest.document.v1;
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.codehaus.jackson.annotate.JsonTypeInfo;
-import org.codehaus.jackson.annotate.JsonTypeInfo.Id;
-import org.codehaus.jackson.annotate.JsonTypeName;
-
-@JsonTypeInfo(include = JsonTypeInfo.As.WRAPPER_OBJECT, use = Id.NAME)
-@JsonTypeName("Document")
 @XmlRootElement(name = "Document")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Document {
 
-    private String id;
-    private String title;
-    private String description;
-    private String type;
-    private String state;
-    private String url;
-    private Integer termCount;
-    private Date creationDate;
-    private Date retrievalDate;
+	private String id;
+	private String title;
+	private String description;
+	private String type;
+	private String state;
+	private String url;
+	private Integer termCount;
+	private Date creationDate;
+	private Date retrievalDate;
 
-    public Document() {
-        super();
-    }
+	public Document() {
+		super();
+	}
 
-    public String getId() {
-        return id;
-    }
+	public String getId() {
+		return id;
+	}
 
-    public void setId(String id) {
-        this.id = id;
-    }
+	public void setId(String id) {
+		this.id = id;
+	}
 
-    public String getTitle() {
-        return title;
-    }
+	public String getTitle() {
+		return title;
+	}
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+	public void setTitle(String title) {
+		this.title = title;
+	}
 
-    public String getDescription() {
-        return description;
-    }
+	public String getDescription() {
+		return description;
+	}
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+	public void setDescription(String description) {
+		this.description = description;
+	}
 
-    public String getType() {
-        return type;
-    }
+	public String getType() {
+		return type;
+	}
 
-    public void setType(String type) {
-        this.type = type;
-    }
+	public void setType(String type) {
+		this.type = type;
+	}
 
-    public String getState() {
-        return state;
-    }
+	public String getState() {
+		return state;
+	}
 
-    public void setState(String state) {
-        this.state = state;
-    }
+	public void setState(String state) {
+		this.state = state;
+	}
 
-    public String getUrl() {
-        return url;
-    }
+	public String getUrl() {
+		return url;
+	}
 
-    public void setUrl(String url) {
-        this.url = url;
-    }
+	public void setUrl(String url) {
+		this.url = url;
+	}
 
-    public Integer getTermCount() {
-        return termCount;
-    }
+	public Integer getTermCount() {
+		return termCount;
+	}
 
-    public void setTermCount(Integer termCount) {
-        this.termCount = termCount;
-    }
+	public void setTermCount(Integer termCount) {
+		this.termCount = termCount;
+	}
 
-    public Date getCreationDate() {
-        return creationDate;
-    }
+	public Date getCreationDate() {
+		return creationDate;
+	}
 
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
-    }
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
 
-    public Date getRetrievalDate() {
-        return retrievalDate;
-    }
+	public Date getRetrievalDate() {
+		return retrievalDate;
+	}
 
-    public void setRetrievalDate(Date retrievalDate) {
-        this.retrievalDate = retrievalDate;
-    }
+	public void setRetrievalDate(Date retrievalDate) {
+		this.retrievalDate = retrievalDate;
+	}
 
 }
