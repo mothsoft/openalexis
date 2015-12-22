@@ -234,7 +234,7 @@ public class CouchDbDocumentDaoImplTest {
     }
 
     @Test
-    public void testSearchByOwnerAndExpression() throws MalformedURLException {
+    public void testSearch() throws MalformedURLException {
         final String url = "http://foo/" + Math.random();
         final Long userId = 12345L;
 
@@ -247,8 +247,7 @@ public class CouchDbDocumentDaoImplTest {
         assertNotNull(document.getId());
 
         final String query = "hufflepuffery";
-        final DataRange<DocumentScore> range = this.dao.searchByOwnerAndExpression(12345L, query, SortOrder.RELEVANCE,
-                1, 10);
+        final DataRange<DocumentScore> range = this.dao.search(12345L, query, null, null, SortOrder.RELEVANCE, 1, 10);
         assertEquals(1, range.getRange().size());
         assertEquals(document.getId(), range.getRange().get(0).getDocument().getId());
 
@@ -291,7 +290,7 @@ public class CouchDbDocumentDaoImplTest {
 
         final ParsedContent parsedContent = new ParsedContent(document.getId(), associations, terms, names, count);
         this.dao.addParsedContent(document.getId(), parsedContent);
-        
+
         assertEquals(parsedContent, this.dao.getParsedContent(document.getId()));
     }
 }

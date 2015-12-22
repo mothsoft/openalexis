@@ -66,7 +66,7 @@ public interface DocumentDao {
 
     public List<Document> listTopDocuments(Long userId, Date startDate, Date endDate, int count);
 
-    public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
+    public DataRange<DocumentScore> search(Long userId, String query, Date startDate, Date endDate, SortOrder sortOrder,
             int first, int count);
 
     /* NLP */
@@ -81,6 +81,6 @@ public interface DocumentDao {
     public List<TopicRef> getTopics(Document document, Long userId);
 
     public int getDocumentCount();
-    
+
     public int termCount(String term);
 }

@@ -20,8 +20,11 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mothsoft.alexis.domain.DataRange;
+import com.mothsoft.alexis.domain.DocumentScore;
 import com.mothsoft.alexis.domain.DocumentType;
 import com.mothsoft.alexis.domain.ImportantNamedEntity;
+import com.mothsoft.alexis.domain.SortOrder;
 import com.mothsoft.alexis.domain.TweetFormatter;
 import com.mothsoft.alexis.rest.document.v1.Document;
 import com.mothsoft.alexis.rest.document.v1.DocumentResource;
@@ -33,100 +36,114 @@ import com.mothsoft.alexis.service.DocumentService;
 @Transactional
 public class DocumentResourceImpl implements DocumentResource {
 
-	private DocumentService service;
+    private DocumentService service;
 
-	public DocumentResourceImpl(final DocumentService service) {
-		this.service = service;
-	}
+    public DocumentResourceImpl(final DocumentService service) {
+        this.service = service;
+    }
 
-	@Override
-	public Document getDocument(String id) {
-		final com.mothsoft.alexis.domain.Document domain = this.service.getDocument(id);
-		return toDto(domain);
-	}
+    @Override
+    public Document getDocument(String id) {
+        final com.mothsoft.alexis.domain.Document domain = this.service.getDocument(id);
+        return toDto(domain);
+    }
 
-	@Override
-	public Double getSimilarity(String aId, String bId) {
-		return this.service.getSimilarity(aId, bId);
-	}
+    @Override
+    public Double getSimilarity(String aId, String bId) {
+        return this.service.getSimilarity(aId, bId);
+    }
 
-	@Override
-	public String getDocumentText(String id) {
-		return this.service.getDocument(id).getContent();
-	}
+    @Override
+    public String getDocumentText(String id) {
+        return this.service.getDocument(id).getContent();
+    }
 
-	@Override
-	public List<ImportantTerm> getImportantTerms(Timestamp startDate, Timestamp endDate, int count,
-	        boolean filterStopWords) {
-		final Long userId = CurrentUserUtil.getCurrentUserId();
-		final List<com.mothsoft.alexis.domain.ImportantTerm> terms = this.service.getImportantTerms(userId, startDate,
-		        endDate, count, filterStopWords);
-		final List<ImportantTerm> dtos = new ArrayList<ImportantTerm>(terms.size());
+    @Override
+    public List<ImportantTerm> getImportantTerms(Timestamp startDate, Timestamp endDate, int count,
+            boolean filterStopWords) {
+        final Long userId = CurrentUserUtil.getCurrentUserId();
+        final List<com.mothsoft.alexis.domain.ImportantTerm> terms = this.service.getImportantTerms(userId, startDate,
+                endDate, count, filterStopWords);
+        final List<ImportantTerm> dtos = new ArrayList<ImportantTerm>(terms.size());
 
-		for (final com.mothsoft.alexis.domain.ImportantTerm term : terms) {
-			dtos.add(new ImportantTerm(term.getTermValue(), term.getCount(), term.getTfIdf()));
-		}
+        for (final com.mothsoft.alexis.domain.ImportantTerm term : terms) {
+            dtos.add(new ImportantTerm(term.getTermValue(), term.getCount(), term.getTfIdf()));
+        }
 
-		return dtos;
-	}
+        return dtos;
+    }
 
-	@Override
-	public List<ImportantName> getImportantNames(Timestamp startDate, Timestamp endDate, int count) {
-		final Long userId = CurrentUserUtil.getCurrentUserId();
-		final List<ImportantNamedEntity> importantNamedEntities = this.service.getImportantNamedEntities(userId,
-		        startDate, endDate, count);
-		final List<ImportantName> importantNames = new ArrayList<ImportantName>(importantNamedEntities.size());
+    @Override
+    public List<ImportantName> getImportantNames(Timestamp startDate, Timestamp endDate, int count) {
+        final Long userId = CurrentUserUtil.getCurrentUserId();
+        final List<ImportantNamedEntity> importantNamedEntities = this.service.getImportantNamedEntities(userId,
+                startDate, endDate, count);
+        final List<ImportantName> importantNames = new ArrayList<ImportantName>(importantNamedEntities.size());
 
-		for (final ImportantNamedEntity namedEntity : importantNamedEntities) {
-			importantNames.add(new ImportantName(namedEntity.getName(), namedEntity.getCount()));
-		}
+        for (final ImportantNamedEntity namedEntity : importantNamedEntities) {
+            importantNames.add(new ImportantName(namedEntity.getName(), namedEntity.getCount()));
+        }
 
-		return importantNames;
-	}
+        return importantNames;
+    }
 
-	@Override
-	public List<Document> getTopDocuments(Timestamp startDate, Timestamp endDate, int count) {
-		Long userId = CurrentUserUtil.getCurrentUserId();
-		List<com.mothsoft.alexis.domain.Document> domainDocs = this.service.listTopDocuments(userId, startDate, endDate,
-		        count);
-		List<Document> dtoDocs = new ArrayList<Document>(domainDocs.size());
+    @Override
+    public List<Document> getTopDocuments(Timestamp startDate, Timestamp endDate, int count) {
+        Long userId = CurrentUserUtil.getCurrentUserId();
+        List<com.mothsoft.alexis.domain.Document> domainDocs = this.service.listTopDocuments(userId, startDate, endDate,
+                count);
+        List<Document> dtoDocs = new ArrayList<Document>(domainDocs.size());
 
-		for (final com.mothsoft.alexis.domain.Document doc : domainDocs) {
-			dtoDocs.add(toDto(doc));
-		}
+        for (final com.mothsoft.alexis.domain.Document doc : domainDocs) {
+            dtoDocs.add(toDto(doc));
+        }
 
-		return dtoDocs;
-	}
+        return dtoDocs;
+    }
 
-	private Document toDto(com.mothsoft.alexis.domain.Document domain) {
-		final com.mothsoft.alexis.rest.document.v1.Document document;
+    @Override
+    public List<Document> search(Timestamp startDate, Timestamp endDate, String query, int count) {
+        Long userId = CurrentUserUtil.getCurrentUserId();
+        DataRange<DocumentScore> docScores = this.service.search(userId, query, startDate, endDate, SortOrder.RELEVANCE,
+                1, count);
+        List<com.mothsoft.alexis.rest.document.v1.Document> documents = new ArrayList<com.mothsoft.alexis.rest.document.v1.Document>(
+                count);
+        for (DocumentScore docScore : docScores.getRange()) {
+            documents.add(toDto(docScore.getDocument()));
+        }
 
-		if (domain.getType().equals(DocumentType.T)) {
-			final com.mothsoft.alexis.domain.Tweet domainTweet = (com.mothsoft.alexis.domain.Tweet) domain;
-			final com.mothsoft.alexis.rest.document.v1.Tweet tweet = new com.mothsoft.alexis.rest.document.v1.Tweet();
-			document = tweet;
+        return documents;
+    }
 
-			tweet.setFormattedText(TweetFormatter.format(domainTweet));
-			tweet.setFullName(domainTweet.getFullName());
-			tweet.setProfileImageUrl(domainTweet.getProfileImageUrl());
-			tweet.setTweetId(domainTweet.getTweetId());
-			tweet.setRetweet(domainTweet.isRetweet());
-			tweet.setRetweetUserName(domainTweet.getRetweetUserName());
-			tweet.setScreenName(domainTweet.getScreenName());
-		} else {
-			document = new com.mothsoft.alexis.rest.document.v1.Document();
-		}
+    private Document toDto(com.mothsoft.alexis.domain.Document domain) {
+        final com.mothsoft.alexis.rest.document.v1.Document document;
 
-		document.setId(domain.getId());
-		document.setCreationDate(domain.getCreationDate());
-		document.setDescription(domain.getDescription());
-		document.setRetrievalDate(domain.getRetrievalDate());
-		document.setState(domain.getState().name());
-		document.setTermCount(domain.getTermCount());
-		document.setTitle(domain.getTitle());
-		document.setType(domain.getType().name());
-		document.setUrl(domain.getUrl());
+        if (domain.getType().equals(DocumentType.T)) {
+            final com.mothsoft.alexis.domain.Tweet domainTweet = (com.mothsoft.alexis.domain.Tweet) domain;
+            final com.mothsoft.alexis.rest.document.v1.Tweet tweet = new com.mothsoft.alexis.rest.document.v1.Tweet();
+            document = tweet;
 
-		return document;
-	}
+            tweet.setFormattedText(TweetFormatter.format(domainTweet));
+            tweet.setFullName(domainTweet.getFullName());
+            tweet.setProfileImageUrl(domainTweet.getProfileImageUrl());
+            tweet.setTweetId(domainTweet.getTweetId());
+            tweet.setRetweet(domainTweet.isRetweet());
+            tweet.setRetweetUserName(domainTweet.getRetweetUserName());
+            tweet.setScreenName(domainTweet.getScreenName());
+        } else {
+            document = new com.mothsoft.alexis.rest.document.v1.Document();
+        }
+
+        document.setId(domain.getId());
+        document.setCreationDate(domain.getCreationDate());
+        document.setDescription(domain.getDescription());
+        document.setRetrievalDate(domain.getRetrievalDate());
+        document.setState(domain.getState().name());
+        document.setTermCount(domain.getTermCount());
+        document.setTitle(domain.getTitle());
+        document.setType(domain.getType().name());
+        document.setUrl(domain.getUrl());
+
+        return document;
+    }
 }

@@ -46,7 +46,7 @@ public interface DocumentService {
 
     public List<Document> listTopDocuments(Long userId, final Date startDate, final Date endDate, int count);
 
-    public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
+    public DataRange<DocumentScore> search(Long userId, String query, Date startDate, Date endDate, SortOrder sortOrder,
             int first, int count);
 
     public List<ImportantNamedEntity> getImportantNamedEntities(Long userId, Date startDate, Date endDate, int howMany);

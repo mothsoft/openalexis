@@ -61,9 +61,8 @@ public class TopicDocumentMatcherTest {
         final List<DocumentScore> range = new ArrayList<DocumentScore>(1);
         range.add(new DocumentScore(document, 2.3f));
         final DataRange<DocumentScore> documentScores = new DataRange<DocumentScore>(range, 1, 1);
-        when(
-                this.documentDao.searchByOwnerAndExpression(1L, "+id:" + document.getId() + " lorem ipsum dolor",
-                        SortOrder.RELEVANCE, 1, 1)).thenReturn(documentScores);
+        when(this.documentDao.search(1L, "+id:" + document.getId() + " lorem ipsum dolor", null, null,
+                SortOrder.RELEVANCE, 1, 1)).thenReturn(documentScores);
 
         final List<TopicRef> topicRefs = this.matcher.match(document, 1L);
         assertNotNull(topicRefs);

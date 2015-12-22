@@ -101,7 +101,7 @@ public class TopicDocumentMatcherImpl implements TopicDocumentMatcher {
 
     private TopicRef matchAndScore(Topic topic, Document document) {
         final String query = String.format(QUERY_PATTERN, document.getId(), topic.getSearchExpression());
-        final DataRange<DocumentScore> result = this.documentDao.searchByOwnerAndExpression(topic.getUserId(), query,
+        final DataRange<DocumentScore> result = this.documentDao.search(topic.getUserId(), query, null, null,
                 SortOrder.RELEVANCE, 1, 1);
 
         if (result.getRange().size() == 1) {

@@ -157,7 +157,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     private ObjectMapper objectMapper;
 
     private Set<String> stopWords = Collections.emptySet();
-    
+
     public CouchDbDocumentDaoImpl(final ConnectionFactory jmsConnectionFactory, final Queue parseRequestQueue,
             final Queue parseResponseQueue, final URL couchDbDatabaseUrl, final URL couchDbLuceneBaseUrl,
             final String username, final String password) {
@@ -177,9 +177,9 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     public void setStopWords(final Collection<String> stopWordsCollection) {
-    	this.stopWords = new HashSet<String>(stopWordsCollection);
+        this.stopWords = new HashSet<String>(stopWordsCollection);
     }
-    
+
     @Override
     public void add(Document document) {
         this.doAdd(document);
@@ -204,8 +204,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
         HttpClientResponse response = null;
         try {
-            response = NetworkingUtil
-                    .post(this.couchDbDatabaseUrl, content, APPLICATION_JSON, this.credentialsProvider);
+            response = NetworkingUtil.post(this.couchDbDatabaseUrl, content, APPLICATION_JSON,
+                    this.credentialsProvider);
             map = this.objectMapper.readValue(response.getInputStream(), Map.class);
         } catch (IOException e) {
             throw new RuntimeException("Failed to save JSON; " + content, e);
@@ -318,15 +318,15 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
     @Override
     public Document findByUrl(String url) {
-        
+
         final String key;
-        
+
         try {
             key = URLEncoder.encode(url, UTF8);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("UTF-8 should be a default encoding for the JVM.");
         }
-        
+
         return this.findOneWithView(FIND_BY_URL_VIEW, key);
     }
 
@@ -371,7 +371,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     @Override
-    public List<ImportantNamedEntity> getImportantNamedEntities(Long userId, Date startDate, Date endDate, int howMany) {
+    public List<ImportantNamedEntity> getImportantNamedEntities(Long userId, Date startDate, Date endDate,
+            int howMany) {
         final DataRange<DocumentScore> documentRange = this.searchByOwnerAndDateRange(userId, startDate, endDate);
 
         final Map<String, ImportantNamedEntity> entityMap = new HashMap<String, ImportantNamedEntity>(
@@ -381,10 +382,11 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
             final Document document = it.next().getDocument();
             for (final ImportantNamedEntity entity : document.getImportantNamedEntities()) {
                 final String name = entity.getName();
-                
-                // API doesn't include a way to configure this, but we are getting junk... 
-                if(this.stopWords.contains(name)) {
-                	continue;
+
+                // API doesn't include a way to configure this, but we are
+                // getting junk...
+                if (this.stopWords.contains(name)) {
+                    continue;
                 }
                 if (entityMap.containsKey(name)) {
                     final ImportantNamedEntity existing = entityMap.get(name);
@@ -417,15 +419,15 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
             for (final ImportantTerm term : document.getImportantTerms()) {
                 final String termValue = term.getTermValue();
 
-                if(filterStopWords && this.stopWords.contains(termValue)) {
-                	continue;
+                if (filterStopWords && this.stopWords.contains(termValue)) {
+                    continue;
                 }
-                
+
                 if (termMap.containsKey(termValue)) {
                     final ImportantTerm existing = termMap.get(termValue);
                     final int sumCount = term.getCount() + existing.getCount();
-                    final float weightedAverageTfIdf = (((float) term.getCount() * term.getTfIdf()) + ((float) existing
-                            .getCount() * term.getTfIdf())) / ((float) sumCount);
+                    final float weightedAverageTfIdf = (((float) term.getCount() * term.getTfIdf())
+                            + ((float) existing.getCount() * term.getTfIdf())) / ((float) sumCount);
                     final float maxTfIdf = Math.max(existing.getMaxTfIdfInSet(), weightedAverageTfIdf);
                     termMap.put(termValue, new ImportantTerm(termValue, sumCount, weightedAverageTfIdf, maxTfIdf));
                 } else {
@@ -471,8 +473,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
 
         HttpClientResponse response = null;
         try {
-            searchUrl = new URL(this.couchDbLuceneBaseUrl.toExternalForm()
-                    + String.format(SEARCH_BY_USER, userId, skip, count));
+            searchUrl = new URL(
+                    this.couchDbLuceneBaseUrl.toExternalForm() + String.format(SEARCH_BY_USER, userId, skip, count));
             response = NetworkingUtil.get(searchUrl, null, null, this.credentialsProvider);
             return buildSearchResultsRange(response, start, count);
         } catch (Exception e) {
@@ -506,10 +508,9 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         // TODO: greate candidate for caching with short to medium-length TTL
         @SuppressWarnings("unchecked")
         final List<String> documentIds = this.em
-                .createQuery(
-                        "select td.documentId from TopicDocument td "
-                                + "where td.topic.userId = :userId and td.creationDate >= :startDate "
-                                + "    and td.creationDate <= :endDate order by td.score desc")
+                .createQuery("select td.documentId from TopicDocument td "
+                        + "where td.topic.userId = :userId and td.creationDate >= :startDate "
+                        + "    and td.creationDate <= :endDate order by td.score desc")
                 .setParameter("userId", userId).setParameter("startDate", startDate).setParameter("endDate", endDate)
                 .setMaxResults(count).getResultList();
 
@@ -540,12 +541,17 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     @Override
-    public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
+    public DataRange<DocumentScore> search(Long userId, String query, Date startDate, Date endDate, SortOrder sortOrder,
             int start, int count) {
         String urlString;
 
         HttpClientResponse response = null;
         try {
+            if (startDate != null && endDate != null) {
+                query += " +" + String.format(SEARCH_BY_DATE_EXPR, startDate.getTime(), endDate.getTime());
+            }
+
+            // URL-encode after all additions
             query = URLEncoder.encode(query, UTF8);
 
             String urlQuerySuffix = String.format(SEARCH_BY_USER_AND_EXPRESSION, userId, query);
@@ -579,10 +585,9 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
     }
 
     private DataRange<DocumentScore> searchByOwnerAndDateRange(Long userId, Date startDate, Date endDate) {
-        final String query = String.format(SEARCH_BY_DATE_EXPR, startDate.getTime(), endDate.getTime());
         // for operations that need to process all the documents in a range,
         // skip sorting
-        return this.searchByOwnerAndExpression(userId, query, null, 1, 1000);
+        return this.search(userId, "", startDate, endDate, null, 1, 1000);
     }
 
     @Override
@@ -618,7 +623,7 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         try {
             final JsonNode node = this.objectMapper.readTree(response.getInputStream());
 
-            if(node != null && node.findValue(TOTAL_ROWS) != null) {
+            if (node != null && node.findValue(TOTAL_ROWS) != null) {
                 totalRows = node.findValue(TOTAL_ROWS).getIntValue();
 
                 final ArrayNode rowsNode = (ArrayNode) node.findValue(ROWS);

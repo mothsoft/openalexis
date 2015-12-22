@@ -90,9 +90,9 @@ public class DocumentServiceImpl implements DocumentService {
         return this.documentDao.listTopDocuments(userId, startDate, endDate, count);
     }
 
-    public DataRange<DocumentScore> searchByOwnerAndExpression(Long userId, String query, SortOrder sortOrder,
+    public DataRange<DocumentScore> search(Long userId, String query, Date startDate, Date endDate, SortOrder sortOrder,
             int first, int count) {
-        return this.documentDao.searchByOwnerAndExpression(userId, query, sortOrder, first, count);
+        return this.documentDao.search(userId, query, null, null, sortOrder, first, count);
     }
 
     public Graph getRelatedTerms(final String queryString, final Long userId, final int howMany) {

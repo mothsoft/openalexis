@@ -100,7 +100,7 @@ public class ViewTopicDetailsBackingBean {
             final String query = topic.getSearchExpression();
             final Long userId = CurrentUserUtil.getCurrentUserId();
 
-            final DataRange<DocumentScore> range = this.documentService.searchByOwnerAndExpression(userId, query,
+            final DataRange<DocumentScore> range = this.documentService.search(userId, query, null, null,
                     SortOrder.DATE_DESC, 0, 10);
             final List<Document> tempList = new ArrayList<Document>(range.getRange().size());
             for (final DocumentScore ith : range.getRange()) {

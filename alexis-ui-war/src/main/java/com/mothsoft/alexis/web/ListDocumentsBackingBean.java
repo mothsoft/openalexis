@@ -150,10 +150,10 @@ public class ListDocumentsBackingBean {
     public String getSortOrderString() {
         final SortOrder sortOrder = getSortOrder();
         switch (sortOrder) {
-            case DATE_DESC:
-                return "date";
-            default:
-                return "";
+        case DATE_DESC:
+            return "date";
+        default:
+            return "";
         }
     }
 
@@ -193,7 +193,7 @@ public class ListDocumentsBackingBean {
                 } else if (Filter.SEARCH.equals(filter)) {
                     try {
                         final String query = getSearchString();
-                        this.dataRange = toDocumentList(this.documentService.searchByOwnerAndExpression(userId, query,
+                        this.dataRange = toDocumentList(this.documentService.search(userId, query, null, null,
                                 getSortOrder(), start, PAGE_SIZE));
                     } catch (final QueryException queryException) {
                         this.dataRange = new DataRange<Document>(Collections.EMPTY_LIST, 0, 0);
