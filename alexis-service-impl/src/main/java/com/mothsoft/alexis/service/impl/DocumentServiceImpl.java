@@ -92,7 +92,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     public DataRange<DocumentScore> search(Long userId, String query, Date startDate, Date endDate, SortOrder sortOrder,
             int first, int count) {
-        return this.documentDao.search(userId, query, null, null, sortOrder, first, count);
+        return this.documentDao.search(userId, query, startDate, endDate, sortOrder, first, count);
     }
 
     public Graph getRelatedTerms(final String queryString, final Long userId, final int howMany) {
