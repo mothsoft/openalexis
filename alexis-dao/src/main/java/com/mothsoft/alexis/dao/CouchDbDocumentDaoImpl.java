@@ -47,6 +47,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -548,8 +549,12 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         HttpClientResponse response = null;
         try {
             if (startDate != null && endDate != null) {
-                query = "(" + query + ") AND "
-                        + String.format(SEARCH_BY_DATE_EXPR, startDate.getTime(), endDate.getTime());
+                if(StringUtils.isNotBlank(query)) {
+                    query = "(" + query + ") AND "
+                            + String.format(SEARCH_BY_DATE_EXPR, startDate.getTime(), endDate.getTime());
+                } else {
+                    query = String.format(SEARCH_BY_DATE_EXPR, startDate.getTime(), endDate.getTime());
+                }
             }
 
             // URL-encode after all additions
