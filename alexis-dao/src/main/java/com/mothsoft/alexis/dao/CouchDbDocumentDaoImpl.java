@@ -548,7 +548,8 @@ public class CouchDbDocumentDaoImpl implements DocumentDao {
         HttpClientResponse response = null;
         try {
             if (startDate != null && endDate != null) {
-                query += " +" + String.format(SEARCH_BY_DATE_EXPR, startDate.getTime(), endDate.getTime());
+                query = "(" + query + ") AND "
+                        + String.format(SEARCH_BY_DATE_EXPR, startDate.getTime(), endDate.getTime());
             }
 
             // URL-encode after all additions
