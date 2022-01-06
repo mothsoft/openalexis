@@ -326,7 +326,7 @@
         <myfaces.version>2.3.0</myfaces.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.6.4</slf4j.version>
-        <spring.version>3.2.9.RELEASE</spring.version>
+        <spring.version>5.2.19.RELEASE</spring.version>
     </properties>
 
     <modules>
