@@ -320,7 +320,7 @@
     </dependencies>
 
     <properties>
-        <cxf.version>3.2.12</cxf.version>
+        <cxf.version>3.4.0</cxf.version>
         <java.version>1.7</java.version>
         <log4j.version>1.2.15</log4j.version>
         <myfaces.version>2.3.0</myfaces.version>
